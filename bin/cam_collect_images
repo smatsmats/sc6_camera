@@ -1,0 +1,102 @@
+#!/usr//bin/perl
+
+use DateTime;
+use SC6::Cam::General;
+use SC6::Cam::BlueCodeState;
+use SC6::Cam::Config;
+use SC6::Cam::Image;
+use SC6::Cam::Sun;
+use Getopt::Long;
+use Data::Dumper;
+
+my $force = 0;
+my $mode = "prod";
+my $dryrun = 0;
+my $sleep_time = 30;
+my $sleep_time_night = 90;
+my $current_bluecode;
+
+my $c = new SC6::Cam::Config();
+our $config = $c->getConfig();
+our $debug = $c->getDebug();
+print "\n***** STARTING *****\n" if ( $debug );
+
+$result = GetOptions (  "n|dry-run" => \$dryrun,
+                        "f|force"  => \$force,
+                        "h|help"  => \&usage,
+                        "m|mode=s"  => \$mode,
+                        "d|debug+"  => \$debug);
+
+# prime bluecode
+my $bcr = new SC6::Cam::BlueCodeState();
+print "primed bluecode is: ", $bcr->getBluecode(), "\n" if ( $debug );
+
+my $fetch_sleep;
+my $prev_failed_start = 0;
+my $s = new SC6::Cam::Sun();
+while() {
+    $fetch_sleep = $sleep_time;
+    my $dt = DateTime->now(  time_zone => 'America/Los_Angeles' );
+    if ( $s->is_sun($dt) ) {  # inefficient to do this everytime, but who cares
+        print "Sun is up! $dt\n";
+    }
+    else {
+        print "Sun is down! $dt\n";
+        $bcr->clear();  # clear bluecode
+        $fetch_sleep = $sleep_time_night;
+        $prev_failed_start = 0;   # make sure this doesn't carry over from the previous day
+        next;
+    }
+
+    # fetch an image
+    my $cim = new SC6::Cam::Image($dt, $mode, $dryrun, $s);
+    my $result = $cim->fetch();
+
+    if ( ! $result ) {
+        print "Image fetch failed!!!!!\n";
+        $fetch_sleep = 0;  # skip sleeping
+        $prev_failed_start = $dt->epoch();
+    }
+    else {
+        $cim->getBluecode();
+        $cim->do_image_overlays();
+        $cim->resizes_and_links();
+        $bcr->checkBluecode($cim);
+        
+        # normal sleep, but prune sleep time to account for processing
+        my $end_time = DateTime->now(  time_zone => 'America/Los_Angeles' );
+        if ( $prev_failed_start != 0 ) {
+            $fetch_sleep = $sleep_time - ($end_time->epoch() - $prev_failed_start);
+        } 
+        else {
+            $fetch_sleep = $sleep_time - ($end_time->epoch() - $dt->epoch());
+        }
+        $prev_failed_start = 0;
+        
+        # really debugging, remove this
+        if ( $fetch_sleep <= 0 ) {
+            print "Sleep study: end_time->epoch: ", $end_time->epoch, "\n";
+            print "Sleep study: dt->epoch: ", $dt->epoch, "\n";
+            print "Sleep study: prev_failed_start: ", $prev_failed_start, "\n";
+            $fetch_sleep = $sleep_time;
+        }
+
+    }
+
+}
+continue {
+    print "Gonna sleep: $fetch_sleep\n" if ( $debug );
+    sleep $fetch_sleep;
+}
+
+sub usage
+{
+    print "usage: $0 [-d|--debug] [-f|--force] [-h|--help] [-n|--dry-run] [-m|mode=mode]\n";
+    print "\t-f|--force   - Force collecting of the  files\n";
+    print "\t-h|--help    - This message\n";
+    print "\t-n|--dry-run - perform a trial run with no changes made\n";
+    print "\t-m|--mode    - mode, prod or test\n";
+    exit(1);
+
+}
+

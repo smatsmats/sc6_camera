@@ -1,0 +1,14 @@
+%YAML 1.2
+---
+
+Root1:
+    Google:
+        YT:
+            dev_key: "sekrit"
+            client_id: "client_id"
+            service_email: "foo@bar.com"
+            service_password: "sekrit"
+            service_source: "service_source"
+    Paths:
+        video_file: "/usr/local/cam/data/video/output_orig.mp4"
+...
