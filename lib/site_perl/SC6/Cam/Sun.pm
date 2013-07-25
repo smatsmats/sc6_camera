@@ -19,12 +19,6 @@ sub new {
         _angle_horizon => shift,
         _iteration => shift,
     };
-#        _sunrise => shift,
-#        _sunset => shift,
-#        _civi_dawn => shift,
-#        _civi_dusk => shift,
-#        _naut_dawn => shift,
-#        _naut_dusk => shift,
     bless $self, $class;
     init($self);
 
@@ -40,6 +34,7 @@ sub init {
     $self->{_angle_civil} = $main::config->{Sun}->{AngleCivil};
     $self->{_angle_horizon} = $main::config->{Sun}->{AngleHorizon};
     $self->{_iteration} = $main::config->{Sun}->{Iteration};
+    $self->{_sun_message} = "Sunrise / Sunset times:\n";
 
     my $sunrise_span = DateTime::Event::Sunrise ->new (
                         longitude => $self->{_longitude},
@@ -48,8 +43,8 @@ sub init {
                         iteration => $self->{_iteration},
                    );
     my $both_times = $sunrise_span->sunrise_sunset_span($self->{_dt});
-    print "Nautical Dawn is: " , $both_times->start->datetime, "\n" if ( $main::debug );
-    print "Nautical Twilight is: " , $both_times->end->datetime, "\n" if ( $main::debug );
+    $self->{_sun_message} .= "Nautical Dawn is: " . $both_times->start->datetime . "\n";
+    $self->{_sun_message} .= "Nautical Twilight is: " . $both_times->end->datetime . "\n";
     $self->{_naut_dawn} = $both_times->start;
     $self->{_naut_dusk} = $both_times->end;
 
