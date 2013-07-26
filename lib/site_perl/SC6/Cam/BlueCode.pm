@@ -30,16 +30,17 @@ sub get_blue {
     my $image = GD::Image->newFromJpeg($self->{_fn}) or die "Can't open / load ", $self->{_fn}, " $!\n";
     my ($width,$height) = $image->getBounds();
     print "w: ", $width, " h: ", $height, "\n" if ( $main::debug );
+
     my $cum_new_bc = 0;
     my $cum_bc = 0;
     my $cum_lum = 0;
     my $cum_r = 0;
     my $cum_g = 0;
     my $cum_b = 0;
+
     for ( my $x=0; $x <= $width; $x += $sample ) {
         for ( my $y = $start_row; $y <= $start_row + $rows; $y += $sample ) {
             my ( $r, $g, $b ) = $image->rgb($image->getPixel($x,$y));
-            # printf("%d %d %d %d %d\n", $x, $y, $r, $g, $b);
             # looking at the difference between blue and the average of red and green then
             # multiply by the luminosity to give weight to bright images
             #$cum_bc += ($b - ( ($r + $g) / 2)) * ( 2 * ((0.2126*$r) + (0.7152*$g) + (0.0722*$b)));
@@ -64,6 +65,7 @@ sub get_blue {
     $cum_g = $cum_g / ( $width * $rows );
     $cum_b = $cum_b / ( $width * $rows );
     $cum_lum = $cum_lum / ( $width * $rows );
+
     print "Blue code: $a_w\n" if ( $main::debug );
     print "New Blue code: $a_new_w\n" if ( $main::debug );
     print "Luminence: $cum_lum\n" if ( $main::debug );
