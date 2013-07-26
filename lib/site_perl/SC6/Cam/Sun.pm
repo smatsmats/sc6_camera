@@ -55,8 +55,8 @@ sub init {
                         iteration => $self->{_iteration},
                    );
     $both_times = $sunrise_span->sunrise_sunset_span($self->{_dt});
-    print "Civil Dawn is: " , $both_times->start->datetime, "\n" if ( $main::debug );
-    print "Civil Twilight is: " , $both_times->end->datetime, "\n" if ( $main::debug );
+    $self->{_sun_message} .= "Civil Dawn is: " . $both_times->start->datetime . "\n";
+    $self->{_sun_message} .= "Civil Twilight is: " . $both_times->end->datetime . "\n";
     $self->{_civi_dawn} = $both_times->start;
     $self->{_civi_dusk} = $both_times->end;
 
@@ -67,12 +67,19 @@ sub init {
                         iteration => $self->{_iteration},
                    );
     $both_times = $sunrise_span->sunrise_sunset_span($self->{_dt});
-    print "Sunrise is: " , $both_times->start->datetime, "\n" if ( $main::debug );
-    print "Sunset is: " , $both_times->end->datetime, "\n" if ( $main::debug );
+    $self->{_sun_message} .= "Sunrise is: " . $both_times->start->datetime . "\n";
+    $self->{_sun_message} .= "Sunset is: " . $both_times->end->datetime . "\n";
     $self->{_sunrise} = $both_times->start;
     $self->{_sunset} = $both_times->end;
 
+#    print $self->{_sun_message} if ( $main::debug );
+
     return($self);
+}
+
+sub sun_message {
+    my ($self) = @_;
+    return $self->{_sun_message};
 }
 
 sub check4newday {
