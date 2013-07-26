@@ -18,6 +18,8 @@ Root1:
     WX:
         RRD_File: "/usr/local/oww/oww.rrd"
         rrdtool: "/usr/bin/rrdtool"
+        Dataset:
+            Rain: "rain"
         Pressure: 
             ImageFile: "/var/www/bib/camera/pressure.png"
             VLabel: "Pressure (mBar)"

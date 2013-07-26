@@ -14,7 +14,8 @@ my $mode = "prod";
 my $dryrun = 0;
 my $sleep_time = 30;
 
-my $config = get_config($mode, $debug);
+my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml");
+our $config = $c->getConfig();
 
 print $ARGV[0], "\n";
 get_blue($ARGV[0], 1);
