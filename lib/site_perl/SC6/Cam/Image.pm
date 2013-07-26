@@ -38,10 +38,6 @@ sub new {
 sub fetch {
     my ($self) = @_;
 
-    my $d_txt = "";
-#    if ( $debug ) {
-#        $d_txt = "--verbose --trace-time";
-#    }
     my $misc_args = $main::config->{Image}->{Fetch}->{MiscArgs};
     my $auth = $main::config->{Image}->{Fetch}->{Auth};
     my $url = $main::config->{Image}->{Fetch}->{Url};

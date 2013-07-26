@@ -25,17 +25,8 @@ BEGIN {
         our @EXPORT_OK   = qw(sun_times $Var1 %Hashit func3);
 }
 
-# exported package globals go here
-#our $dest_dir = "/var/www/bib/cam-bib/";
-
-# non-exported package globals go here
-# (they are still accessible as $Some::Module::stuff)
-
 # file-private lexicals go here, before any functions which use them
 use constant PI => 4 * atan2(1, 1);
-
-# make all your functions, whether exported or not;
-# remember to put something interesting in the {} stubs
 
 sub do_overlays {
     my ($cim) = @_;
@@ -133,9 +124,6 @@ sub add_clock {
     $im->transparent($im_bg_color);
     $im->interlaced('true');
     $im->setThickness($t);
-
-    # if you want a 
-#    $im->rectangle(0,0,$width,$height,$im_fg_color);
 
     # Create a brush with a round end
     my $round_brush = new GD::Image($t*2,$t*2);
@@ -247,8 +235,6 @@ sub add_colorgraph {
       show_values       => 1,
       values_format       => "%d",
     ) or die $graph->error;
-#      title             => 'codes',
-#      y_max_value       => 256,
     my $im = $graph->plot(\@data);
 
     if ( lc($main::config->{Overlay}->{ColorGraph}->{WriteImage}) eq "true" ) {
@@ -323,7 +309,6 @@ sub wx_graph {
     my $rrd_args = $main::config->{WX}->{$attr}->{RRDOtherArgs};
   
     my $cmd = "$rrdtool graph $outfile --no-legend --full-size-mode --units-exponent 0 -E -a PNG --alt-y-grid -v $vlabel -w $rrd_width -h $height -s -$day_so_far $rrd_args $dd";
-    #my $cmd = "$rrdtool graph $outfile --no-legend --full-size-mode -X 0 -E -a PNG --title $title -v $vlabel -w $rrd_width -h $height -s -$day_so_far -Y -l 0 $dd";
     print $cmd, "\n" if ( $main::debug );
     print `$cmd`;
 
