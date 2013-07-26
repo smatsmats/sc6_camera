@@ -12,7 +12,7 @@ my $mode = "prod";
 my $dryrun = 0;
 my $sleep_time = 30;
 
-my $c = new SC6::Cam::Config();
+my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml");
 our $config = $c->getConfig();
 our $debug = $c->getDebug();
 

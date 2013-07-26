@@ -13,7 +13,7 @@ my $mode = "test";
 my $dryrun = 0;
 my $force = 0;
 
-my $c = new SC6::Cam::Config();
+my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml");
 our $config = $c->getConfig();
 our $debug = $c->getDebug();
 $debug++;

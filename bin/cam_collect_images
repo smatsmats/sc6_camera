@@ -16,7 +16,7 @@ my $sleep_time = 30;
 my $sleep_time_night = 90;
 my $current_bluecode;
 
-my $c = new SC6::Cam::Config();
+my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml");
 our $config = $c->getConfig();
 our $debug = $c->getDebug();
 print "\n***** STARTING *****\n" if ( $debug );

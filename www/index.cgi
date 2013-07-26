@@ -8,7 +8,7 @@ use SC6::Cam::Sun;
 
 my $q = CGI->new;
 
-my $c = new SC6::Cam::Config();
+my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml");
 our $config = $c->getConfig();
 our $debug = 0;
 

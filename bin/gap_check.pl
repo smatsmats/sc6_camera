@@ -8,7 +8,7 @@ use Data::Dumper;
 
 my $mode = "prod";
 
-my $c = new SC6::Cam::Config();
+my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml");
 our $config = $c->getConfig();
 our $debug = $c->getDebug();
 

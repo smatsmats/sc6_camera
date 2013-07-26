@@ -9,18 +9,17 @@ use Data::Dumper;
 sub new {
     my $class = shift;
     my $self = {
+        _config_file => shift,
         _config => shift,
         _debug  => shift,
     };
-    my $config_file = "/usr/local/cam/conf/config.yml";
-    my $in = YAML::Tiny->read( $config_file );
+    my $in = YAML::Tiny->read( $self->{_config_file} );
     $self->{_config} = $in->[0]->{Root1};
     if ( ! $self->{_config} ) {
-        print "failed to read $config_file $! ", YAML::Tiny->errstr, "\n";
+        print "failed to read $self->{_config_file} $! ", YAML::Tiny->errstr, "\n";
         exit();
     }
     $self->{_debug} = $self->{_config}->{'Debug'}->{'Level'};
-#    $self->{_debug} = $self->{_config}->[0]->{'Debug'}->{'Level'};
 
     my $debug_dump_config = $self->{_config}->{'Debug'}->{'DumpConfig'};
     if ( $self->{_debug} >= $debug_dump_config ) {

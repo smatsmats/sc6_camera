@@ -10,7 +10,7 @@ use Data::Dumper;
 my $force = 0;
 my $mode = "test";
 
-my $c = new SC6::Cam::Config();
+my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml");
 our $config = $c->getConfig();
 our $debug = $c->getDebug();
 
