@@ -20,7 +20,6 @@ $result = GetOptions (  "n|dry-run" => \$dryrun,
                         "f|force"  => \$force,
                         "h|help"  => \&usage,
                         "m|mode=s"  => \$mode,
-#                        "d+"  => \$debug,
                         "d|debug+"  => \$debug);
 if ( ! $result ) {
     usage();
@@ -50,7 +49,7 @@ if ( $dryrun ) {
     print "This is a dry run, not doing anything\n";
 }
 
-$format = 'orig';
+my $format = 'orig';
 make_moovie($format, $mode);
 compress_moovie($format, $mode);
 push_to_youtube();
@@ -76,7 +75,6 @@ sub compress_moovie {
     my $in = get_video_file($dt, $format, 'avi', $mode);
     my $out = get_video_file($dt, $format, 'mp4', $mode);
     my $ll =  $config->{'FFMpegLogLevel'};
-#    my $cmd = "ffmpeg -y -loglevel $ll -i $in -r 25 -s 1920x1080 -vcodec libx264 -b:v 30000k $out 2> /dev/null";
     my $cmd = "avconv -y -loglevel $ll -i $in -r 25 -s 1920x1080 -vcodec libx264 -b:v 30000k $out";
     do_cmd($cmd, $dryrun);
 }
@@ -96,5 +94,3 @@ sub push_to_youtube {
     my $cmd = $config->{'Bins'}->{'push2youtube'};
     do_cmd($cmd, $dryrun);
 }
-
-
