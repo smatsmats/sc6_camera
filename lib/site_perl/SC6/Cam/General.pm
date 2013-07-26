@@ -23,25 +23,11 @@ BEGIN {
         our @EXPORT_OK   = qw($Var1 %Hashit func3);
 }
 
-# exported package globals go here
-#our $dest_dir = "/var/www/bib/cam-bib/";
-
-# non-exported package globals go here
-# (they are still accessible as $Some::Module::stuff)
 
 # file-private lexicals go here, before any functions which use them
 my $priv_var    = '';
 my %secret_hash = ();
 use constant HOUR_SECS => ( 60 * 60 );
-#my $c = new SC6::Cam::Config();
-#my $config = $c->getConfig();
-#my $debug = $c->getDebug();
-
-# here's a file-private function as a closure,
-# callable as $priv_func->();
-my $priv_func = sub {
-    ;
-};
 
 sub get_image_dir {
     my ($ldt, $format, $mode) = @_;
