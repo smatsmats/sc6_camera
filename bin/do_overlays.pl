@@ -14,7 +14,8 @@ my $mode = "prod";
 my $dryrun = 0;
 my $sleep_time = 30;
 
-my $config = get_config($mode, 0);
+my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml");
+our $config = $c->getConfig();
 
 print $ARGV[0], "\n";
 my $dt = DateTime->now(  time_zone => 'America/Los_Angeles' );
