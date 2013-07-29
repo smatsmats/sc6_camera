@@ -12,18 +12,18 @@ hourly.sh
 push2youtube.py
 
 Tools:
-blueist.pl
-do_overlays.pl
-gap_check.pl
-how_blue.pl
-image.pl
-mv_files.pl
-sun.pl
-wx.pl
+blueist.pl - tests bluecode algorithms for a set of images
+do_overlays.pl - test for overlays
+gap_check.pl - gives feedback on regularity of images
+how_blue.pl - blue code testing
+image.pl - fetches one image and processes it
+mv_files.pl - scipt for moving some files around
+sun.pl - script for testing sun calculations
+wx.pl - script for testing some wx functions
 
 Docs:
-rrd_data_sets
-wx_cmds
+rrd_data_sets - my rrd data set definitions
+wx_cmds - my commands for extracting wx data
 
 Init:
-etc/init/cam_collect_images.conf
+etc/init/cam_collect_images.conf - upstar config
