@@ -1,3 +1,4 @@
 #!/bin/sh
 
-/usr/local/cam/bin/build_time_lapse.pl > /dev/null 2>&1
+#time /usr/local/cam/bin/build_time_lapse.pl 
+time trickle -sv -u 200 /usr/local/cam/bin/build_time_lapse.pl 
