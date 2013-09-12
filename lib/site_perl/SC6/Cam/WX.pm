@@ -12,12 +12,6 @@ sub new {
     my $class = shift;
     my $self = {
         _dt => shift,
-        _longitude => shift,
-        _latitude => shift,
-        _angle_nautical => shift,
-        _angle_civil => shift,
-        _angle_horizon => shift,
-        _iteration => shift,
     };
     bless $self, $class;
     $self = current_values($self);
