@@ -296,7 +296,7 @@ sub wx_graph {
     
     # get time ranges and image size
     my $length_day = $s->{_naut_dusk}->epoch() - $s->{_naut_dawn}->epoch();
-    my $dt = DateTime->now(  time_zone => 'America/Los_Angeles' );
+    my $dt = DateTime->now(  time_zone => $main::config->{'General'}->{'Timezone'} );
     my $day_so_far = $dt->epoch() - $s->{_naut_dawn}->epoch();
     print "length of day: $length_day, so far $day_so_far, ", ($day_so_far / $length_day * 100), "% of the way there\n" if ( $main::debug );
     my $rrd_width = $width * ($day_so_far / $length_day);

@@ -27,7 +27,7 @@ sub new {
 
 sub init {
     my ($self ) = @_;
-    $self->{_dt} = DateTime->now(  time_zone => 'America/Los_Angeles' );
+    $self->{_dt} = DateTime->now(  time_zone => $main::config->{'General'}->{'Timezone'} );
     $self->{_longitude} = $main::config->{Sun}->{Long};
     $self->{_latitude} = $main::config->{Sun}->{Lat};
     $self->{_angle_nautical} = $main::config->{Sun}->{AngleNautical};
