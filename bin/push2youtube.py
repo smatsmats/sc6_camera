@@ -116,10 +116,11 @@ my_media_group = gdata.media.Group(
 where = gdata.geo.Where()
 where.set_location((37.0,-122.0))
 
-# set video as unlisted
+# if you want video unlisted, replace attributes line with this:
+#    "attributes": {'action': 'list', 'permission': 'denied'},
 kwargs = {
     "namespace": YOUTUBE_NAMESPACE,
-    "attributes": {'action': 'list', 'permission': 'denied'},
+    "attributes": {'action': 'list', 'permission': 'allowed'},
 }
 extension = ([ExtensionElement('accessControl', **kwargs)])
 
