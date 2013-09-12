@@ -9,6 +9,27 @@ Root1:
     General:
         Timezone: 'America/Los_Angeles'
 
+    Video:
+        Video1: 
+            Name: 'Daily'
+            Format: 'orig'
+            Compress: True
+            # Range is seconds
+            Range: 86400
+            # ranges are bound by limits
+            Limits: 
+                # allowed terms 'NauticalDawn' and 'NauticalDusk'
+                Start: 'NauticalDawn'
+                End: 'NauticalDusk'
+        Video2: 
+            Name: '3Hour'
+            Format: 'orig'
+            Compress: False
+            Range: 10800
+            Limits: 
+                Start: 'NauticalDawn'
+                End: 'NauticalDusk'
+        
     Image:
         Fetch:
             Command: "curl"
