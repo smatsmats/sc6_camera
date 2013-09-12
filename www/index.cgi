@@ -25,7 +25,7 @@ my $force = 0;
 
 my $mode = "prod";
 
-my $dt = DateTime->now(  time_zone => 'America/Los_Angeles' );
+my $dt = DateTime->now(  time_zone => $config->{'General'}->{'Timezone'} );
 my $s = new SC6::Cam::Sun();
 print "Now: $dt\n" if ( $debug );
 

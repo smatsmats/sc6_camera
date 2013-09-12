@@ -19,7 +19,7 @@ $result = GetOptions (  "length=i" => \$length,    # numeric
                         "h|help"  => \$usage,      # function
 			"d|debug"  => \$debug);    # flag
 
-my $dt = DateTime->now(  time_zone => 'America/Los_Angeles' );
+my $dt = DateTime->now(  time_zone => $config->{'General'}->{'Timezone'} );
 my $s = new SC6::Cam::Sun();
 print "Now: $dt\n" if ( $debug );
 if ( $force ) {

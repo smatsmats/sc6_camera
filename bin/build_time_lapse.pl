@@ -1,4 +1,4 @@
-#!/usr//bin/perl
+#!/usr/bin/perl
 
 use DateTime;
 use SC6::Cam::General;
@@ -26,7 +26,7 @@ if ( ! $result ) {
     exit;
 }
 
-my $dt = DateTime->now(  time_zone => 'America/Los_Angeles' );
+my $dt = DateTime->now(  time_zone => $config->{'General'}->{'Timezone'} );
 my $s = new SC6::Cam::Sun();
 print "Now: $dt\n" if ( $debug );
 if ( $force ) {

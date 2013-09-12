@@ -18,7 +18,7 @@ my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml");
 our $config = $c->getConfig();
 
 print $ARGV[0], "\n";
-my $dt = DateTime->now(  time_zone => 'America/Los_Angeles' );
+my $dt = DateTime->now(  time_zone => $config->{'General'}->{'Timezone'} );
 do_overlays($ARGV[0], "/var/www/bib/camera/out.jpg", $dt->hour, $dt->minute, 1);
 #do_overlays("current_image_orig.jpg", "out.jpg", 1);
 

@@ -36,7 +36,7 @@ my $prev_failed_start = 0;
 my $s = new SC6::Cam::Sun();
 while() {
     $fetch_sleep = $sleep_time;
-    my $dt = DateTime->now(  time_zone => 'America/Los_Angeles' );
+    my $dt = DateTime->now(  time_zone => $config->{'General'}->{'Timezone'} );
     if ( $s->is_sun($dt) ) {  # inefficient to do this everytime, but who cares
         print "Sun is up! $dt\n";
     }
@@ -64,7 +64,7 @@ while() {
         $bcr->checkBluecode($cim);
         
         # normal sleep, but prune sleep time to account for processing
-        my $end_time = DateTime->now(  time_zone => 'America/Los_Angeles' );
+        my $end_time = DateTime->now(  time_zone => $config->{'General'}->{'Timezone'} );
         if ( $prev_failed_start != 0 ) {
             $fetch_sleep = $sleep_time - ($end_time->epoch() - $prev_failed_start);
         } 

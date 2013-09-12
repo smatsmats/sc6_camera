@@ -6,6 +6,9 @@ Root1:
         Level: 1
         DumpConfig: 2
 
+    General:
+        Timezone: 'America/Los_Angeles'
+
     Image:
         Fetch:
             Command: "curl"

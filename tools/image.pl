@@ -21,7 +21,7 @@ $debug++;
 #print "test config: ", $real_config->{Overlay}->{Clock}->{Overlay}, "\n";
 
 my $s = new SC6::Cam::Sun();
-$dt = DateTime->now(  time_zone => 'America/Los_Angeles' );
+my $dt = DateTime->now(  time_zone => $config->{'General'}->{'Timezone'} );
 
 $result = GetOptions (  "n|dry-run" => \$dryrun,
                         "f|force"  => \$force,

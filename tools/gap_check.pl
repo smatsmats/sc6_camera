@@ -12,7 +12,7 @@ my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml");
 our $config = $c->getConfig();
 our $debug = $c->getDebug();
 
-my $dt = DateTime->now(  time_zone => 'America/Los_Angeles' );
+my $dt = DateTime->now(  time_zone => $config->{'General'}->{'Timezone'} );
 #my $d = "/data/cam_images/20130209/orig";
 my $d = get_image_dir($dt, "orig", $mode);
 
