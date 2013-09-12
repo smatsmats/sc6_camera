@@ -60,10 +60,10 @@ def DeleteEntry(entry):
   if response:
     print 'Old video successfully deleted'
 
-def CullFromFeed(feed):
+def Vid2Nuke(feed):
   for entry in feed.entry:
     if entry.media.title.text == title:
-      DeleteEntry(entry)
+      return(entry)
 
 def getDateString(days):
   today = date.today()
@@ -137,8 +137,8 @@ video_entry.AddDeveloperTags(developer_tags)
 # look for my videos
 username = 'default'
 uri = 'http://gdata.youtube.com/feeds/api/users/%s/uploads' % username
-# remove old ones
-CullFromFeed(yt_service.GetYouTubeVideoFeed(uri))
+# remember old one
+old_video = Vid2Nuke(yt_service.GetYouTubeVideoFeed(uri))
 
 # add it
 print "Uploading video"
@@ -179,3 +179,5 @@ p.CharacterDataHandler = char_data
 
 p.Parse(str(new_entry))
 
+# remove old video
+DeleteEntry(old_video)
