@@ -45,8 +45,8 @@ sub init {
     my $both_times = $sunrise_span->sunrise_sunset_span($self->{_dt});
     $self->{_sun_message} .= "Nautical Dawn is: " . $both_times->start->datetime . "\n";
     $self->{_sun_message} .= "Nautical Twilight is: " . $both_times->end->datetime . "\n";
-    $self->{_naut_dawn} = $both_times->start;
-    $self->{_naut_dusk} = $both_times->end;
+    $self->{naut_dawn} = $both_times->start;
+    $self->{naut_dusk} = $both_times->end;
 
     $sunrise_span = DateTime::Event::Sunrise ->new (
                         longitude => $self->{_longitude},
@@ -57,8 +57,8 @@ sub init {
     $both_times = $sunrise_span->sunrise_sunset_span($self->{_dt});
     $self->{_sun_message} .= "Civil Dawn is: " . $both_times->start->datetime . "\n";
     $self->{_sun_message} .= "Civil Twilight is: " . $both_times->end->datetime . "\n";
-    $self->{_civi_dawn} = $both_times->start;
-    $self->{_civi_dusk} = $both_times->end;
+    $self->{civi_dawn} = $both_times->start;
+    $self->{civi_dusk} = $both_times->end;
 
     $sunrise_span = DateTime::Event::Sunrise ->new (
                         longitude => $self->{_longitude},
@@ -69,8 +69,8 @@ sub init {
     $both_times = $sunrise_span->sunrise_sunset_span($self->{_dt});
     $self->{_sun_message} .= "Sunrise is: " . $both_times->start->datetime . "\n";
     $self->{_sun_message} .= "Sunset is: " . $both_times->end->datetime . "\n";
-    $self->{_sunrise} = $both_times->start;
-    $self->{_sunset} = $both_times->end;
+    $self->{sunrise} = $both_times->start;
+    $self->{sunset} = $both_times->end;
 
 #    print $self->{_sun_message} if ( $main::debug );
 
@@ -97,8 +97,8 @@ sub is_sun {
     
     check4newday($self, $dt);
 
-    my $up = $self->{_naut_dawn};
-    my $down = $self->{_naut_dusk};
+    my $up = $self->{naut_dawn};
+    my $down = $self->{naut_dusk};
 
     if ( $dt->epoch() >= $up->epoch() 
       && $dt->epoch() <= $down->epoch() ) {
@@ -112,20 +112,20 @@ sub is_sun {
 sub start_time {
     my ($self) = @_;
 
-    return $self->{_naut_dawn};
+    return $self->{naut_dawn};
 }
 
 sub end_time {
     my ($self) = @_;
 
-    return $self->{_naut_dusk};
+    return $self->{naut_dusk};
 }
 
 sub is_hour_after_dusk {
     my ($self, $dt) = @_;
 
-    my $up = $self->{_naut_dawn};
-    my $down = $self->{_naut_dusk};
+    my $up = $self->{naut_dawn};
+    my $down = $self->{naut_dusk};
 
     if ( $dt->epoch() >= $down->epoch() 
       && $dt->epoch() <= $down->epoch() + HOUR_SECS ) {
