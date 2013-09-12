@@ -74,6 +74,24 @@ def getVidDateTime():
   vdate = os.stat(video_file).st_mtime
   return datetime.fromtimestamp(vdate)
 
+# 3 handler functions for parsing responce
+def start_element(name, attrs):
+#  print 'Start element:', name, attrs
+  if ( name == 'ns4:content' ):
+#    print "+++++ found one", name
+#    print "+++>", attrs, "<+++"
+    vid_url = attrs['url']
+    print ">>>>>>>>", str(vid_url), "<<<<<<<"
+    f = open('/var/www/bib/camera/tl_url', 'w')
+    f.write(vid_url)
+    f.close
+def end_element(name):
+    pass
+#    print 'End element:', name
+def char_data(data):
+    pass
+#    print 'Character data:', repr(data)
+
 # create the service
 yt_service = gdata.youtube.service.YouTubeService()
 # Turn on HTTPS/SSL access.
@@ -152,31 +170,13 @@ if upload_status is not None:
   print "state:", upload_status[0]
   print "detailed:", upload_status[1]
 
-#print new_entry
-
-# 3 handler functions
-def start_element(name, attrs):
-#  print 'Start element:', name, attrs
-  if ( name == 'ns4:content' ):
-#    print "+++++ found one", name
-#    print "+++>", attrs, "<+++"
-    vid_url = attrs['url']
-    print ">>>>>>>>", str(vid_url), "<<<<<<<"
-    f = open('/var/www/bib/camera/tl_url', 'w')
-    f.write(vid_url)
-    f.close
-def end_element(name):
-    pass
-#    print 'End element:', name
-def char_data(data):
-    pass
-#    print 'Character data:', repr(data)
-
+# build parser for responce
 p = xml.parsers.expat.ParserCreate()
 p.StartElementHandler = start_element
 p.EndElementHandler = end_element
 p.CharacterDataHandler = char_data
 
+# parse responce - including writing-out video url
 p.Parse(str(new_entry))
 
 # remove old video
