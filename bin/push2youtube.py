@@ -7,6 +7,7 @@ import getopt
 import time
 from time import sleep
 import string
+from string import Template
 import urllib
 import urllib2
 import gdata.youtube
@@ -110,11 +111,13 @@ yt_service.ProgrammaticLogin()
 
 # titles and stuff for video
 date_string = getDateString(0)
-title = 'SeaCrest 6 ' + date_string + ' Time Lapse'
-title_tag = 'SC6_' + date_string.replace(' ', '_') + '_TL'
-now = datetime.now()
-description = title + ' Video created: ' + str(getVidDateTime()) + ' Uploaded: ' + str(now) + ' Frames are captured at 1920 X 1080.  Time lapse video is approximately 450 times real time.  Video is captured from nautical dawn to nautical dusk.'
-print 'Description:', description
+# first build dictionary of substitutions
+d = dict([('date', date_string), ('underbar_date', date_string.replace('-', '_')), ('video_created', str(getVidDateTime())), ('video_uploaded', str(datetime.now()))])
+
+title = Template(config['Video']['Video1']['TitleTemplate']).safe_substitute(d)
+d['title'] = title # make the title available for later substitution
+title_tag = Template(config['Video']['Video1']['TitleTagTemplate']).safe_substitute(d)
+description = Template(config['Video']['Video1']['DescriptionTemplate']).safe_substitute(d)
 
 ## why doesn't this work?
 #developer_tag_uri = 'http://gdata.youtube.com/feeds/videos/-/%7Bhttp%3A%2F%2Fgdata.youtube.com%2Fschemas%2F2007%2Fdevelopertags.cat%7D' + title_tag
