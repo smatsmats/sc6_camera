@@ -25,6 +25,9 @@ gconfig = gconfig_root['Root1']
 config_root = yaml.load(file("/usr/local/cam/conf/config.yml"))
 config = config_root['Root1']
 
+# this will soon come from command line or somewhere
+vid_selector = "Daily"
+
 # set the path for the video file binary
 video_file = gconfig['Paths']['video_file']
 
@@ -114,10 +117,10 @@ date_string = getDateString(0)
 # first build dictionary of substitutions
 d = dict([('date', date_string), ('underbar_date', date_string.replace('-', '_')), ('video_created', str(getVidDateTime())), ('video_uploaded', str(datetime.now()))])
 
-title = Template(config['Video']['Video1']['TitleTemplate']).safe_substitute(d)
+title = Template(config['Video'][vid_selector]['TitleTemplate']).safe_substitute(d)
 d['title'] = title # make the title available for later substitution
-title_tag = Template(config['Video']['Video1']['TitleTagTemplate']).safe_substitute(d)
-description = Template(config['Video']['Video1']['DescriptionTemplate']).safe_substitute(d)
+title_tag = Template(config['Video'][vid_selector]['TitleTagTemplate']).safe_substitute(d)
+description = Template(config['Video'][vid_selector]['DescriptionTemplate']).safe_substitute(d)
 
 ## why doesn't this work?
 #developer_tag_uri = 'http://gdata.youtube.com/feeds/videos/-/%7Bhttp%3A%2F%2Fgdata.youtube.com%2Fschemas%2F2007%2Fdevelopertags.cat%7D' + title_tag
