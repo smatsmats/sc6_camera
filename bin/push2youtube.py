@@ -19,10 +19,13 @@ from gdata.media import YOUTUBE_NAMESPACE
 from atom import ExtensionElement
 
 import yaml
-config = yaml.load(file("/usr/local/cam/conf/push2youtube_config.yml"))
+gconfig_root = yaml.load(file("/usr/local/cam/conf/push2youtube_config.yml"))
+gconfig = gconfig_root['Root1']
+config_root = yaml.load(file("/usr/local/cam/conf/config.yml"))
+config = config_root['Root1']
 
 # set the path for the video file binary
-video_file = config['Root1']['Paths']['video_file']
+video_file = gconfig['Paths']['video_file']
 
 def PrintEntryDetails(entry):
   print 'Video title: %s' % entry.media.title.text
@@ -96,13 +99,13 @@ def char_data(data):
 yt_service = gdata.youtube.service.YouTubeService()
 # Turn on HTTPS/SSL access.
 yt_service.ssl = True
-yt_service.developer_key = config['Root1']['Google']['YT']['dev_key']
-yt_service.client_id = config['Root1']['Google']['YT']['client_id']
+yt_service.developer_key = gconfig['Google']['YT']['dev_key']
+yt_service.client_id = gconfig['Google']['YT']['client_id']
 
 # login
-yt_service.email = config['Root1']['Google']['YT']['service_email']
-yt_service.password = config['Root1']['Google']['YT']['service_password']
-yt_service.source = config['Root1']['Google']['YT']['service_source']
+yt_service.email = gconfig['Google']['YT']['service_email']
+yt_service.password = gconfig['Google']['YT']['service_password']
+yt_service.source = gconfig['Google']['YT']['service_source']
 yt_service.ProgrammaticLogin()
 
 # titles and stuff for video
