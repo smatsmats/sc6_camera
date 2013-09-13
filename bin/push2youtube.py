@@ -2,6 +2,7 @@
 
 import sys
 import os
+import errno
 import re
 import getopt
 import time
@@ -72,11 +73,6 @@ def Vid2Nuke(feed):
     if entry.media.title.text == title:
       return(entry)
 
-def getDateString(days):
-  today = date.today()
-  someday = today - timedelta(days)
-  return someday.isoformat()
-
 def getVidDateTime():
   vdate = os.stat(video_file).st_mtime
   return datetime.fromtimestamp(vdate)
@@ -89,9 +85,16 @@ def start_element(name, attrs):
 #    print "+++>", attrs, "<+++"
     vid_url = attrs['url']
     print ">>>>>>>>", str(vid_url), "<<<<<<<"
-    f = open('/var/www/bib/camera/tl_url', 'w')
-    f.write(vid_url)
-    f.close
+
+    url_file = config['Video'][vid_selector]['URL_file']
+    try:
+        f = open(url_file, 'w')
+        f.write(vid_url)
+        f.close
+    except IOError, ioex:
+        print 'errno:', ioex.errno
+        print 'err code:', errno.errorcode[ioex.errno]
+        print 'err message:', os.strerror(ioex.errno)
 def end_element(name):
     pass
 #    print 'End element:', name
@@ -113,9 +116,9 @@ yt_service.source = gconfig['Google']['YT']['service_source']
 yt_service.ProgrammaticLogin()
 
 # titles and stuff for video
-date_string = getDateString(0)
+date_string = date.today().isoformat()
 # first build dictionary of substitutions
-d = dict([('date', date_string), ('underbar_date', date_string.replace('-', '_')), ('video_created', str(getVidDateTime())), ('video_uploaded', str(datetime.now()))])
+d = dict([('date', date_string), ('underbar_date', date_string.replace('-', '_')), ('video_created', getVidDateTime().ctime()), ('video_uploaded', datetime.now().ctime())])
 
 title = Template(config['Video'][vid_selector]['TitleTemplate']).safe_substitute(d)
 d['title'] = title # make the title available for later substitution
@@ -132,8 +135,9 @@ description = Template(config['Video'][vid_selector]['DescriptionTemplate']).saf
 my_media_group = gdata.media.Group(
   title=gdata.media.Title(text=title),
   description=gdata.media.Description(description_type='plain', text=description),
-  category=[gdata.media.Category(text='Travel', scheme='http://gdata.youtube.com/schemas/2007/categories.cat')],
-  keywords=gdata.media.Keywords(text='travel'),
+  category=[gdata.media.Category(text=config['Video'][vid_selector]['MediaCategory'], scheme='http://gdata.youtube.com/schemas/2007/categories.cat')],
+  keywords=gdata.media.Keywords(text=config['Video'][vid_selector]['MediaKeyword']),
+#  keywords=gdata.media.Keywords(text='travel'),
   player=None
 )
 #  private=gdata.media.Private(),
@@ -147,7 +151,7 @@ where.set_location((37.0,-122.0))
 #    "attributes": {'action': 'list', 'permission': 'denied'},
 kwargs = {
     "namespace": YOUTUBE_NAMESPACE,
-    "attributes": {'action': 'list', 'permission': 'allowed'},
+    "attributes": {'action': 'list', 'permission': config['Video'][vid_selector]['PublicVideo']},
 }
 extension = ([ExtensionElement('accessControl', **kwargs)])
 
@@ -158,6 +162,7 @@ video_entry = gdata.youtube.YouTubeVideoEntry(media=my_media_group,
 # add developer tag
 print "title", title
 print "title tag", title_tag
+print "description", description
 developer_tags = [title_tag]
 video_entry.AddDeveloperTags(developer_tags)
 
