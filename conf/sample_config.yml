@@ -10,25 +10,47 @@ Root1:
         Timezone: 'America/Los_Angeles'
 
     Video:
-        Video1: 
+        Daily:
             Name: 'Daily'
             Format: 'orig'
             Compress: True
             # Range is seconds
             Range: 86400
             # ranges are bound by limits
-            Limits: 
+            Limits:
                 # allowed terms 'NauticalDawn' and 'NauticalDusk'
                 Start: 'NauticalDawn'
                 End: 'NauticalDusk'
-        Video2: 
+            URL_file: '/var/www/bib/camera/Daily_url'
+            # MediaCategory see https://developers.google.com/youtube/2.0/reference#YouTube_Category_List
+            MediaCategory: 'Travel'
+            MediaKeyword: 'travel'
+            # PublicVideo must be 'allowed' or 'denied'
+            PublicVideo: 'allowed'
+            # TitleTemplate, TitleTagTemplate, and DescriptionTemplate are python string templates
+            # available substitutiions are $date e.g. 2013-09-01
+            #                              $underbar_date e.g. 2013_09_01
+            #                              $title (obviously don't try and insert $title into the title template, it will fail)
+            #                              $video_created
+            #                              $video_uploaded - basically now
+            TitleTemplate: 'BONGO $date Daily Timelapse'
+            TitleTagTemplate: 'BONGO_${date}_Daily_TL'
+            DescriptionTemplate: '$title Video created: $video_created, Uploaded: $video_uploaded  Frames are captured at 1920 X 1080.  Time lapse video is approximately 450 times real time.  Video is captured from nautical dawn to nautical dusk.'
+        3Hour:
             Name: '3Hour'
             Format: 'orig'
             Compress: False
             Range: 10800
-            Limits: 
+            Limits:
                 Start: 'NauticalDawn'
                 End: 'NauticalDusk'
+            URL_file: '/var/www/bib/camera/3Hour_url'
+            MediaCategory: 'Travel'
+            MediaKeyword: 'travel'
+            PublicVideo: 'allowed'
+            TitleTemplate: 'BONGO 6 $date 3 Hour Timelapse'
+            TitleTagTemplate: 'BONGO_${date}_3Hour_TL'
+            DescriptionTemplate: '$title Video created: $video_created, Uploaded: $video_uploaded  Most recent 3 hours.  Frames are captured at 1920 X 1080 approximately every 30 seconds and then played at 30fps.  Frames are not captured when the sun is > 12degreses below the horizon.'
         
     Image:
         Fetch:
