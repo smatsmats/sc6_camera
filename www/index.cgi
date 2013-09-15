@@ -12,7 +12,7 @@ my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml");
 our $config = $c->getConfig();
 our $debug = 0;
 
-$fn = "/var/www/bib/camera/tl_url";
+$fn = $config->{'Video'}->{'Daily'}->{'URL_file'};
 open F, $fn;
 my $url = <F>;
 close F;
