@@ -37,7 +37,7 @@ my $s = new SC6::Cam::Sun();
 while() {
     $fetch_sleep = $sleep_time;
     my $dt = DateTime->now(  time_zone => $config->{'General'}->{'Timezone'} );
-    if ( $s->is_sun($dt) ) {  # inefficient to do this everytime, but who cares
+    if ( $s->is_sun($dt) || $force ) {  # inefficient to do this everytime, but who cares
         print "Sun is up! $dt\n";
     }
     else {
