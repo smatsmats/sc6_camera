@@ -49,10 +49,14 @@ if ( $dryrun ) {
     print "This is a dry run, not doing anything\n";
 }
 
+my @videos = $config->{'Video'};
+
+for my $v { 
+# main
 my $format = 'orig';
-make_moovie($format, $mode);
-compress_moovie($format, $mode);
-push_to_youtube();
+#make_moovie($format, $mode);
+#compress_moovie($format, $mode);
+#push_to_youtube();
 
 print "buh bye\n";
 
