@@ -69,5 +69,20 @@ print "Movie is unavailable while being updated, someday I'll fix that.<BR>\n";
 print "Don't know why fullscreen doesn't work, use the link above if you'd like a bigger movie.<BR>\n";
 print scalar localtime(), "\n";
 print "Page should refresh every 5minutes\n";
+print "<BR>\n";
+print "<P>\n";
+
+print $q->h3("Weater Observations<BR>\n");
+print $q->table({-border=>undef},
+           $q->Tr({-align=>'CENTER',-valign=>'TOP'},
+           [
+	      $q->td(["<A HREF=\"http://www.wrh.noaa.gov/mesowest/getobext.php?wfo=sew&sid=AU711&num=48&raw=0&dbn=m\"><IMG height=\"50\" width=\"50\" src=\"./NWS_Logo.png\"/></A>",
+                      "<A HREF=\"http://www.findu.com/cgi-bin/wxpage.cgi?call=K7SSW&last=12\"><IMG height=\"50\" width=\"50\" src=\"./cwp_logo.gif\"/></A>",
+                      "<A HREF=\"http://www.sailflow.com/spot/116314\"><IMG height=\"50\" width=\"50\" src=\"./sf.png\"/></A>",
+                     ]),
+           ]
+           )
+        );
+
 print "</center>\n";
 print $q->end_html;           
