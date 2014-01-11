@@ -10,9 +10,10 @@ Root1:
         Timezone: 'America/Los_Angeles'
 
     GStore:
-        ImageBucket: 'gs://image_bucket'
+        ImageBucket: 'image_bucket'
         gsutilPath: '/url/local/bin/gsutil'
         CurrentDir: 'current'
+        URL_Prefix: 'http://commondatastorage.googleapis.com/'
 
     Video:
         Daily:

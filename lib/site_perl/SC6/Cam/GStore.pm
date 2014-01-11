@@ -5,6 +5,7 @@ use warnings;
 use Data::Dumper;
 use DateTime;
 use DateTime::Event::Sunrise;
+use File::Basename;
 
 sub new {
     my $class = shift;
@@ -22,8 +23,16 @@ sub init {
     my ($self ) = @_;
     $self->{_bucket} = $main::config->{GStore}->{ImageBucket};
     $self->{_gsutil} = $main::config->{GStore}->{gsutilPath};
+    $self->{_url} = $main::config->{GStore}->{URL_Prefix};
 
     return($self);
+}
+
+sub web_url {
+    my ($self, $dir, $file) = @_;
+
+    my $url = $self->{_url} . $self->{_bucket} . "%2F" . $dir . "%2F" . basename($file);
+    return $url;
 }
 
 sub cp {
@@ -34,7 +43,7 @@ sub cp {
         return 0;
     }
 
-    my $gscmd = $self->{_gsutil} . " cp " . $src . " " . $self->{_bucket} . "/" . $dest_dir;
+    my $gscmd = $self->{_gsutil} . " cp " . $src . " " . "gs://" . $self->{_bucket} . "/" . $dest_dir;
     print $gscmd, "\n" if ( $main::debug );
     print `$gscmd`;
 

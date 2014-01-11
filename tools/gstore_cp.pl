@@ -25,7 +25,9 @@ if ( ! $file ) {
     $file = $default_file; 
 }
 
-print $gs->cp($file);
+my $dir = $config->{GStore}->{'CurrentDir'};
+print $gs->cp($file, $dir);
+print "\n", $gs->web_url($dir, $file), "\n";
 
 exit;
 

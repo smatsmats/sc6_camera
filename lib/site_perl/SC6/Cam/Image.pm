@@ -5,6 +5,7 @@ use warnings;
 use SC6::Cam::General;
 use SC6::Cam::BlueCode;
 use SC6::Cam::Overlay;
+use SC6::Cam::GStore;
 use Data::Dumper;
 
 sub new {
@@ -79,10 +80,13 @@ sub resizes_and_links {
             unlink($www_image_orig) or die "Can't unlink $www_image_orig: $!\n";
     }
     symlink($output, $www_image_orig) or die "Can't symlink $output to $www_image_orig: $!\n";
+    my $current = $main::config->{GStore}->{'CurrentDir'};
+    $main::gstore->cp($www_image_orig, $current);
     if ( -l $www_image_50pct ) {
             unlink($www_image_50pct) or die "Can't unlink $www_image_50pct: $!\n";
     }
     symlink($output_50pct, $www_image_50pct) or die "Can't symlink $output_50pct to $www_image_50pct: $!\n";
+    $main::gstore->cp($www_image_50pct, $current);
 
 }
 
