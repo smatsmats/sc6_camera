@@ -18,8 +18,10 @@ my $url = <F>;
 close F;
 
 my $title = 'Seacrest 6 Webcam';
-my $image = "./current_image_50pct.jpg";
-my $full_image = "./current_image_orig.jpg";
+#my $image = "./current_image_50pct.jpg";
+my $image = "http://commondatastorage.googleapis.com/cam_bucket%2Fcurrent%2Fcurrent_image_50pct.jpg";
+#my $full_image = "./current_image_orig.jpg";
+my $full_image = "http://commondatastorage.googleapis.com/cam_bucket%2Fcurrent%2Fcurrent_image_orig.jpg";
 
 my $force = 0;
 
@@ -31,8 +33,11 @@ print "Now: $dt\n" if ( $debug );
 
 my $image_title = "Current Image";
 if ( ! $s->is_sun($dt, $debug) ) {
-    $image = "./" . $config->{BlueCode}->{Blueist_image};
-    $full_image = "./" . $config->{BlueCode}->{Blueist_image};
+    my $bi = "http://commondatastorage.googleapis.com/cam_bucket%2Fcurrent%2Fblueist_image.jpg";
+    $image = $bi;
+    $full_image = $bi;
+#    $image = "./" . $config->{BlueCode}->{Blueist_image};
+#    $full_image = "./" . $config->{BlueCode}->{Blueist_image};
     $image_title = "Image from earlier";
 }
 
