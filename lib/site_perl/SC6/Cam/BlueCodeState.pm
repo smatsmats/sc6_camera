@@ -5,6 +5,7 @@ use warnings;
 use DateTime;
 use File::Copy;
 use GD;
+use SC6::Cam::GStore;
 
 sub new {
     my $class = shift;
@@ -61,6 +62,8 @@ sub save_is_blueist {
 
     copy($bf, $blueist_file) or die "Can't copy $bf to $blueist_file: $!\n";
     print "Bluecode copy: $bf to $blueist_file\n" if ( $main::debug );
+    my $current = $main::config->{GStore}->{'CurrentDir'};
+    $main::gstore->cp($blueist_file, $current);
 
 }
 

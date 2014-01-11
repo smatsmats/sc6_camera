@@ -27,14 +27,14 @@ sub init {
 }
 
 sub cp {
-    my ($self, $file) = @_;
+    my ($self, $src, $dest_dir) = @_;
     
-    if ( ! -f $file ) {
-        print "file $file missing\n";
+    if ( ! -f $src ) {
+        print "file $src missing\n";
         return 0;
     }
 
-    my $gscmd = $self->{_gsutil} . " cp " . $file . " " . $self->{_bucket};
+    my $gscmd = $self->{_gsutil} . " cp " . $src . " " . $self->{_bucket} . "/" . $dest_dir;
     print $gscmd, "\n" if ( $main::debug );
     print `$gscmd`;
 

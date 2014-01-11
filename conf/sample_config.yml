@@ -9,6 +9,11 @@ Root1:
     General:
         Timezone: 'America/Los_Angeles'
 
+    GStore:
+        ImageBucket: 'gs://image_bucket'
+        gsutilPath: '/url/local/bin/gsutil'
+        CurrentDir: 'current'
+
     Video:
         Daily:
             Name: 'Daily'

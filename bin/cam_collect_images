@@ -6,6 +6,7 @@ use SC6::Cam::BlueCodeState;
 use SC6::Cam::Config;
 use SC6::Cam::Image;
 use SC6::Cam::Sun;
+use SC6::Cam::GStore;
 use Getopt::Long;
 use Data::Dumper;
 
@@ -30,6 +31,7 @@ $result = GetOptions (  "n|dry-run" => \$dryrun,
 # prime bluecode
 my $bcr = new SC6::Cam::BlueCodeState();
 print "primed bluecode is: ", $bcr->getBluecode(), "\n" if ( $debug );
+our $gstore = new SC6::Cam::GStore();
 
 my $fetch_sleep;
 my $prev_failed_start = 0;
