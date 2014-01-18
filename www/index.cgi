@@ -32,6 +32,7 @@ my $s = new SC6::Cam::Sun();
 print "Now: $dt\n" if ( $debug );
 
 my $image_title = "Current Image";
+my $timoutPeriod = '300';
 if ( ! $s->is_sun($dt, $debug) ) {
     my $bi = "http://commondatastorage.googleapis.com/cam_bucket%2Fcurrent%2Fblueist_image.jpg";
     $image = $bi;
@@ -39,27 +40,35 @@ if ( ! $s->is_sun($dt, $debug) ) {
 #    $image = "./" . $config->{BlueCode}->{Blueist_image};
 #    $full_image = "./" . $config->{BlueCode}->{Blueist_image};
     $image_title = "Image from earlier";
+    $timeoutPeriod = '1800';
 }
 
-my $timoutPeriod = '300';
 #print header;
 #print "Content
 #print "<HTML>\n";
 #print "<head>\n";
-#print "<script type=\"text/JavaScript\">\n";
-#print "<!--\n";
-#print "function timedRefresh($timeoutPeriod) {\n";
-#print "    setTimeout(\"location.reload(true);\",timeoutPeriod);\n";
-#print "}\n";
-#print "//   -->\n";
-#print "</script>\n";
-#print "<TITLE>$title</TITLE>";
-#print "</head>\n";
-#print "<body onload=\"JavaScript:timedRefresh(5000);\">\n";
 
-print $q->header(-refresh=>'300');
-print $q->start_html($title), "\n";
+#print "Content-Type: text/html; charset=ISO-8859-1\n\n";
+print "<!DOCTYPE html\n";
+print "         PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n";
+print "         \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n";
+print "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en-US\" xml:lang=\"en-US\">\n";
+print "<TITLE>$title</TITLE>";
+print "<script type=\"text/JavaScript\">\n";
+print "<!--\n";
+print "function timedRefresh(timeoutPeriod) {\n";
+print "    setTimeout(\"location.reload(true);\",timeoutPeriod);\n";
+print "}\n";
+print "//   -->\n";
+print "</script>\n";
 print "<center>\n";
+print "</head>\n";
+print "<body onload=\"JavaScript:timedRefresh(", $timeoutPeriod, ");\">\n";
+
+
+
+#print $q->header();
+#print $q->start_html($title), "\n";
 print $q->h1($title), "\n";
 print $q->h3($image_title), "\n";
 print "<A HREF=\"", $full_image, "\"><img src=\"", $image, "\"/></A>\n";
