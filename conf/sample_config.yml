@@ -15,6 +15,10 @@ Root1:
         gsutilPath: '/url/local/bin/gsutil'
         CurrentDir: 'current'
         URL_Prefix: 'http://commondatastorage.googleapis.com/'
+        CacheTimeout:
+            current_image_50pct.jpg: 600
+            current_image_orig.jpg: 600
+            blueist_image.jpg: 18000
 
     Video:
         Daily:

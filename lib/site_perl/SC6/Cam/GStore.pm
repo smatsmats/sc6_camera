@@ -43,9 +43,23 @@ sub cp {
         return 0;
     }
 
-    my $gscmd = $self->{_gsutil} . " cp " . $src . " " . "gs://" . $self->{_bucket} . "/" . $dest_dir;
+#gsutil -h "Content-Type:text/html" \
+#       -h "Cache-Control:public, max-age=3600" cp -r images \
+#       gs://bucket/images
+    
+    # get cache timeout
+    my $file = basename($src);
+print $file, "\n";
+    my $cache_timeout = $main::config->{GStore}->{CacheTimeout}->{$file};
+
+    my $cache_header = " -h \"Cache-Control:public, max-age=" . $cache_timeout . "\" ";
+    my $full_dest = "gs://" . $self->{_bucket} . "/" . $dest_dir;
+
+    my $gscmd = $self->{_gsutil} . $cache_header . " cp " . $src . " " . $full_dest;
     print $gscmd, "\n" if ( $main::debug );
     print `$gscmd`;
+
+    
 
     return 1;
 }
