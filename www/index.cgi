@@ -32,7 +32,7 @@ my $s = new SC6::Cam::Sun();
 print "Now: $dt\n" if ( $debug );
 
 my $image_title = "Current Image";
-my $timoutPeriod = '300';
+my $timeoutPeriod = '300000';
 if ( ! $s->is_sun($dt, $debug) ) {
     my $bi = "http://commondatastorage.googleapis.com/cam_bucket%2Fcurrent%2Fblueist_image.jpg";
     $image = $bi;
@@ -40,7 +40,7 @@ if ( ! $s->is_sun($dt, $debug) ) {
 #    $image = "./" . $config->{BlueCode}->{Blueist_image};
 #    $full_image = "./" . $config->{BlueCode}->{Blueist_image};
     $image_title = "Image from earlier";
-    $timeoutPeriod = '1800';
+    $timeoutPeriod = '1800000';
 }
 
 #print header;
@@ -48,7 +48,7 @@ if ( ! $s->is_sun($dt, $debug) ) {
 #print "<HTML>\n";
 #print "<head>\n";
 
-#print "Content-Type: text/html; charset=ISO-8859-1\n\n";
+print "Content-Type: text/html; charset=ISO-8859-1\n\n";
 print "<!DOCTYPE html\n";
 print "         PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n";
 print "         \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n";
@@ -62,6 +62,19 @@ print "}\n";
 print "//   -->\n";
 print "</script>\n";
 print "<center>\n";
+my $heredoc = <<END;
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-47293115-1', 'selby.com');
+  ga('send', 'pageview');
+
+</script>
+END
+print $heredoc; 
 print "</head>\n";
 print "<body onload=\"JavaScript:timedRefresh(", $timeoutPeriod, ");\">\n";
 

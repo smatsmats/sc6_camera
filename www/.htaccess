@@ -2,4 +2,4 @@ Options ExecCGI FollowSymLinks
 AuthUserFile /var/www/bib/camera/.htpasswd
 AuthType Basic
 AuthName "sc6 webcam"
-Require valid-user
+#Require valid-user
