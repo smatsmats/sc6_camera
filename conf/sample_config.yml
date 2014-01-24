@@ -77,7 +77,7 @@ Root1:
         
     Image:
         Fetch:
-            Command: "curl"
+            Command: "/usr/bin/curl"
             Url: "http://10.1.1.40/jpeg.cgi"
             Auth: "--user foo:bar"
             MiscArgs: "--max-time 5"
@@ -147,8 +147,8 @@ Root1:
     DescriptionText: 'Frames are captured at 1920 X 1080.  Time lapse video is approximately 450 times real time.  Video is captured from nautical dawn to nautical dusk.'
 
     BlueCode:
-        File: "/var/www/bib/camera/bluecode"
-        Blueist_image_www: "/var/www/bib/camera/blueist_image.jpg"
+        File: "bluecode"
+        BlueistImage: "blueist_image.jpg"
         PrimingValue: -1000
         Sampling: 2
         CodeScaling: .25

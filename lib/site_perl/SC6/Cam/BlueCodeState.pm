@@ -5,6 +5,7 @@ use warnings;
 use DateTime;
 use File::Copy;
 use GD;
+use SC6::Cam::General;
 use SC6::Cam::GStore;
 
 sub new {
@@ -58,7 +59,7 @@ sub clear {
 sub save_is_blueist {
     my ( $self, $bf ) = @_;
     my $bc = $self->{_bluecode};
-    my $blueist_file = $main::config->{BlueCode}->{'Blueist_image_www'};
+    my $blueist_file = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'BlueistImage'};
 
     copy($bf, $blueist_file) or die "Can't copy $bf to $blueist_file: $!\n";
     print "Bluecode copy: $bf to $blueist_file\n" if ( $main::debug );
@@ -70,7 +71,7 @@ sub save_is_blueist {
 sub cache {
     my ($self) = @_;
 
-    my $blue_code_file = $main::config->{BlueCode}->{'File'};
+    my $blue_code_file = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'File'};
     open F, ">$blue_code_file" or die "Can't open $blue_code_file$!\n";
     print F $self->{_bluecode};
     print "writing bluecode file.  Current bluecode: ", $self->{_bluecode}, "\n" if ( $main::debug );
