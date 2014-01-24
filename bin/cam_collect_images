@@ -75,13 +75,11 @@ while() {
         }
         $prev_failed_start = 0;
         
-        # really debugging, remove this
-        if ( $fetch_sleep <= 0 ) {
-            print "Sleep study: end_time->epoch: ", $end_time->epoch, "\n";
-            print "Sleep study: dt->epoch: ", $dt->epoch, "\n";
-            print "Sleep study: prev_failed_start: ", $prev_failed_start, "\n";
-            $fetch_sleep = $sleep_time;
-        }
+        # push the images to gstore
+        # this should really be a seperate loop or even process, but for now it's here
+        my $current = $config->{GStore}->{'CurrentDir'};
+        $gstore->cp($www_image_orig, $current);
+        $gstore->cp($www_image_50pct, $current);
 
     }
 

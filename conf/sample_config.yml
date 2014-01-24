@@ -6,9 +6,18 @@ Root1:
         Level: 1
         DumpConfig: 2
 
+    WWW:
+        Refresh:
+            SunUp: 600
+            SunDown: 18000
+
     General:
         # authoriatize list of timezones: http://www.iana.org/time-zones
         Timezone: 'America/Los_Angeles'
+        ImageInterval: 
+            # seconds
+            SunUp: 30
+            SunDown: 90
 
     GStore:
         ImageBucket: 'image_bucket'
@@ -19,6 +28,9 @@ Root1:
             current_image_50pct.jpg: 600
             current_image_orig.jpg: 600
             blueist_image.jpg: 18000
+        PushInterval: 
+            # seconds
+            SunUp: 570
 
     Video:
         Daily:
