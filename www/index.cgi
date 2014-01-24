@@ -95,7 +95,8 @@ print "Movie is updated hourly while the sun is up.<BR>\n";
 print "Movie is unavailable while being updated, someday I'll fix that.<BR>\n";
 print "Don't know why fullscreen doesn't work, use the link above if you'd like a bigger movie.<BR>\n";
 print scalar localtime(), "\n";
-print "Page should refresh every 5minutes\n";
+my $minutes = $timeoutPeriod / 1000 / 60;
+print "Page should refresh every $minutes minutes\n";
 print "<BR>\n";
 print "<P>\n";
 
