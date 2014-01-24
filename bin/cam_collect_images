@@ -13,8 +13,6 @@ use Data::Dumper;
 my $force = 0;
 my $mode = "prod";
 my $dryrun = 0;
-my $sleep_time = 30;
-my $sleep_time_night = 90;
 my $current_bluecode;
 
 my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml");
@@ -33,7 +31,11 @@ my $bcr = new SC6::Cam::BlueCodeState();
 print "primed bluecode is: ", $bcr->getBluecode(), "\n" if ( $debug );
 our $gstore = new SC6::Cam::GStore();
 
+my $sleep_time = $config->{'General'}->{'ImageInterval'}->{'SunUp'};
+my $sleep_time_night = $config->{'General'}->{'ImageInterval'}->{'SunDown'};
 my $fetch_sleep;
+my $last_gstore_push = 0;
+my $gstore_interval = $config->{'GStore'}->{'PushInterval'}->{'SunUp'};
 my $prev_failed_start = 0;
 my $s = new SC6::Cam::Sun();
 while() {
@@ -47,6 +49,7 @@ while() {
         $bcr->clear();  # clear bluecode
         $fetch_sleep = $sleep_time_night;
         $prev_failed_start = 0;   # make sure this doesn't carry over from the previous day
+        $last_gstore_push = 0;
         next;
     }
 
@@ -77,9 +80,19 @@ while() {
         
         # push the images to gstore
         # this should really be a seperate loop or even process, but for now it's here
-        my $current = $config->{GStore}->{'CurrentDir'};
-        $gstore->cp($www_image_orig, $current);
-        $gstore->cp($www_image_50pct, $current);
+        if ( $last_gstore_push + $gstore_interval < $end_time->epoch() ) { 
+            # this dieectory crap is a mess, fixe it.  
+            my $current = $config->{GStore}->{'CurrentDir'};
+            my $www_dir = get_www_dir($format, $mode);
+            my $www_image_orig = $www_dir . "current_image_orig.jpg";
+            my $www_image_50pct = $www_dir . "current_image_50pct.jpg";
+            $gstore->cp($www_image_orig, $current);
+            $gstore->cp($www_image_50pct, $current);
+            $last_gstore_push = $end_time->epoch();
+        }
+        else {
+            print "No gstore push until ", $last_gstore_push + $gstore_interval, "\n";
+        }
 
     }
 
