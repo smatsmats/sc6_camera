@@ -20,6 +20,9 @@ our $config = $c->getConfig();
 our $debug = $c->getDebug();
 print "\n***** STARTING *****\n" if ( $debug );
 
+# startup mail
+startup_mail();
+
 $result = GetOptions (  "n|dry-run" => \$dryrun,
                         "f|force"  => \$force,
                         "h|help"  => \&usage,
@@ -98,8 +101,14 @@ while() {
 
 }
 continue {
-    print "Gonna sleep: $fetch_sleep\n" if ( $debug );
-    sleep $fetch_sleep;
+    if ( $fetch_sleep > 0 ) {
+        print "Gonna sleep: $fetch_sleep\n" if ( $debug );
+        sleep $fetch_sleep;
+    }
+    else {
+        print "WTF! fetch_sleep: $fetch_sleep  prev_failed_start: $prev_failed_start sleep_time: $sleep_time end_time->epoch(): ", $end_time->epoch(), "\n";
+        exit 1;
+    }
 }
 
 sub usage
@@ -113,3 +122,19 @@ sub usage
 
 }
 
+sub startup_mail {
+    my $mail_message = $0 . " started";
+    my $mail_recip = $config->{'General'}->{'MailRecipient'};
+    send_mail($mail_message, $mail_recip);
+}
+
+sub send_mail {
+    my($mess, $recip) = @_;
+
+    my $mail_cmd = $config->{'General'}->{'MailCommand'};
+    my $cmd = "$mail_cmd -s \"$mess\" $recip";
+    print $cmd, "\n";
+    open MAIL, "| $cmd" or die "Can't open $mail_cmd: $!\n";
+    print MAIL $mess;
+    close MAIL;
+}

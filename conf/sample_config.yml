@@ -18,6 +18,8 @@ Root1:
             # seconds
             SunUp: 30
             SunDown: 90
+        MailCommand: "/usr/bin/mail"
+        MailRecipient: "nobody@foo.bar"
 
     GStore:
         ImageBucket: 'image_bucket'
