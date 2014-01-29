@@ -101,12 +101,12 @@ while() {
 
 }
 continue {
-    if ( $fetch_sleep > 0 ) {
+    if ( $fetch_sleep >= 0 ) {
         print "Gonna sleep: $fetch_sleep\n" if ( $debug );
         sleep $fetch_sleep;
     }
     else {
-        print "WTF! fetch_sleep: $fetch_sleep  prev_failed_start: $prev_failed_start sleep_time: $sleep_time end_time->epoch(): ", $end_time->epoch(), "\n";
+        print "WTF! fetch_sleep: $fetch_sleep  prev_failed_start: $prev_failed_start sleep_time: $sleep_time end_time: ", $end_time, "\n";
         exit 1;
     }
 }
