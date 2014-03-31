@@ -253,8 +253,8 @@ sub minute_point {
 
     my $x = $xcenter + ($mradius*(sin(2*PI*($minute/60))));
     my $y = $ycenter + (-1*$mradius*(cos(2*PI*($minute/60))));
-    print "minute hand x: $x = $xcenter + ($mradius*(sin(2*PI*($minute/60))))\n" if ( $main::debug );
-    print "minute hand y: $y = $ycenter + (-1*$mradius*(cos(2*PI*($minute/60))))\n" if ( $main::debug );
+#    print "minute hand x: $x = $xcenter + ($mradius*(sin(2*PI*($minute/60))))\n" if ( $main::debug );
+#    print "minute hand y: $y = $ycenter + (-1*$mradius*(cos(2*PI*($minute/60))))\n" if ( $main::debug );
 
     return($x, $y);
 }
@@ -265,8 +265,8 @@ sub hour_point {
     my $totalSeconds = (3600*$hour + 60*$minute) / 43200;
     my $x = $xcenter + ($hradius*(sin(2*PI*$totalSeconds)));
     my $y = $ycenter + (-1*$hradius*(cos(2*PI*$totalSeconds)));
-    print "hour hand x: $x = $xcenter + ($hradius*(sin(2*PI*$totalSeconds)))\n" if ( $main::debug );
-    print "hour hand y: $y = $ycenter + (-1*$hradius*(cos(2*PI*$totalSeconds)))\n" if ( $main::debug );
+#    print "hour hand x: $x = $xcenter + ($hradius*(sin(2*PI*$totalSeconds)))\n" if ( $main::debug );
+#    print "hour hand y: $y = $ycenter + (-1*$hradius*(cos(2*PI*$totalSeconds)))\n" if ( $main::debug );
 
     return($x, $y);
 }
