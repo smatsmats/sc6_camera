@@ -49,6 +49,7 @@ sub get_image_dir {
 sub get_www_dir {
     my ($format, $mode) = @_;
 
+    print "****** got $mode\n";
     my $ci = $main::config->{Directories}->{www}->{$mode};
     if ( ! $ci ) {
         print "missing correct mode ('test', 'prod', etc.).  got $mode\n";
