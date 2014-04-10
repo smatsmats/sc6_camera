@@ -1,0 +1,43 @@
+<!DOCTYPE html
+         PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<TITLE>$page_title</TITLE>
+<script type="text/JavaScript">
+<!--
+function timedRefresh(timeoutPeriod) {
+    setTimeout("location.reload(true);",timeoutPeriod);
+}
+//   -->
+</script>
+<center>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', '$tracking_id', '$domain');
+  ga('send', 'pageview');
+
+</script>
+</head>
+<body onload="JavaScript:timedRefresh($refresh);">
+<h1>$page_title</h1>
+<h3>$image_title</h3>
+<A HREF="$image_url"><img src="$full_image_url"/></A>
+<h3>Latest Time Lapse</h3>
+<P>if unable to see movie use <a href="$video_url">this link</a></p>
+<iframe width="$video_width" height="$video_height" src="$video_url" frameborder="0" allowfullscreen></iframe>
+<BR>
+$video_blurb
+$date_time
+Page should refresh every $refresh_human_readable
+<BR>
+<P>
+<h3>Weater Observations<BR>
+*****************************************
+</h3><table border><tr align="CENTER" valign="TOP"><td><A HREF="http://www.wrh.noaa.gov/mesowest/getobext.php?wfo=sew&sid=AU711&num=48&raw=0&dbn=m"><IMG height="50" width="50" src="./NWS_Logo.png"/></A></td> <td><A HREF="http://www.findu.com/cgi-bin/wxpage.cgi?call=K7SSW&last=12"><IMG height="50" width="50" src="./cwp_logo.gif"/></A></td> <td><A HREF="http://www.sailflow.com/spot/116314"><IMG height="50" width="50" src="./sf.png"/></A></td></tr></table></center>
+
+</body>
+</html>

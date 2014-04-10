@@ -1,0 +1,13 @@
+page_title = 'Seacrest 6 Webcam'
+tracking_id = 'UA-47293115-1'
+domain = 'selby.com'
+refresh
+image_title = 'Image from earlier' or "Current Image"
+image_url
+full_age_url
+video_url
+video_width
+video_heigth
+video_blurb
+date_time
+refresh_human_readable
