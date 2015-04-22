@@ -11,4 +11,25 @@ Root1:
             service_source: "service_source"
     Paths:
         video_file: "/usr/local/cam/data/video/output_orig.mp4"
+# remove this when we stop useing push2youtube with push2youtube_2015
+Prod:
+    Google:
+        Auth:
+            client_secrets_file: ""
+            oauth_token_file: ""
+            api_key: ""  # for public requests
+    Paths:
+        video_file: "/usr/local/cam/data/video/output_orig.mp4"
+    Url: 
+        pre: "https://www.youtube.com/v/"
+Test:
+    Google:
+        Auth:
+            client_secrets_file: ""
+            oauth_token_file: ""
+            api_key: ""  # for public requests
+    Paths:
+        video_file: "/usr/local/cam/data/video/output_orig-test.mp4"
+    Url: 
+        pre: "https://www.youtube.com/v/"
 ...
