@@ -102,6 +102,8 @@ def char_data(data):
     pass
 #    print 'Character data:', repr(data)
 
+#### main
+
 # create the service
 yt_service = gdata.youtube.service.YouTubeService()
 # Turn on HTTPS/SSL access.

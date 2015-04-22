@@ -91,6 +91,6 @@ sub usage
 }
 
 sub push_to_youtube {
-    my $cmd = $config->{'Bins'}->{'push2youtube'};
+    my $cmd = $config->{'Bins'}->{'push2youtube'} . " " . $config->{'Bins'}->{'push2youtube_args'};
     do_cmd($cmd, $dryrun);
 }
