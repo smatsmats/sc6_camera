@@ -157,10 +157,9 @@ def youtube_search(search_options):
 
 def remove_old_video(id):
   global youtube
-#  youtube2 = get_authenticated_service()
+
   print "going to remove: " + id
-  res = youtube.videos().delete(id=id).execute()
-  print res
+  youtube.videos().delete(id=id).execute()
 
 def initialize_upload(options):
   global youtube
@@ -288,10 +287,11 @@ if __name__ == '__main__':
   print "url: " + vid_url
   writeUrl(vid_url)
 
-  for today_id in search_todays_videos(args):
-    if args.doDeletes is True:
-      if today_id != res['id']:
-        remove_old_video(today_id)
-    else:
-      print "would hav deleted: " + today_id
+  print
+  for vid_id in search_todays_videos(args):
+    if vid_id != res['id']:
+      if args.doDeletes is True:
+        remove_old_video(vid_id)
+      else:
+        print "would hav deleted: " + vid_id
 
