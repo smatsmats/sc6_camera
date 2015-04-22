@@ -126,22 +126,16 @@ def writeUrl(vid_url):
     print 'err code:', errno.errorcode[ioex.errno]
     print 'err message:', os.strerror(ioex.errno)
 
-def search_todays_videos(options):
-  search_options = options
-  options.max_results = 35
-  options.q = options.title
-  return youtube_search(options)
-
-def youtube_search(search_options):
+def youtube_search(title):
   global youtube
 
   # Call the search.list method to retrieve results matching the specified
   # query term.
   search_response = youtube.search().list(
-    q=search_options.q,
+    q=title,
     part="id,snippet",
     type="video",
-    maxResults=search_options.max_results
+    maxResults=35,
   ).execute()
 
   videos = []
@@ -276,19 +270,14 @@ if __name__ == '__main__':
   if args.file is None or not os.path.exists(args.file):
     exit("Please specify a valid file using the --file= parameter.")
   else:
-#    res['id'] = 'bite me'
     res = initialize_upload(args)
-
-  print "Respose:"
-  for x in res:
-    print (x,':',res[x])
 
   vid_url = gconfig['Url']['pre'] + res['id']
   print "url: " + vid_url
   writeUrl(vid_url)
 
   print
-  for vid_id in search_todays_videos(args):
+  for vid_id in youtube_search(args.title):
     if vid_id != res['id']:
       if args.doDeletes is True:
         remove_old_video(vid_id)
