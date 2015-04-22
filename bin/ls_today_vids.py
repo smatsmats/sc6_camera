@@ -116,17 +116,6 @@ def getVidDateTime():
   vdate = os.stat(video_file).st_mtime
   return datetime.fromtimestamp(vdate)
 
-def writeUrl(vid_url):
-  url_file = config['Video'][vid_selector]['URL_file']
-  try:
-    f = open(url_file, 'w')
-    f.write(vid_url)
-    f.close
-  except IOError, ioex:
-    print 'errno:', ioex.errno
-    print 'err code:', errno.errorcode[ioex.errno]
-    print 'err message:', os.strerror(ioex.errno)
-
 def search_todays_videos(options):
   search_options = options
   options.max_results = 50
@@ -161,83 +150,6 @@ def youtube_search(search_options):
       videos.append(search_result["id"]["videoId"])
 
   return videos
-
-def remove_old_video(id):
-#  youtube_public = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-#        developerKey=DEVELOPER_KEY)
-
-  global youtube
-  youtube2 = get_authenticated_service()
-  print "going to remove: " + id
-  res = youtube2.videos().delete(id=id).execute()
-  print res
-
-def initialize_upload(options):
-  global youtube
-
-  tags = None
-  if options.keywords:
-    tags = options.keywords.split(",")
-
-  insert_request = youtube.videos().insert(
-    part="snippet,status",
-    body=dict(
-      snippet=dict(
-        title=options.title,
-        description=options.description,
-        tags=tags,
-        categoryId=options.category
-      ),
-      status=dict(
-        privacyStatus=options.privacyStatus
-      )
-    ),
-    # chunksize=-1 means that the entire file will be uploaded in a single
-    # HTTP request. (If the upload fails, it will still be retried where it
-    # left off.) This is usually a best practice, but if you're using Python
-    # older than 2.6 or if you're running on App Engine, you should set the
-    # chunksize to something like 1024 * 1024 (1 megabyte).
-    media_body=MediaFileUpload(options.file, chunksize=-1, resumable=True)
-  )
-
-  return resumable_upload(insert_request)
-
-
-def resumable_upload(insert_request):
-  response = None
-  error = None
-  retry = 0
-  while response is None:
-    try:
-      print "Uploading file..."
-      status, response = insert_request.next_chunk()
-      if 'id' in response:
-        print "'%s' (video id: %s) was successfully uploaded." % (
-          options.title, response['id'])
-      else:
-        exit("The upload failed with an unexpected response: %s" % response)
-    except HttpError, e:
-      if e.resp.status in RETRIABLE_STATUS_CODES:
-        error = "A retriable HTTP error %d occurred:\n%s" % (e.resp.status,
-                                                             e.content)
-      else:
-        raise
-    except RETRIABLE_EXCEPTIONS, e:
-      error = "A retriable error occurred: %s" % e
-
-    if error is not None:
-      print error
-      retry += 1
-      if retry > MAX_RETRIES:
-        exit("No longer attempting to retry.")
-
-      max_sleep = 2 ** retry
-      sleep_seconds = random.random() * max_sleep
-      print "Sleeping %f seconds and then retrying..." % sleep_seconds
-      time.sleep(sleep_seconds)
-
-  return response
-
 
 if __name__ == '__main__':
   parser = OptionParser()
