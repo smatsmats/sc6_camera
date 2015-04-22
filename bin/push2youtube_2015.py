@@ -6,18 +6,17 @@ import os
 import random
 import sys
 import time
+from time import sleep
 
 import yaml
 import errno
 import re
 import getopt
-from time import sleep
 import string
 from string import Template
 import urllib
 import urllib2
 import xml.parsers.expat
-import pprint
 from stat import *
 from datetime import *
 from atom import ExtensionElement
@@ -28,7 +27,6 @@ from apiclient.http import MediaFileUpload
 from oauth2client.file import Storage
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.tools import run
-from optparse import OptionParser
 from argparse import ArgumentParser
 
 gconfig_root = yaml.load(file("/usr/local/cam/conf/push2youtube_config.yml"))
@@ -158,13 +156,10 @@ def youtube_search(search_options):
   return videos
 
 def remove_old_video(id):
-#  youtube_public = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-#        developerKey=DEVELOPER_KEY)
-
   global youtube
-  youtube2 = get_authenticated_service()
+#  youtube2 = get_authenticated_service()
   print "going to remove: " + id
-  res = youtube2.videos().delete(id=id).execute()
+  res = youtube.videos().delete(id=id).execute()
   print res
 
 def initialize_upload(options):
@@ -274,6 +269,9 @@ if __name__ == '__main__':
     print (x,':',d[x])
 
   youtube = get_authenticated_service()
+#  youtube_public = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
+#        developerKey=DEVELOPER_KEY)
+
 
   res = {}
   if args.file is None or not os.path.exists(args.file):
