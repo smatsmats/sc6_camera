@@ -145,7 +145,10 @@ def youtube_search(title):
   for search_result in search_response.get("items", []):
     if search_result["id"]["kind"] == "youtube#video":
       print "id: %s Title: %s Date / Time: %s" % (search_result["id"]["videoId"], search_result["snippet"]["title"], search_result["snippet"]["publishedAt"])
-      videos.append(search_result["id"]["videoId"])
+      if search_result["snippet"]["title"] != title:
+	print "WTF! %s != %s" % (search_result["snippet"]["title"], title)
+      else:
+        videos.append(search_result["id"]["videoId"])
 
   return videos
 
@@ -192,7 +195,7 @@ def resumable_upload(insert_request):
   retry = 0
   while response is None:
     try:
-      print "Uploading file..."
+      print "Uploading file ..."
       status, response = insert_request.next_chunk()
       if 'id' in response:
         print "'%s' (video id: %s) was successfully uploaded." % (
@@ -255,11 +258,6 @@ if __name__ == '__main__':
   d['title'] = args.title # make the title available for later substitution
   args.developer_tag = Template(config['Video'][vid_selector]['TitleTagTemplate']).safe_substitute(d)
   args.description = Template(config['Video'][vid_selector]['DescriptionTemplate']).safe_substitute(d)
-
-  # ugly debugging
-  print video_file
-  for x in d:
-    print (x,':',d[x])
 
   youtube = get_authenticated_service()
 #  youtube_public = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
