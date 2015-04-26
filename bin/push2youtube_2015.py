@@ -51,8 +51,6 @@ logger.warn('warn message')
 logger.error('error message')
 logger.critical('critical message')
 
-exit()
-
 # this will soon come from command line or somewhere
 vid_selector = "Daily"
 
