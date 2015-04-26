@@ -45,11 +45,11 @@ logging.config.dictConfig(lconfig)
 logger = logging.getLogger('push2youtube')
 
 # 'application' code
-logger.debug('debug message')
-logger.info('info message')
-logger.warn('warn message')
-logger.error('error message')
-logger.critical('critical message')
+#logger.debug('debug message')
+#logger.info('info message')
+#logger.warn('warn message')
+#logger.error('error message')
+#logger.critical('critical message')
 
 # this will soon come from command line or somewhere
 vid_selector = "Daily"
@@ -122,7 +122,6 @@ def get_authenticated_service():
   credentials = storage.get()
 
   if credentials is None or credentials.invalid:
-    print flow
     credentials = run(flow, storage)
 
   return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
@@ -139,9 +138,9 @@ def writeUrl(vid_url):
     f.write(vid_url)
     f.close
   except IOError, ioex:
-    print 'errno:', ioex.errno
-    print 'err code:', errno.errorcode[ioex.errno]
-    print 'err message:', os.strerror(ioex.errno)
+    logger.error('errno:', ioex.errno)
+    logger.error('err code:', errno.errorcode[ioex.errno])
+    logger.error('err message:', os.strerror(ioex.errno))
 
 def youtube_search(title):
   global youtube
@@ -161,9 +160,9 @@ def youtube_search(title):
   # matching videos, channels, and playlists.
   for search_result in search_response.get("items", []):
     if search_result["id"]["kind"] == "youtube#video":
-      print "id: %s Title: %s Date / Time: %s" % (search_result["id"]["videoId"], search_result["snippet"]["title"], search_result["snippet"]["publishedAt"])
+      logger.info("id: %s Title: %s Date / Time: %s" % (search_result["id"]["videoId"], search_result["snippet"]["title"], search_result["snippet"]["publishedAt"]))
       if search_result["snippet"]["title"] != title:
-	print "WTF! %s != %s" % (search_result["snippet"]["title"], title)
+	logger.error("WTF! %s != %s" % (search_result["snippet"]["title"], title))
       else:
         videos.append(search_result["id"]["videoId"])
 
@@ -172,7 +171,7 @@ def youtube_search(title):
 def remove_old_video(id):
   global youtube
 
-  print "going to remove: " + id
+  logger.info("going to remove: " + id)
   youtube.videos().delete(id=id).execute()
 
 def initialize_upload(options):
@@ -212,11 +211,11 @@ def resumable_upload(insert_request):
   retry = 0
   while response is None:
     try:
-      print "Uploading file ..."
+      logger.info("Uploading file ...")
       status, response = insert_request.next_chunk()
       if 'id' in response:
-        print "'%s' (video id: %s) was successfully uploaded." % (
-          response['snippet']['title'], response['id'])
+        logger.info("'%s' (video id: %s) was successfully uploaded." % (
+          response['snippet']['title'], response['id']))
       else:
         exit("The upload failed with an unexpected response: %s" % response)
     except HttpError, e:
@@ -229,14 +228,14 @@ def resumable_upload(insert_request):
       error = "A retriable error occurred: %s" % e
 
     if error is not None:
-      print error
+      logger.error(error)
       retry += 1
       if retry > MAX_RETRIES:
         exit("No longer attempting to retry.")
 
       max_sleep = 2 ** retry
       sleep_seconds = random.random() * max_sleep
-      print "Sleeping %f seconds and then retrying..." % sleep_seconds
+      logger.error("Sleeping %f seconds and then retrying..." % sleep_seconds)
       time.sleep(sleep_seconds)
 
   return response
@@ -288,14 +287,13 @@ if __name__ == '__main__':
     res = initialize_upload(args)
 
   vid_url = gconfig['Url']['pre'] + res['id']
-  print "url: " + vid_url
+  logger.info("url: " + vid_url)
   writeUrl(vid_url)
 
-  print
   for vid_id in youtube_search(args.title):
     if vid_id != res['id']:
       if args.doDeletes is True:
         remove_old_video(vid_id)
       else:
-        print "would hav deleted: " + vid_id
+        logger.debug("would hav deleted: " + vid_id)
 
