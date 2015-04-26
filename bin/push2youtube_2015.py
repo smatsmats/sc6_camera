@@ -29,10 +29,29 @@ from oauth2client.client import flow_from_clientsecrets
 from oauth2client.tools import run
 from argparse import ArgumentParser
 
+import logging
+import logging.config
+
 gconfig_root = yaml.load(file("/usr/local/cam/conf/push2youtube_config.yml"))
 gconfig = gconfig_root['Prod']
 config_root = yaml.load(file("/usr/local/cam/conf/config.yml"))
 config = config_root['Root1']
+
+with open(gconfig['Logging']['log_config'], 'rt') as f:
+    lconfig = yaml.load(f.read())
+logging.config.dictConfig(lconfig)
+
+# create logger
+logger = logging.getLogger('push2youtube')
+
+# 'application' code
+logger.debug('debug message')
+logger.info('info message')
+logger.warn('warn message')
+logger.error('error message')
+logger.critical('critical message')
+
+exit()
 
 # this will soon come from command line or somewhere
 vid_selector = "Daily"
