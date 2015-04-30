@@ -6,12 +6,15 @@ import os
 import random
 import sys
 import time
+from time import localtime, strftime
+from time import sleep
+import dateutil.parser
+from pytz import timezone
 
 import yaml
 import errno
 import re
 import getopt
-from time import sleep
 import string
 from string import Template
 import urllib
@@ -146,7 +149,11 @@ def youtube_search(search_options):
   # matching videos, channels, and playlists.
   for search_result in search_response.get("items", []):
     if search_result["id"]["kind"] == "youtube#video":
-      print "id: %s Title: %s Date / Time: %s" % (search_result["id"]["videoId"], search_result["snippet"]["title"], search_result["snippet"]["publishedAt"])
+#      dt = new datetime
+
+      dt = dateutil.parser.parse(search_result["snippet"]["publishedAt"])
+      localPublishedAt = dt.astimezone(timezone('America/Los_Angeles'))
+      print "id: %s Title: %s Date / Time: %s (%s)" % (search_result["id"]["videoId"], search_result["snippet"]["title"], localPublishedAt, search_result["snippet"]["publishedAt"])
       videos.append(search_result["id"]["videoId"])
 
   return videos

@@ -2,23 +2,24 @@
 
 import httplib
 import httplib2
+import urllib
+import urllib2
 import os
 import random
 import sys
 import time
 from time import sleep
+import dateutil.parser
+from pytz import timezone
+from datetime import *
 
 import yaml
 import errno
 import re
-import getopt
 import string
 from string import Template
-import urllib
-import urllib2
 import xml.parsers.expat
 from stat import *
-from datetime import *
 from atom import ExtensionElement
 
 from apiclient.discovery import build
@@ -160,7 +161,9 @@ def youtube_search(title):
   # matching videos, channels, and playlists.
   for search_result in search_response.get("items", []):
     if search_result["id"]["kind"] == "youtube#video":
-      logger.info("id: %s Title: %s Date / Time: %s" % (search_result["id"]["videoId"], search_result["snippet"]["title"], search_result["snippet"]["publishedAt"]))
+      dt = dateutil.parser.parse(search_result["snippet"]["publishedAt"])
+      localPublishedAt = dt.astimezone(timezone('America/Los_Angeles'))
+      logger.info("id: %s Title: %s Date / Time: %s (%s)" % (search_result["id"]["videoId"], search_result["snippet"]["title"], localPublishedAt, search_result["snippet"]["publishedAt"]))
       if search_result["snippet"]["title"] != title:
 	logger.error("WTF! %s != %s" % (search_result["snippet"]["title"], title))
       else:
@@ -260,6 +263,7 @@ if __name__ == '__main__':
     help="Video privacy status: public, private or unlisted",
     default="public")
   parser.add_argument("--doDeletes", action='store_true', help="clenaup other uploades from today")
+  parser.add_argument("--dontUpload", action='store_true', help="for testing, don't actually do the upload")
   args = parser.parse_args()
 
   # file
@@ -284,9 +288,17 @@ if __name__ == '__main__':
   if args.file is None or not os.path.exists(args.file):
     exit("Please specify a valid file using the --file= parameter.")
   else:
-    res = initialize_upload(args)
+    if args.dontUpload:
+       logger.info("dontUpload is set, we won't upload")
+    else:
+      res = initialize_upload(args)
 
-  vid_url = gconfig['Url']['pre'] + res['id']
+  vid_url = ""
+  if id in res:
+    vid_url = gconfig['Url']['pre'] + res['id']
+  else:
+    vid_url = "no upload"
+    res['id'] = "XXX"
   logger.info("url: " + vid_url)
   writeUrl(vid_url)
 
