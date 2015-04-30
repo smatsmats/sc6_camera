@@ -163,7 +163,9 @@ def youtube_search(title):
     if search_result["id"]["kind"] == "youtube#video":
       dt = dateutil.parser.parse(search_result["snippet"]["publishedAt"])
       localPublishedAt = dt.astimezone(timezone('America/Los_Angeles'))
-      logger.info("id: %s Title: %s Date / Time: %s (%s)" % (search_result["id"]["videoId"], search_result["snippet"]["title"], localPublishedAt, search_result["snippet"]["publishedAt"]))
+      logger.info("id: %s Title: %s Date / Time: %s (%s)" % (search_result["id"]["videoId"], 
+          search_result["snippet"]["title"], localPublishedAt, 
+	  search_result["snippet"]["publishedAt"]))
       if search_result["snippet"]["title"] != title:
 	logger.error("WTF! %s != %s" % (search_result["snippet"]["title"], title))
       else:
@@ -261,7 +263,7 @@ if __name__ == '__main__':
     help="Video keywords, comma separated", default="")
   parser.add_argument("--privacyStatus", dest="privacyStatus",
     help="Video privacy status: public, private or unlisted",
-    default="public")
+    default="unlisted")
   parser.add_argument("--doDeletes", action='store_true', help="clenaup other uploades from today")
   parser.add_argument("--dontUpload", action='store_true', help="for testing, don't actually do the upload")
   args = parser.parse_args()
