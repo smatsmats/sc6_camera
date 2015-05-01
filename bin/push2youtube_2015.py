@@ -287,22 +287,19 @@ if __name__ == '__main__':
 
 
   res = {}
+  vid_url = ""
   if args.file is None or not os.path.exists(args.file):
     exit("Please specify a valid file using the --file= parameter.")
   else:
     if args.dontUpload:
-       logger.info("dontUpload is set, we won't upload")
+      logger.info("dontUpload is set, we won't upload")
+      vid_url = "no upload"
+      res['id'] = "XXX"
     else:
       res = initialize_upload(args)
-
-  vid_url = ""
-  if id in res:
-    vid_url = gconfig['Url']['pre'] + res['id']
-  else:
-    vid_url = "no upload"
-    res['id'] = "XXX"
-  logger.info("url: " + vid_url)
-  writeUrl(vid_url)
+      vid_url = gconfig['Url']['pre'] + res['id']
+      logger.info("url: " + vid_url)
+      writeUrl(vid_url)
 
   for vid_id in youtube_search(args.title):
     if vid_id != res['id']:
