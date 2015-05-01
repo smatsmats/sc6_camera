@@ -263,7 +263,7 @@ if __name__ == '__main__':
     help="Video keywords, comma separated", default="")
   parser.add_argument("--privacyStatus", dest="privacyStatus",
     help="Video privacy status: public, private or unlisted",
-    default="unlisted")
+    default="public")
   parser.add_argument("--doDeletes", action='store_true', help="clenaup other uploades from today")
   parser.add_argument("--dontUpload", action='store_true', help="for testing, don't actually do the upload")
   args = parser.parse_args()
