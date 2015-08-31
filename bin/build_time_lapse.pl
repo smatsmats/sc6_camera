@@ -1,5 +1,9 @@
 #!/usr/bin/perl
 
+use strict;
+use warnings;
+use Fcntl qw(:flock);
+
 use DateTime;
 use SC6::Cam::General;
 use SC6::Cam::Config;
@@ -16,7 +20,7 @@ my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml");
 our $config = $c->getConfig();
 our $debug = $c->getDebug();
 
-$result = GetOptions (  "n|dry-run" => \$dryrun,
+my $result = GetOptions (  "n|dry-run" => \$dryrun,
                         "f|force"  => \$force,
                         "h|help"  => \&usage,
                         "m|mode=s"  => \$mode,
@@ -24,6 +28,11 @@ $result = GetOptions (  "n|dry-run" => \$dryrun,
 if ( ! $result ) {
     usage();
     exit;
+}
+
+unless (flock(DATA, LOCK_EX|LOCK_NB)) {
+    print "$0 is already running. Exiting.\n";
+    exit(1);
 }
 
 my $dt = DateTime->now(  time_zone => $config->{'General'}->{'Timezone'} );
@@ -94,3 +103,7 @@ sub push_to_youtube {
     my $cmd = $config->{'Bins'}->{'push2youtube'} . " " . $config->{'Bins'}->{'push2youtube_args'};
     do_cmd($cmd, $dryrun);
 }
+
+__DATA__
+This exists so flock() code above works.
+DO NOT REMOVE THIS DATA SECTION.
