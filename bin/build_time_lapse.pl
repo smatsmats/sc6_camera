@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 use Fcntl qw(:flock);
+use Time::ParseDate;
 
 use DateTime;
 use SC6::Cam::General;
@@ -19,11 +20,13 @@ my $sleep_time = 30;
 my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml");
 our $config = $c->getConfig();
 our $debug = $c->getDebug();
+my $date;
 
 my $result = GetOptions (  "n|dry-run" => \$dryrun,
                         "f|force"  => \$force,
                         "h|help"  => \&usage,
                         "m|mode=s"  => \$mode,
+                        "t|date=s"  => \$date,
                         "d|debug+"  => \$debug);
 if ( ! $result ) {
     usage();
@@ -35,7 +38,23 @@ unless (flock(DATA, LOCK_EX|LOCK_NB)) {
     exit(1);
 }
 
-my $dt = DateTime->now(  time_zone => $config->{'General'}->{'Timezone'} );
+my $dt;
+if ( $date ) {
+    print $date, "\n" if ( $debug );
+    my ($seconds, $error) = parsedate($date);
+    if ( not $seconds ) {
+	print "Error can't parse date: $date : $error\n";
+        exit;
+    }
+    else {
+	print $seconds, "\n" if ( $debug );
+        $dt = DateTime->from_epoch(  epoch => $seconds, time_zone => $config->{'General'}->{'Timezone'} );
+    }
+}
+else {
+    $dt = DateTime->now(  time_zone => $config->{'General'}->{'Timezone'} );
+}
+
 my $s = new SC6::Cam::Sun();
 print "Now: $dt\n" if ( $debug );
 if ( $force ) {
