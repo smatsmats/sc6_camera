@@ -21,12 +21,14 @@ my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml");
 our $config = $c->getConfig();
 our $debug = $c->getDebug();
 my $date;
+my $no_push;
 
 my $result = GetOptions (  "n|dry-run" => \$dryrun,
                         "f|force"  => \$force,
                         "h|help"  => \&usage,
                         "m|mode=s"  => \$mode,
                         "t|date=s"  => \$date,
+                        "np|no-push"  => \$no_push,
                         "d|debug+"  => \$debug);
 if ( ! $result ) {
     usage();
@@ -79,8 +81,11 @@ if ( $dryrun ) {
 
 my $format = 'orig';
 make_moovie($format, $mode);
-compress_moovie($format, $mode);
-push_to_youtube();
+my %metadata = collect_metadata();
+compress_moovie($format, $mode, %metadata);
+if ( ! $no_push ) {
+    push_to_youtube();
+}
 
 print "buh bye\n";
 
@@ -99,21 +104,26 @@ sub make_moovie {
 }
 
 sub compress_moovie {
-    my ($format, $mode) = @_;
+    my ($format, $mode, %metadata) = @_;
     my $in = get_video_file($dt, $format, 'avi', $mode);
     my $out = get_video_file($dt, $format, 'mp4', $mode);
     my $ll =  $config->{'FFMpegLogLevel'};
-    my $cmd = "avconv -y -loglevel $ll -i $in -r 25 -s 1920x1080 -vcodec libx264 -b:v 30000k $out";
+    my $md;
+    foreach my $k ( keys %metadata ) {
+	$md .= " -metadata $k='" . $metadata{$k} . "'";
+    }
+    my $cmd = "avconv -y -loglevel $ll -i $in $md -r 25 -s 1920x1080 -vcodec libx264 -b:v 30000k $out";
     do_cmd($cmd, $dryrun);
 }
 
 sub usage
 {
     print "usage: $0 [-d|--debug] [-f|--force] [-h|--help] [-n|--dry-run] [-m|mode=mode]\n";
-    print "\t-f|--force   - Force building of the video files\n";
-    print "\t-h|--help    - This message\n";
-    print "\t-n|--dry-run - perform a trial run with no changes made\n";
-    print "\t-m|--mode    - mode, prod or test\n";
+    print "\t-f|--force    - Force building of the video files\n";
+    print "\t-h|--help     - This message\n";
+    print "\t-n|--dry-run  - perform a trial run with no changes made\n";
+    print "\t-np|--no-push - don't push to youtube\n";
+    print "\t-m|--mode     - mode, prod or test\n";
     exit(1);
 
 }
@@ -121,6 +131,16 @@ sub usage
 sub push_to_youtube {
     my $cmd = $config->{'Bins'}->{'push2youtube'} . " " . $config->{'Bins'}->{'push2youtube_args'};
     do_cmd($cmd, $dryrun);
+}
+
+sub collect_metadata {
+    my %h;
+    $h{'title'} = "test title";
+    $h{'tags'} = "test tags";
+    $h{'description'} = "test description";
+    $h{'date'} = "test date";
+
+    return %h;
 }
 
 __DATA__
