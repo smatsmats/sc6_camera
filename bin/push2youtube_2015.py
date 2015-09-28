@@ -30,6 +30,8 @@ from oauth2client.client import flow_from_clientsecrets
 from oauth2client.tools import run
 from argparse import ArgumentParser
 
+#from libavwrapper import AVConv, Input, Output, VideoCodec, VideoFilter
+
 import logging
 import logging.config
 
