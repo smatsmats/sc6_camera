@@ -38,8 +38,8 @@ else {
 }
 
 print $s->sun_message();
-print "We'll start the party at ", $s->start_time()->epoch(), "\n";;
-print "We'll close shop ", $s->end_time()->epoch(), "\n";;
+print "We'll start the party at ", $s->start_time()->datetime, " (", $s->start_time()->epoch(), ")\n";
+print "We'll close shop ", $s->end_time()->datetime, " (", $s->end_time()->epoch(), ")\n";
 
 exit;
 
