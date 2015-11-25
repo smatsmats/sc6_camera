@@ -112,7 +112,8 @@ sub compress_moovie {
     foreach my $k ( keys %metadata ) {
 	$md .= " -metadata $k='" . $metadata{$k} . "'";
     }
-    my $cmd = "avconv -y -loglevel $ll -i $in $md -r 25 -s 1920x1080 -vcodec libx264 -b:v 30000k $out";
+    my $cmd = $config->{'Bins'}->{'ffmpeg'};
+    $cmd .= " -y -loglevel $ll -i $in $md -r 25 -s 1920x1080 -vcodec libx264 -b:v 30000k $out";
     do_cmd($cmd, $dryrun);
 }
 

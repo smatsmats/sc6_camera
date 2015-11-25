@@ -143,6 +143,7 @@ Root1:
     Bins:
         push2youtube: "/usr/local/cam/bin/push2youtube_2015.py"
         push2youtube_args: "--doDeletes"
+	ffmpeg: "ffmpeg"
 
     FPS: 15
     Type: jpg
