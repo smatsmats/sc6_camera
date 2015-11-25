@@ -26,4 +26,6 @@ rrd_data_sets - my rrd data set definitions
 wx_cmds - my commands for extracting wx data
 
 Init:
-etc/init/cam_collect_images.conf - upstar config
+Here are configs for either upstart or systemd
+install/updtart - upstart config files
+install/systemd - systemd config files
