@@ -1,5 +1,0 @@
-# defaults for camera
-
-# Change to 0 to disable daemon
-ENABLE_DAEMON=1
-
