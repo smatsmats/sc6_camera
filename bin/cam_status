@@ -25,5 +25,8 @@ else {
 #print "Is there a push happening:\n";
 #print `ps auwwx | grep push2youtube_2015.py`, "\n";
 
+print "what's up on youtube?\n";
+print `/usr/local/cam/bin/./ls_today_vids.py`, "\n";
+
 print "Where is the sun?\n";
 print `/usr/local/cam/bin/sun.pl`, "\n";
