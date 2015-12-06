@@ -1,7 +1,14 @@
 #!/usr//bin/perl
 
+my $init = 'systemd';
+
 print "Checking if cam_collect_images is running:\n";
-print `status cam_collect_images`, "\n";
+if ( $init eq 'systemd' ) {
+    print `systemctl status cam_collect_images | grep Active`, "\n";
+}
+else {
+    print `status cam_collect_images`, "\n";
+}
 
 print "Are we building?\n";
 my $res = `pidof -x build_time_lapse.pl`;
