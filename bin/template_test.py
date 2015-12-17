@@ -39,6 +39,7 @@ video_file = gconfig['Root1']['Paths']['video_file']
 
 vid_selector = "Daily"
 print config['Video'][vid_selector]
+print
 
 #title = Template
 
@@ -46,10 +47,10 @@ date_string = getDateString(0)
 d = dict([('date', date_string), ('underbar_date', date_string.replace('-', '_')), ('video_created', str(getVidDateTime())), ('video_uploaded', str(datetime.now()))])
 
 title = Template(config['Video'][vid_selector]['TitleTemplate']).safe_substitute(d)
-print title
+print "title: " + title
 d['title'] = title
 titletag = Template(config['Video'][vid_selector]['TitleTagTemplate']).safe_substitute(d)
-print titletag
+print "title tag: " + titletag
 description = Template(config['Video'][vid_selector]['DescriptionTemplate']).safe_substitute(d)
-print description
+print "description: " + description
 
