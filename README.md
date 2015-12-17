@@ -6,9 +6,9 @@ webcam fetching and timelapse generating / publishing tool
 totally written for my own needs, but perhaps useful to others
 
 Bins:
+build_and_push.pl - wrapper for build and push cron job
 cam_collect_images - persistant script harvesting images, launches from upstart
 build_time_lapse.pl
-hourly.sh
 push2youtube.py
 blueist.pl - tests bluecode algorithms for a set of images
 do_overlays.pl - test for overlays
