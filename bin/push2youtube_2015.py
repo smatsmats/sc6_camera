@@ -8,7 +8,6 @@ import os
 import random
 import sys
 import time
-from time import sleep
 import dateutil.parser
 from pytz import timezone
 from datetime import *
@@ -215,7 +214,7 @@ def initialize_upload(options):
 def resumable_upload(insert_request):
   response = None
   error = None
-  retry = 0
+  retry = 30
   while response is None:
     try:
       logger.info("Uploading file ...")
