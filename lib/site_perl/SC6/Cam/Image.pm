@@ -29,7 +29,6 @@ sub new {
     # these are the files / links used on the web page
     my $www_dir = get_www_dir($format, $self->{_mode});
     $self->{_www_image_orig} = $www_dir . "current_image_orig.jpg";
-    $self->{_www_image_25pct} = $www_dir . "current_image_25pct.jpg";
     $self->{_www_image_50pct} = $www_dir . "current_image_50pct.jpg";
 
     bless $self, $class;
@@ -68,12 +67,9 @@ sub resizes_and_links {
     my $output = $self->{_output};
     my $output_50pct = $self->{_output_50pct};
     my $www_image_orig = $self->{_www_image_orig};
-    my $www_image_25pct = $self->{_www_image_25pct};
     my $www_image_50pct = $self->{_www_image_50pct};
 
     my $scale_cmd = "convert -scale 50% $output $output_50pct";
-    i_do_cmd($self, $scale_cmd);
-    $scale_cmd = "convert -scale 25% $output $www_image_25pct";
     i_do_cmd($self, $scale_cmd);
 
     if ( -l $www_image_orig ) {
