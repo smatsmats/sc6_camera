@@ -50,10 +50,23 @@ while() {
     }
     else {
         print "Sun is down! $dt\n";
-        $bcr->clear();  # clear bluecode
-        $fetch_sleep = $sleep_time_night;
-        $prev_failed_start = 0;   # make sure this doesn't carry over from the previous day
-        $last_gstore_push = 0;
+
+        # do some things during the first hour the sun is down
+        # we should really do this all once but instead we do it a bunch, but only for an hour :)
+        if ( $s->is_hour_after_dusk($dt) ) {
+            $bcr->clear();  # clear bluecode
+            $fetch_sleep = $sleep_time_night;
+            $prev_failed_start = 0;   # make sure this doesn't carry over from the previous day
+            $last_gstore_push = 0;
+ 
+            # cp blueist to current
+            my $current_dir = $config->{GStore}->{'CurrentDir'};
+            my $blueist_dir = $config->{GStore}->{'BlueistDir'};
+            my $current_image_orig = $current_dir . "current_image_orig.jpg";
+            my $current_image_50pct = $current_dir . "current_image_50pct.jpg";
+            $gstore->cp($current_image_orig, $blueist_dir);
+            $gstore->cp($current_image_50pct, $blueist_dir);
+        }
         next;
     }
 
@@ -85,7 +98,7 @@ while() {
         # push the images to gstore
         # this should really be a seperate loop or even process, but for now it's here
         if ( $last_gstore_push + $gstore_interval < $end_time->epoch() ) { 
-            # this dieectory crap is a mess, fixe it.  
+            # this directory crap is a mess, fix it.  
             my $current = $config->{GStore}->{'CurrentDir'};
             my $www_dir = get_www_dir($format, $mode);
             my $www_image_orig = $www_dir . "current_image_orig.jpg";

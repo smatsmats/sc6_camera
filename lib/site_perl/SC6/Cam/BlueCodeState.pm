@@ -25,8 +25,9 @@ sub checkBluecode {
     if ( $new_bluecode > $self->{_bluecode} ) {
         print "new bluecode: $new_bluecode old: ", $self->{_bluecode}, "\n";
         my $www_image_50pct = $new_image->{_www_image_50pct};
+        my $www_image_orig = $new_image->{_www_image_orig};
         $self->{_bluecode} = $new_bluecode;
-        save_is_blueist($self, $www_image_50pct);
+        save_is_blueist($self, $www_image_50pct, $www_image_orig);
         cache($self);
     }
     return $self;
@@ -57,14 +58,21 @@ sub clear {
 }
 
 sub save_is_blueist {
-    my ( $self, $bf ) = @_;
+    my ( $self, $bf_50pct, $bf_orig ) = @_;
     my $bc = $self->{_bluecode};
-    my $blueist_file = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'BlueistImage'};
+    my $blueist_file_50pct = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'BlueistImage'} . "_50pct";
+    my $blueist_file_orig = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'BlueistImage'} . "_orig";
 
-    copy($bf, $blueist_file) or die "Can't copy $bf to $blueist_file: $!\n";
-    print "Bluecode copy: $bf to $blueist_file\n" if ( $main::debug );
-    my $current = $main::config->{GStore}->{'CurrentDir'};
-    $main::gstore->cp($blueist_file, $current);
+    # local copies
+    copy($bf_50pct, $blueist_file_50pct) or die "Can't copy $bf_50pct to $blueist_file_50pct: $!\n";
+    copy($bf_orig, $blueist_file_orig) or die "Can't copy $bf_orig to $blueist_file_orig: $!\n";
+    print "Bluecode copy: $bf_50pct to $blueist_file_50pct\n" if ( $main::debug );
+    print "Bluecode copy: $bf_orig to $blueist_file_orig\n" if ( $main::debug );
+
+    # copies on google
+    my $bucket_dir = $main::config->{GStore}->{'BlueistDir'};
+    $main::gstore->cp($bf_50pct, $bucket_dir);
+    $main::gstore->cp($bf_orig, $bucket_dir);
 
 }
 
