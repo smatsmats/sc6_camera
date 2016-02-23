@@ -28,8 +28,8 @@ sub new {
 
     # these are the files / links used on the web page
     my $www_dir = get_www_dir($format, $self->{_mode});
-    $self->{_www_image_orig} = $www_dir . "current_image_orig.jpg";
-    $self->{_www_image_50pct} = $www_dir . "current_image_50pct.jpg";
+    $self->{_www_image_orig} = $www_dir . $main::config->{Image}->{File}->{orig};
+    $self->{_www_image_50pct} = $www_dir . $main::config->{Image}->{File}->{'50pct'};
 
     bless $self, $class;
     return $self;
