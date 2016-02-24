@@ -62,10 +62,10 @@ while() {
             # cp blueist to current
             my $current_dir = $config->{GStore}->{'CurrentDir'};
             my $blueist_dir = $config->{GStore}->{'BlueistDir'};
-            my $current_image_orig = $current_dir . $config->{Image}->{File}->{orig};
-            my $current_image_50pct = $current_dir . $config->{Image}->{File}->{'50pct'};
-            $gstore->cp($current_image_orig, $blueist_dir);
-            $gstore->cp($current_image_50pct, $blueist_dir);
+            my $blueist_image_orig = $blueist_dir . "/" . $config->{Image}->{File}->{orig};
+            my $blueist_image_50pct = $blueist_dir . "/" . $config->{Image}->{File}->{'50pct'};
+            $gstore->cp_bucket2bucket($blueist_image_orig, $current_dir);
+            $gstore->cp_bucket2bucket($blueist_image_50pct, $current_dir);
         }
         next;
     }
@@ -103,8 +103,8 @@ while() {
             my $www_dir = get_www_dir($format, $mode);
             my $www_image_orig = $www_dir . $config->{Image}->{File}->{orig};
             my $www_image_50pct = $www_dir . $config->{Image}->{File}->{'50pct'};
-            $gstore->cp($www_image_orig, $current);
-            $gstore->cp($www_image_50pct, $current);
+            $gstore->cp_fs2bucket($www_image_orig, $current);
+            $gstore->cp_fs2bucket($www_image_50pct, $current);
             $last_gstore_push = $end_time->epoch();
         }
         else {

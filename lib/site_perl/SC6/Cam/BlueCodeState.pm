@@ -71,8 +71,8 @@ sub save_is_blueist {
 
     # copies on google
     my $bucket_dir = $main::config->{GStore}->{'BlueistDir'};
-    $main::gstore->cp($bf_50pct, $bucket_dir);
-    $main::gstore->cp($bf_orig, $bucket_dir);
+    $main::gstore->cp_fs2bucket($bf_50pct, $bucket_dir);
+    $main::gstore->cp_fs2bucket($bf_orig, $bucket_dir);
 
 }
 
