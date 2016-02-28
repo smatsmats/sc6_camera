@@ -28,3 +28,9 @@ Init:
 Here are configs for either upstart or systemd
 install/upstart - upstart config files
 install/systemd - systemd config files
+
+Oauth Tokens for YouTube:
+
+Once you've created the credentials entry in gogole developers console and copied the client id and client secret run either 
+of the youtube scripts and walk thru the permissions flow.  You'll need a browser with javascript.  If you're running headless 
+you may need to fire-up an X11 server somewhere to get a full-enough browser
