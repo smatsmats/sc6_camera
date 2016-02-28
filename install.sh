@@ -18,6 +18,8 @@ sudo cp -p bin/ls_today_vids.py /usr/local/cam/bin
 sudo cp -p bin/cam_status /usr/local/cam/bin
 sudo cp -p bin/sun.pl /usr/local/cam/bin
 
+[ -d /usr/local/cam/sekrits/ ] || sudo mkdir -p /usr/local/cam/sekrits/
+
 cp www/index.cgi /home/willey/sc6_camera_www
 
 crontab -l > /tmp/old_cron
