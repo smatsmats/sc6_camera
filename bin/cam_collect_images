@@ -71,8 +71,8 @@ while() {
     }
 
     # fetch an image
-    my $cim = new SC6::Cam::Image($dt, $mode, $dryrun, $s);
-    my $result = $cim->fetch();
+    my $current_image = new SC6::Cam::Image($dt, $mode, $dryrun, $s);
+    my $result = $current_image->fetch();
 
     if ( ! $result ) {
         print "Image fetch failed!!!!!\n";
@@ -80,10 +80,10 @@ while() {
         $prev_failed_start = $dt->epoch();
     }
     else {
-        $cim->getBluecode();
-        $cim->do_image_overlays();
-        $cim->resizes_and_links();
-        $bcr->checkBluecode($cim);
+        $current_image->getBluecode();
+        $current_image->do_image_overlays();
+        $current_image->resizes_and_links();
+        $bcr->checkBluecode($current_image);
         
         # normal sleep, but prune sleep time to account for processing
         $end_time = DateTime->now(  time_zone => $config->{'General'}->{'Timezone'} );
