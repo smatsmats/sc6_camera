@@ -30,7 +30,9 @@ $result = GetOptions (  "n|dry-run" => \$dryrun,
                         "d|debug+"  => \$debug);
 
 # prime bluecode
-my $bcr = new SC6::Cam::BlueCodeState();
+my $push_to_google = $config->{'GStore'}->{'Enable'};
+my $bcr = new SC6::Cam::BlueCodeState($mode, $push_to_google, $dryrun);
+
 print "primed bluecode is: ", $bcr->getBluecode(), "\n" if ( $debug );
 our $gstore = new SC6::Cam::GStore();
 
@@ -81,7 +83,7 @@ while() {
     }
     else {
         $current_image->getBluecode();
-        $current_image->do_public_version();
+        $current_image->make_public_version();
         $current_image->do_image_overlays();
         $current_image->resizes_and_links();
         $bcr->checkBluecode($current_image);
