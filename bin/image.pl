@@ -2,14 +2,17 @@
 
 use SC6::Cam::BlueCodeState;
 use SC6::Cam::Config;
+use SC6::Cam::General;
+use SC6::Cam::GStore;
 use SC6::Cam::Image;
+use SC6::Cam::Overlay;
 use SC6::Cam::Sun;
 use Getopt::Long;
 use Data::Dumper;
 use DateTime;
 use GD;
 
-my $mode = "test";
+our $mode = "test";
 my $dryrun = 0;
 my $force = 0;
 
@@ -50,10 +53,12 @@ else {
 my $cim = new SC6::Cam::Image($dt, $mode, $dryrun, $s);
 my $result = $cim->fetch();
 
-my $bcr = new SC6::Cam::BlueCodeState();
+my $push_to_google = 0;
+my $bcr = new SC6::Cam::BlueCodeState($mode, $push_to_google, $dryrun);
 print "primed bluecode is: ", $bcr->getBluecode(), "\n";
     if ( $result ) {
         $cim->getBluecode();
+        $cim->make_public_version();
         $cim->do_image_overlays();
         $cim->resizes_and_links();
         $bcr->checkBluecode($cim);
