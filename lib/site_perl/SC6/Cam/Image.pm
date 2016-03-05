@@ -26,13 +26,32 @@ sub new {
     $image_dir = get_image_dir($self->{_dt}, "50pct", $self->{_mode});
     $self->{_output_50pct} = $image_dir . "image" . $self->{_dt}->epoch() . "_50pct.jpg";
 
+    # public version of image (with mask) saved for one day so we can make video
+    my $public_image_dir = get_image_dir($self->{_dt}, "public", $self->{_mode});
+    $self->{_public_output} = $public_image_dir . "image" . $self->{_dt}->epoch() . "_orig.jpg";
+    
     # these are the files / links used on the web page
     my $www_dir = get_www_dir($format, $self->{_mode});
     $self->{_www_image_orig} = $www_dir . $main::config->{Image}->{File}->{orig};
     $self->{_www_image_50pct} = $www_dir . $main::config->{Image}->{File}->{'50pct'};
 
+    $self->{_public_mask} = load_privacy_mask();
+
     bless $self, $class;
     return $self;
+}
+
+sub load_privacy_mask {
+    if ( lc($main::config->{Public}->{Enable}) ne "true" ) {
+        return undef;
+    }
+
+    my $mask_file = $main::config->{Public}->{MaskFile};
+    my $mask_image = GD::Image->newFromPng($mask_file, 1);
+    if ( ! $mask_image ) {
+        die "Can't make an image from $mask_file\n";
+    }
+    return $mask_image;
 }
 
 sub fetch {
@@ -110,10 +129,22 @@ sub getBluecodes {
 
 }
 
-sub getOutput {
+sub getPublicOutputFile {
+    my ($self) = @_;
+    
+    return( $self->{_public_output} );
+}
+
+sub getOutputFile {
     my ($self) = @_;
     
     return( $self->{_output} );
+}
+
+sub getPublicMask {
+    my ($self) = @_;
+
+    return ( $self->{_public_mask} );
 }
 
 sub getHour {
@@ -126,6 +157,11 @@ sub getMinute {
     my ($self) = @_;
     
     return( $self->{_dt}->minute );
+}
+
+sub make_public_version {
+    my ( $self ) = @_;
+    SC6::Cam::Overlay::do_public_version($self);
 }
 
 sub do_image_overlays {

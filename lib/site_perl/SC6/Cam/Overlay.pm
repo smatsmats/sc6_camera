@@ -28,15 +28,57 @@ BEGIN {
 # file-private lexicals go here, before any functions which use them
 use constant PI => 4 * atan2(1, 1);
 
-sub do_overlays {
-    my ($cim) = @_;
+sub do_public_version {
+    my ($current_image) = @_;
 
-    my $image_file = $cim->getOutput();
-    my $minute = $cim->getMinute();
-    my $hour = $cim->getHour();
-    my ($r, $g, $b, $x, $lum) = $cim->getBluecodes();
-    my $bluecode = $cim->getBluecode();
-    my $s = $cim->getSun();
+    my $image_file = $current_image->getOutputFile();
+    my $public_image_file = $current_image->getPublicOutputFile();
+
+    if ( lc($main::config->{Public}->{Enable}) ne "true" ) {
+        return 
+    }
+
+    # load the picture image file
+    my $main = GD::Image->newFromJpeg($image_file, 1);
+    print "going to load image file $image_file\n";
+
+    if ( ! $main ) {
+        die "Can't make an image from $image_file\n";
+        return;
+    }
+    my ($w, $h) = $main->getBounds();
+
+    my $mask = $current_image->getPublicMask();
+
+#    $public->alphaBlending(0);
+#    $public->saveAlpha(1);
+#    $mask->alphaBlending(0);
+
+#    my $white = $mask->colorAllocate(255,255,255);
+#    $mask->transparent($white);
+
+#    print "is true color public: ", $public->isTrueColor(), "\n";
+    print "is true color mask: ", $mask->isTrueColor(), "\n";
+    print "is true color main: ", $main->isTrueColor(), "\n";
+
+    $main->copy($mask,0,0,0,0,$w,$h);
+
+#    $public_image_file =~ s/.jpg/.png/;
+    open OUT, ">$public_image_file" or die "Can't open $public_image_file for writing: $!\n";
+    binmode OUT;
+    print OUT $main->jpeg;
+    close OUT;
+}
+
+sub do_overlays {
+    my ($current_image) = @_;
+
+    my $image_file = $current_image->getOutputFile();
+    my $minute = $current_image->getMinute();
+    my $hour = $current_image->getHour();
+    my ($r, $g, $b, $x, $lum) = $current_image->getBluecodes();
+    my $bluecode = $current_image->getBluecode();
+    my $s = $current_image->getSun();
 
     if ( lc($main::config->{Overlay}->{Clock}->{Overlay}) ne "true" &&
          lc($main::config->{Overlay}->{ColorGraph}->{Overlay}) ne "true" &&

@@ -81,6 +81,7 @@ while() {
     }
     else {
         $current_image->getBluecode();
+        $current_image->do_public_version();
         $current_image->do_image_overlays();
         $current_image->resizes_and_links();
         $bcr->checkBluecode($current_image);
