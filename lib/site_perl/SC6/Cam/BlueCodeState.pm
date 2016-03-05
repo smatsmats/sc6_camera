@@ -10,7 +10,11 @@ use SC6::Cam::GStore;
 
 sub new {
     my $class = shift;
-    my $self = { };
+    my $self = {
+        _mode => shift,
+        _push_to_google => shift,
+        _dryrun => shift,
+    };
 
     prime($self);
 
@@ -27,7 +31,10 @@ sub checkBluecode {
         my $www_image_50pct = $new_image->{_www_image_50pct};
         my $www_image_orig = $new_image->{_www_image_orig};
         $self->{_bluecode} = $new_bluecode;
-        save_is_blueist($self, $www_image_50pct, $www_image_orig);
+        save_is_blueist_local($self, $www_image_50pct, $www_image_orig);
+        if ( $self->{_push_to_google} ) {
+            save_is_blueist_gstore($self, $www_image_50pct, $www_image_orig);
+        }
         cache($self);
     }
     return $self;
@@ -57,7 +64,7 @@ sub clear {
     return $self->{_bluecode};
 }
 
-sub save_is_blueist {
+sub save_is_blueist_local {
     my ( $self, $bf_50pct, $bf_orig ) = @_;
     my $bc = $self->{_bluecode};
     my $blueist_file_50pct = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'BlueistImage'} . "_50pct";
@@ -68,6 +75,14 @@ sub save_is_blueist {
     copy($bf_orig, $blueist_file_orig) or die "Can't copy $bf_orig to $blueist_file_orig: $!\n";
     print "Bluecode copy: $bf_50pct to $blueist_file_50pct\n" if ( $main::debug );
     print "Bluecode copy: $bf_orig to $blueist_file_orig\n" if ( $main::debug );
+
+}
+
+sub save_is_blueist_gstore {
+    my ( $self, $bf_50pct, $bf_orig ) = @_;
+    my $bc = $self->{_bluecode};
+    my $blueist_file_50pct = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'BlueistImage'} . "_50pct";
+    my $blueist_file_orig = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'BlueistImage'} . "_orig";
 
     # copies on google
     my $bucket_dir = $main::config->{GStore}->{'BlueistDir'};
@@ -82,7 +97,7 @@ sub cache {
     my $blue_code_file = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'File'};
     open F, ">$blue_code_file" or die "Can't open $blue_code_file$!\n";
     print F $self->{_bluecode};
-    print "writing bluecode file.  Current bluecode: ", $self->{_bluecode}, "\n" if ( $main::debug );
+    print "writing bluecode file locally.  Current bluecode: ", $self->{_bluecode}, "\n" if ( $main::debug );
     close F;
 }
 
