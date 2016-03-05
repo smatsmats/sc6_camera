@@ -33,10 +33,20 @@ from oauth2client.client import flow_from_clientsecrets
 from oauth2client.tools import run
 from optparse import OptionParser
 
+import logging
+import logging.config
+
 gconfig_root = yaml.load(file("/usr/local/cam/conf/push2youtube_config.yml"))
 gconfig = gconfig_root['Prod']
 config_root = yaml.load(file("/usr/local/cam/conf/config.yml"))
 config = config_root['Root1']
+
+with open(gconfig['Logging']['log_config'], 'rt') as f:
+    lconfig = yaml.load(f.read())
+logging.config.dictConfig(lconfig)
+
+# create logger
+logger = logging.getLogger('ls_today_vids')
 
 # this will soon come from command line or somewhere
 vid_selector = "Daily"
@@ -75,12 +85,13 @@ RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
 CLIENT_SECRETS_FILE = gconfig['Google']['Auth']['client_secrets_file']
 
 # soemt things still need developer key
-DEVELOPER_KEY = gconfig['Google']['Auth']['api_key']
+#DEVELOPER_KEY = gconfig['Google']['Auth']['api_key']
 
-YOUTUBE_SCOPE = "https://www.googleapis.com/auth/youtube"
+YOUTUBE_SCOPE = "https://www.googleapis.com/auth/youtube.force-ssl"
 # A limited OAuth 2 access scope that allows for uploading files, but not other
 # types of account access.
-YOUTUBE_UPLOAD_SCOPE = "https://www.googleapis.com/auth/youtube.upload"
+#YOUTUBE_UPLOAD_SCOPE = "https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.force-ssl"
+YOUTUBE_UPLOAD_SCOPE = "https://www.googleapis.com/auth/youtube.force-ssl"
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
@@ -126,6 +137,96 @@ def search_todays_videos(options):
 #  options.q = "SeaCrest 6 2015-04-21"
 #  options.q = ""
   return youtube_search(options)
+
+def list_playlists():
+  global youtube
+
+  # Retrieve the contentDetails part of the channel resource for the
+  # authenticated user's channel.
+  channels_response = youtube.channels().list(
+    mine=True,
+    part="contentDetails"
+  ).execute()
+  
+  for channel in channels_response["items"]:
+    # From the API response, extract the playlist ID that identifies the list
+    # of videos uploaded to the authenticated user's channel.
+    uploads_list_id = channel["contentDetails"]["relatedPlaylists"]["uploads"]
+    print "going to list %s" % uploads_list_id
+    list_playlist(uploads_list_id)
+  
+def list_playlist(playlist_id):
+  print "Videos in list %s" % playlist_id
+  
+  # Retrieve the list of videos uploaded to the authenticated user's channel.
+  playlistitems_list_request = youtube.playlistItems().list(
+    playlistId=playlist_id,
+    part="snippet",
+    maxResults=50
+  )
+
+  while playlistitems_list_request:
+    playlistitems_list_response = playlistitems_list_request.execute()
+
+    # Print information about each video.
+    for playlist_item in playlistitems_list_response["items"]:
+#      print playlist_item
+      title = playlist_item["snippet"]["title"]
+      video_id = playlist_item["snippet"]["resourceId"]["videoId"]
+      playlist_item_id = playlist_item["id"]
+      print "playlist_item_id %s (%s)" % (playlist_item_id, video_id)
+      print "%s (%s)" % (title, video_id)
+#      try:
+#        print delete_playlist_item(playlist_item_id=playlist_item_id)
+#      except:
+#        pass
+#      try:
+#        print delete_playlist_item(playlist_item_id=video_id)
+#      except:
+#        pass
+      print
+
+    playlistitems_list_request = youtube.playlistItems().list_next(playlistitems_list_request, playlistitems_list_response)
+
+def delete_playlist_item(playlist_item_id):
+  global youtube
+
+  youtube.playlistItems().delete(id=playlist_item_id).execute()
+
+def create_playlist():
+  global youtube
+
+  # This code creates a new, private playlist in the authorized user's channel.
+  playlists_insert_response = youtube.playlists().insert(
+    part="snippet,status",
+    body=dict(
+      snippet=dict(
+        title="Test Playlist",
+        description="A private playlist created with the YouTube API v3"
+      ),
+      status=dict(
+        privacyStatus="private"
+      )
+    )
+  ).execute()
+  
+def add_to_playlist(playlist_id, video_id):
+  global youtube
+
+  # This code creates a new, private playlist in the authorized user's channel.
+  playlists_insert_response = youtube.playlists().insert(
+    part="snippet,status",
+    body=dict(
+      snippet=dict(
+        title="Test Playlist",
+        description="A private playlist created with the YouTube API v3"
+      ),
+      status=dict(
+        privacyStatus="private"
+      )
+    )
+  ).execute()
+  
 
 def youtube_search(search_options):
   global youtube
@@ -194,4 +295,13 @@ if __name__ == '__main__':
   youtube = get_authenticated_service()
 
   search_todays_videos(options)
+#  list_playlists()
+#  list_playlist('PLJAbMNd9phmKLcEnYpGxjJB8gEsRDEMrB')
+#  create_playlist()
+#  list_playlist()
+
+#  delete_playlist_item(playlist_item_id='UUttWSUnS1GACHB3ZJ1VLXeh5l3gT_Cidx')
+#  delete_playlist_item(playlist_item_id='UUttWSUnS1GAC3GD5TCHRc3jzR1-jTy9AA')
+#delete_playlist_item(playlist_item_id='PLVHBOWmyzOCkHKJNRFasWI_hYUnuvmfC_rMQEL28R03w')
+#  delete_playlist_item(playlist_item_id='wLWuyrXSRWM')
 
