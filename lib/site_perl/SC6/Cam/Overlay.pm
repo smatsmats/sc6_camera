@@ -34,7 +34,9 @@ sub do_public_version {
     my $image_file = $current_image->getOutputFile();
     my $public_image_file = $current_image->getPublicOutputFile();
 
+    print "in do_public_version\n";
     if ( lc($main::config->{Public}->{Enable}) ne "true" ) {
+        print "skipping do_public_version\n";
         return 
     }
 
@@ -65,6 +67,7 @@ sub do_public_version {
 
 #    $public_image_file =~ s/.jpg/.png/;
     open OUT, ">$public_image_file" or die "Can't open $public_image_file for writing: $!\n";
+    print "writing new public full size: $public_image_file\n";
     binmode OUT;
     print OUT $main->jpeg;
     close OUT;

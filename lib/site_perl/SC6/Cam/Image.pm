@@ -29,11 +29,16 @@ sub new {
     # public version of image (with mask) saved for one day so we can make video
     my $public_image_dir = get_image_dir($self->{_dt}, "public", $self->{_mode});
     $self->{_public_output} = $public_image_dir . "image" . $self->{_dt}->epoch() . "_orig.jpg";
+    $public_image_dir = get_image_dir($self->{_dt}, "public_50pct", $self->{_mode});
+    $self->{_public_output_50pct} = $public_image_dir . "image" . $self->{_dt}->epoch() . "_50pct.jpg";
     
     # these are the files / links used on the web page
     my $www_dir = get_www_dir($format, $self->{_mode});
+    my $www_public_dir = get_www_public_dir($format, $self->{_mode});
     $self->{_www_image_orig} = $www_dir . $main::config->{Image}->{File}->{orig};
     $self->{_www_image_50pct} = $www_dir . $main::config->{Image}->{File}->{'50pct'};
+    $self->{_www_public_image_orig} = $www_public_dir . $main::config->{Image}->{File}->{orig};
+    $self->{_www_public_image_50pct} = $www_public_dir . $main::config->{Image}->{File}->{'50pct'};
 
     $self->{_public_mask} = load_privacy_mask();
 
@@ -83,22 +88,37 @@ sub fetch {
 sub resizes_and_links {
     my ($self) = @_;
 
-    my $output = $self->{_output};
+    my $output_orig = $self->{_output};
     my $output_50pct = $self->{_output_50pct};
     my $www_image_orig = $self->{_www_image_orig};
     my $www_image_50pct = $self->{_www_image_50pct};
+    my $public_output_orig = $self->{_public_output};
+    my $public_output_50pct = $self->{_public_output_50pct};
+    my $www_public_image_orig = $self->{_www_public_image_orig};
+    my $www_public_image_50pct = $self->{_www_public_image_50pct};
 
-    my $scale_cmd = "convert -scale 50% $output $output_50pct";
+    my $scale_cmd = "convert -scale 50% $output_orig $output_50pct";
     i_do_cmd($self, $scale_cmd);
+    $scale_cmd = "convert -scale 50% $public_output_orig $public_output_50pct";
+    i_do_cmd($self, $scale_cmd);
+   
 
-    if ( -l $www_image_orig ) {
-            unlink($www_image_orig) or die "Can't unlink $www_image_orig: $!\n";
-    }
-    symlink($output, $www_image_orig) or die "Can't symlink $output to $www_image_orig: $!\n";
     if ( -l $www_image_50pct ) {
             unlink($www_image_50pct) or die "Can't unlink $www_image_50pct: $!\n";
     }
     symlink($output_50pct, $www_image_50pct) or die "Can't symlink $output_50pct to $www_image_50pct: $!\n";
+    if ( -l $www_image_orig ) {
+            unlink($www_image_orig) or die "Can't unlink $www_image_orig: $!\n";
+    }
+    symlink($output_orig, $www_image_orig) or die "Can't symlink $output_orig to $www_image_orig: $!\n";
+    if ( -l $www_public_image_50pct ) {
+            unlink($www_public_image_50pct) or die "Can't unlink $www_public_image_50pct: $!\n";
+    }
+    symlink($public_output_50pct, $www_public_image_50pct) or die "Can't symlink $public_output_50pct to $www_public_image_50pct: $!\n";
+    if ( -l $www_public_image_orig ) {
+            unlink($www_public_image_orig) or die "Can't unlink $www_public_image_orig: $!\n";
+    }
+    symlink($public_output_orig, $www_public_image_orig) or die "Can't symlink $public_output_orig to $www_public_image_orig: $!\n";
 
 }
 
@@ -133,6 +153,24 @@ sub getPublicOutputFile {
     my ($self) = @_;
     
     return( $self->{_public_output} );
+}
+
+sub getPublicOutputFile_50pct {
+    my ($self) = @_;
+    
+    return( $self->{_public_output_50pct} );
+}
+
+sub getPublicWWWFile {
+    my ($self) = @_;
+    
+    return( $self->{_www_public_image_orig} );
+}
+
+sub getPublicWWWFile_50pct {
+    my ($self) = @_;
+    
+    return( $self->{_www_public_image_50pct} );
 }
 
 sub getOutputFile {

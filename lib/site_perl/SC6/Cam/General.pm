@@ -17,7 +17,7 @@ BEGIN {
         our @ISA         = qw(Exporter);
 
         # Functions and variables which are exported by default
-        our @EXPORT      = qw(get_image_dir get_video_dir get_video_file get_www_dir do_cmd);
+        our @EXPORT      = qw(get_image_dir get_video_dir get_video_file get_www_public_dir get_www_dir do_cmd);
 
         # Functions and variables which can be optionally exported
         our @EXPORT_OK   = qw($Var1 %Hashit func3);
@@ -46,10 +46,23 @@ sub get_image_dir {
     return $o;
 }
 
+sub get_www_public_dir {
+    my ($format, $mode) = @_;
+
+    my $ci = $main::config->{Directories}->{www_public}->{$mode};
+    if ( ! $ci ) {
+        print "missing correct mode ('test', 'prod', etc.).  got $mode\n";
+        return;
+    }
+    
+    mkdir ($ci, 0775) or die "can't make dir $ci: $!\n" unless ( -d $ci );
+
+    return $ci;
+}
+
 sub get_www_dir {
     my ($format, $mode) = @_;
 
-    print "****** got $mode\n";
     my $ci = $main::config->{Directories}->{www}->{$mode};
     if ( ! $ci ) {
         print "missing correct mode ('test', 'prod', etc.).  got $mode\n";
