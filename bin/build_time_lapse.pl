@@ -92,8 +92,9 @@ print "buh bye\n";
 sub make_moovie {
     my ($format, $mode) = @_;
 
+    my $image_dir = 'public';
     my $out = get_video_file($dt, $format, 'avi', $mode);
-    my $in = "'mf://" . get_image_dir($dt, $format, $mode) . "/*_" . $format . ".jpg'";
+    my $in = "'mf://" . get_image_dir($dt, $image_dir, $mode) . "/*_" . $format . ".jpg'";
     my $mf = "w=" . $config->{'Sizes'}->{$format}->{'width'} . 
         ":h=" . $config->{'Sizes'}->{$format}->{'height'} . 
         ":type=" . $config->{'Type'} . 
