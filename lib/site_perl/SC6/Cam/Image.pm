@@ -161,6 +161,16 @@ sub getPublicOutputFile_50pct {
     return( $self->{_public_output_50pct} );
 }
 
+sub getPublicVersion {
+    my ($self) = @_;
+    return $self->{_public_version};
+}
+
+sub setPublicVersion {
+    my ($self, $pub) = @_;
+    $self->{_public_version} = $pub;
+}
+
 sub getPublicWWWFile {
     my ($self) = @_;
     
