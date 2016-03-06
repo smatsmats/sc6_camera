@@ -112,8 +112,6 @@ while() {
             my $public = $config->{GStore}->{'PublicDir'};
             my $public_image_orig = $current_image->getPublicWWWFile();
             my $public_image_50pct = $current_image->getPublicWWWFile_50pct();
-            print "I'm going to push $public_image_orig to $public\n";
-            print "I'm going to push $public_image_50pct to $public\n";
             $gstore->cp_fs2bucket($public_image_orig, $public);
             $gstore->cp_fs2bucket($public_image_50pct, $public);
 
