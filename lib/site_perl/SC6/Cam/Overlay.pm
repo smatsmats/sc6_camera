@@ -32,7 +32,6 @@ sub do_public_version {
     my ($current_image) = @_;
 
     my $image_file = $current_image->getOutputFile();
-    my $public_image_file = $current_image->getPublicOutputFile();
 
     print "in do_public_version\n";
     if ( lc($main::config->{Public}->{Enable}) ne "true" ) {
@@ -63,13 +62,23 @@ sub do_public_version {
     print "is true color mask: ", $mask->isTrueColor(), "\n";
     print "is true color main: ", $main->isTrueColor(), "\n";
 
+    # the actual copy
     $main->copy($mask,0,0,0,0,$w,$h);
 
-#    $public_image_file =~ s/.jpg/.png/;
+    #saving the object into the current image obj
+    $current_image->setPublicVersion($main); 
+
+}
+
+sub write_public_version {
+    my ( $current_image ) = @_;
+
+    my $public_image_file = $current_image->getPublicOutputFile();
+    my $public = $current_image->getPublicVersion();
     open OUT, ">$public_image_file" or die "Can't open $public_image_file for writing: $!\n";
     print "writing new public full size: $public_image_file\n";
     binmode OUT;
-    print OUT $main->jpeg;
+    print OUT $public->jpeg;
     close OUT;
 }
 
@@ -97,6 +106,9 @@ sub do_overlays {
     }
     my ($w, $h) = $main->getBounds();
 
+    # also do overlays to public version
+    my $public = $current_image->getPublicVersion();
+
     # get the clock
     if ( lc($main::config->{Overlay}->{Clock}->{Overlay}) eq "true" ) {
         my $clock_overlay = add_clock($hour, $minute);
@@ -104,6 +116,7 @@ sub do_overlays {
         my ($clock_x, $clock_y) = overlay_location("Clock", $w, $h, $cw, $cw);
         print "Copy clock to coordinates: $clock_x,$clock_y\n" if ( $main::debug );
         $main->copy($clock_overlay,$clock_x,$clock_y,0,0,$cw,$ch);
+        $public->copy($clock_overlay,$clock_x,$clock_y,0,0,$cw,$ch);
     }
 
     # get the colorGraph
@@ -113,6 +126,7 @@ sub do_overlays {
         my ($cg_x, $cg_y) = overlay_location("ColorGraph", $w, $h, $cgw, $cgh);
         print "Copy ColorGraph to coordinates: $cg_x,$cg_y\n" if ( $main::debug );
         $main->copy($cg_overlay,$cg_x,$cg_y,0,0,$cgw,$cgh);
+        $public->copy($cg_overlay,$cg_x,$cg_y,0,0,$cgw,$cgh);
     }
 
     # get the WX graphs
@@ -127,6 +141,8 @@ sub do_overlays {
         $new_main->copy($overlay,0,$h,0,0,$o_w,$o_h);
         $main = $new_main;
     }
+
+    write_public_version($current_image);
 
     open OUT, ">$image_file" or die "Can't open $image_file for writing: $!\n";
     binmode OUT;
