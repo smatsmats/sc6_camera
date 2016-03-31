@@ -39,7 +39,7 @@ gconfig = gconfig_root['Prod']
 config_root = yaml.load(file("/usr/local/cam/conf/config.yml"))
 config = config_root['Root1']
 
-with open(gconfig['Logging']['log_config'], 'rt') as f:
+with open(config['Logging']['LogConfig'], 'rt') as f:
     lconfig = yaml.load(f.read())
 logging.config.dictConfig(lconfig)
 
