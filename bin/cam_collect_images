@@ -44,18 +44,75 @@ my $gstore_interval = $config->{'GStore'}->{'PushInterval'}->{'SunUp'};
 my $prev_failed_start = 0;
 my $s = new SC6::Cam::Sun();
 my $end_time;
+my $sun_status;
+
 while() {
-    $fetch_sleep = $sleep_time;
     my $dt = DateTime->now(  time_zone => $config->{'General'}->{'Timezone'} );
     if ( $s->is_sun($dt) || $force ) {  # inefficient to do this everytime, but who cares
         print "Sun is up! $dt\n";
+        $sun_status = 1;
+        $fetch_sleep = $sleep_time;
+
+        # fetch an image
+        my $current_image = new SC6::Cam::Image($dt, $mode, $dryrun, $s);
+        my $result = $current_image->fetch();
+
+        if ( ! $result ) {
+            print "Image fetch failed!!!!!\n";
+            $fetch_sleep = 0;  # skip sleeping
+            $prev_failed_start = $dt->epoch();
+        }
+        else {
+            $current_image->getBluecode();
+            $current_image->make_public_version();
+            $current_image->do_image_overlays();
+            $current_image->resizes_and_links();
+            $bcr->checkBluecode($current_image);
+            
+            # normal sleep, but prune sleep time to account for processing
+            $end_time = DateTime->now(  time_zone => $config->{'General'}->{'Timezone'} );
+            if ( $prev_failed_start != 0 ) {
+                $fetch_sleep = $sleep_time - ($end_time->epoch() - $prev_failed_start);
+            } 
+            else {
+                $fetch_sleep = $sleep_time - ($end_time->epoch() - $dt->epoch());
+            }
+            $prev_failed_start = 0;
+            
+            # push the images to gstore
+            # this should really be a seperate loop or even process, but for now it's here
+            if ( $last_gstore_push + $gstore_interval < $end_time->epoch() ) { 
+                # this directory crap is a mess, fix it.  
+                my $current = $config->{GStore}->{'CurrentDir'};
+                my $www_dir = get_www_dir($format, $mode);
+                my $www_image_orig = $www_dir . $config->{Image}->{File}->{orig};
+                my $www_image_50pct = $www_dir . $config->{Image}->{File}->{'50pct'};
+                $gstore->cp_fs2bucket($www_image_orig, $current);
+    # skip copying up 50pct images
+    #            $gstore->cp_fs2bucket($www_image_50pct, $current);
+    
+                my $public = $config->{GStore}->{'PublicDir'};
+                my $public_image_orig = $current_image->getPublicWWWFile();
+                my $public_image_50pct = $current_image->getPublicWWWFile_50pct();
+                $gstore->cp_fs2bucket($public_image_orig, $public);
+    # skip copying up 50pct images
+    #            $gstore->cp_fs2bucket($public_image_50pct, $public);
+    
+                $last_gstore_push = $end_time->epoch();
+            }
+            else {
+                print "No gstore push until ", $last_gstore_push + $gstore_interval, "\n";
+            }
+    
+        }
+
     }
     else {
         print "Sun is down! $dt\n";
 
-        # do some things during the first hour the sun is down
-        # we should really do this all once but instead we do it a bunch, but only for an hour :)
-        if ( $s->is_hour_after_dusk($dt) ) {
+        # do some things during the first hour the sun is down, but only once
+        if ( $s->is_hour_after_dusk($dt) && $sun_status == 1 ) {
+            $sun_status = 0;
             $bcr->clear();  # clear bluecode
             $fetch_sleep = $sleep_time_night;
             $prev_failed_start = 0;   # make sure this doesn't carry over from the previous day
@@ -64,71 +121,21 @@ while() {
             # cp blueist to current
             my $current_dir = $config->{GStore}->{'CurrentDir'};
             my $blueist_dir = $config->{GStore}->{'BlueistDir'};
+            my $public_dir = $config->{GStore}->{'PublicDir'};
             my $blueist_image_orig = $blueist_dir . "/" . $config->{Image}->{File}->{orig};
             my $blueist_image_50pct = $blueist_dir . "/" . $config->{Image}->{File}->{'50pct'};
             $gstore->cp_bucket2bucket($blueist_image_orig, $current_dir);
-            $gstore->cp_bucket2bucket($blueist_image_50pct, $current_dir);
+            $gstore->cp_bucket2bucket($blueist_image_orig, $public_dir);
+# lets not dork with 50pct rigth now
+#            $gstore->cp_bucket2bucket($blueist_image_50pct, $current_dir);
         }
-        next;
     }
 
-    # fetch an image
-    my $current_image = new SC6::Cam::Image($dt, $mode, $dryrun, $s);
-    my $result = $current_image->fetch();
-
-    if ( ! $result ) {
-        print "Image fetch failed!!!!!\n";
-        $fetch_sleep = 0;  # skip sleeping
-        $prev_failed_start = $dt->epoch();
-    }
-    else {
-        $current_image->getBluecode();
-        $current_image->make_public_version();
-        $current_image->do_image_overlays();
-        $current_image->resizes_and_links();
-        $bcr->checkBluecode($current_image);
-        
-        # normal sleep, but prune sleep time to account for processing
-        $end_time = DateTime->now(  time_zone => $config->{'General'}->{'Timezone'} );
-        if ( $prev_failed_start != 0 ) {
-            $fetch_sleep = $sleep_time - ($end_time->epoch() - $prev_failed_start);
-        } 
-        else {
-            $fetch_sleep = $sleep_time - ($end_time->epoch() - $dt->epoch());
-        }
-        $prev_failed_start = 0;
-        
-        # push the images to gstore
-        # this should really be a seperate loop or even process, but for now it's here
-        if ( $last_gstore_push + $gstore_interval < $end_time->epoch() ) { 
-            # this directory crap is a mess, fix it.  
-            my $current = $config->{GStore}->{'CurrentDir'};
-            my $www_dir = get_www_dir($format, $mode);
-            my $www_image_orig = $www_dir . $config->{Image}->{File}->{orig};
-            my $www_image_50pct = $www_dir . $config->{Image}->{File}->{'50pct'};
-            $gstore->cp_fs2bucket($www_image_orig, $current);
-            $gstore->cp_fs2bucket($www_image_50pct, $current);
-
-            my $public = $config->{GStore}->{'PublicDir'};
-            my $public_image_orig = $current_image->getPublicWWWFile();
-            my $public_image_50pct = $current_image->getPublicWWWFile_50pct();
-            $gstore->cp_fs2bucket($public_image_orig, $public);
-            $gstore->cp_fs2bucket($public_image_50pct, $public);
-
-            $last_gstore_push = $end_time->epoch();
-        }
-        else {
-            print "No gstore push until ", $last_gstore_push + $gstore_interval, "\n";
-        }
-
-    }
-
-}
-continue {
     if ( $fetch_sleep >= 0 ) {
 #        print "fetch_sleep: $fetch_sleep  prev_failed_start: $prev_failed_start sleep_time: $sleep_time end_time: ", $end_time->epoch(), "\n" if ( $debug );
         print "Gonna sleep: $fetch_sleep\n\n" if ( $debug );
         sleep $fetch_sleep;
+        print "done sleeping; sleep: $fetch_sleep\n\n" if ( $debug );
     }
     else {
 #        print "WTF! fetch_sleep: $fetch_sleep  prev_failed_start: $prev_failed_start sleep_time: $sleep_time end_time: ", $end_time->epoch(), "\n";
