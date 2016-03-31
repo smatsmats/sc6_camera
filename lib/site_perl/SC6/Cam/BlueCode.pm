@@ -47,7 +47,6 @@ sub get_blue {
             # don't use the green value for the difference 
             # because dusk and down can be very green
             $cum_bc += ($b - $r ) * ( 2 * ((0.2126*$r) + (0.7152*$g) + (0.0722*$b)));
-            $cum_new_bc += ($b - $g ) * ( 2 * ((0.2126*$r) + (0.7152*$g) + (0.0722*$b)));
             $cum_lum += (0.2126*$r) + (0.7152*$g) + (0.0722*$b);
             $cum_r += $r;
             $cum_g += $g;
@@ -55,6 +54,9 @@ sub get_blue {
             # Base BlueCode: $b - ( ($r + $g) / 2);
             # Luminence: (0.2126*$r) + (0.7152*$g) + (0.0722*$b)
             # double the Luminence
+            if ( $r >= 32 && $g >= 32 ) {
+                $cum_new_bc += ($b - $g ) * ( 2 * ((0.2126*$r) + (0.7152*$g) + (0.0722*$b)));
+            }
         }
     }
 
@@ -66,12 +68,12 @@ sub get_blue {
     $cum_b = $cum_b / ( $width * $rows );
     $cum_lum = $cum_lum / ( $width * $rows );
 
-    print "Blue code: $a_w\n" if ( $main::debug );
-    print "New Blue code: $a_new_w\n" if ( $main::debug );
-    print "Luminence: $cum_lum\n" if ( $main::debug );
-    print "Cum R: $cum_r\n" if ( $main::debug );
-    print "Cum G: $cum_g\n" if ( $main::debug );
-    print "Cum B: $cum_b\n" if ( $main::debug );
+#    print "Blue code: $a_w\n" if ( $main::debug );
+#    print "New Blue code: $a_new_w\n" if ( $main::debug );
+#    print "Luminence: $cum_lum\n" if ( $main::debug );
+#    print "Cum R: $cum_r\n" if ( $main::debug );
+#    print "Cum G: $cum_g\n" if ( $main::debug );
+#    print "Cum B: $cum_b\n" if ( $main::debug );
 
     $self->{_bluecode} = $a_w;
     $self->{_x} = $a_new_w;

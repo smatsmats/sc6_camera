@@ -33,7 +33,6 @@ sub do_public_version {
 
     my $image_file = $current_image->getOutputFile();
 
-    print "in do_public_version\n";
     if ( lc($main::config->{Public}->{Enable}) ne "true" ) {
         print "skipping do_public_version\n";
         return 
@@ -41,7 +40,6 @@ sub do_public_version {
 
     # load the picture image file
     my $main = GD::Image->newFromJpeg($image_file, 1);
-    print "going to load image file $image_file\n";
 
     if ( ! $main ) {
         die "Can't make an image from $image_file\n";
