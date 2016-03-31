@@ -17,7 +17,7 @@ BEGIN {
         our @ISA         = qw(Exporter);
 
         # Functions and variables which are exported by default
-        our @EXPORT      = qw(get_image_dir get_video_dir get_video_file get_www_public_dir get_www_dir do_cmd);
+        our @EXPORT      = qw(get_image_dir get_video_dir get_video_file get_www_public_dir get_www_dir do_cmd get_dir_name get_file_name);
 
         # Functions and variables which can be optionally exported
         our @EXPORT_OK   = qw($Var1 %Hashit func3);
@@ -101,6 +101,12 @@ sub do_cmd {
         print `$cmd`;
 #        print `$cmd 2>&1`;
     }
+}
+
+sub get_dir_name{
+}
+
+sub get_file_name{
 }
 
 END {    # module clean-up code here (global destructor)
