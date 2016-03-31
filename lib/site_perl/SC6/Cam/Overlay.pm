@@ -59,8 +59,8 @@ sub do_public_version {
 #    $mask->transparent($white);
 
 #    print "is true color public: ", $public->isTrueColor(), "\n";
-    print "is true color mask: ", $mask->isTrueColor(), "\n";
-    print "is true color main: ", $main->isTrueColor(), "\n";
+#    print "is true color mask: ", $mask->isTrueColor(), "\n";
+#    print "is true color main: ", $main->isTrueColor(), "\n";
 
     # the actual copy
     $main->copy($mask,0,0,0,0,$w,$h);
@@ -119,7 +119,7 @@ sub do_overlays {
         $public->copy($clock_overlay,$clock_x,$clock_y,0,0,$cw,$ch);
     }
 
-    # get the colorGraph
+    # get the colorGraph of bluecode
     if ( lc($main::config->{Overlay}->{ColorGraph}->{Overlay}) eq "true" ) {
         my $cg_overlay = add_colorgraph($r, $g, $b, $x, $bluecode, $lum);
         my ($cgw,$cgh) = $cg_overlay->getBounds();
