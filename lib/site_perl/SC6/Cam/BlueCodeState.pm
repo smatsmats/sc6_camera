@@ -31,6 +31,7 @@ sub checkBluecode {
         my $www_image_50pct = $new_image->{_www_image_50pct};
         my $www_image_orig = $new_image->{_www_image_orig};
         $self->{_bluecode} = $new_bluecode;
+        save_is_blueist_stash($self, $new_image);
         save_is_blueist_local($self, $www_image_50pct, $www_image_orig);
         if ( $self->{_push_to_google} ) {
             save_is_blueist_gstore($self, $www_image_50pct, $www_image_orig);
@@ -62,6 +63,16 @@ sub clear {
     }
     $self->{_bluecode} = $priming_bluecode;
     return $self->{_bluecode};
+}
+
+sub save_is_blueist_stash {
+    my ( $self, $new_image ) = @_;
+
+    my $stash_dir = get_image_dir($new_image->{_dt}, "stash", $main::mode);
+    my $stash = $stash_dir . "/" . $self->{_bluecode} . ".jpg";
+    my $image = $new_image->{_output};
+    print "going to symlink $image to $stash\n";
+    symlink($image, $stash) or die "Can't symlink $image to $stash: $!\n";
 }
 
 sub save_is_blueist_local {
