@@ -109,12 +109,12 @@ while() {
     }
     else {
         print "Sun is down! $dt\n";
+        $fetch_sleep = $sleep_time_night;
 
         # do some things during the first hour the sun is down, but only once
         if ( $s->is_hour_after_dusk($dt) && $sun_status == 1 ) {
             $sun_status = 0;
             $bcr->clear();  # clear bluecode
-            $fetch_sleep = $sleep_time_night;
             $prev_failed_start = 0;   # make sure this doesn't carry over from the previous day
             $last_gstore_push = 0;
  
@@ -138,7 +138,7 @@ while() {
         print "done sleeping; sleep: $fetch_sleep\n\n" if ( $debug );
     }
     else {
-#        print "WTF! fetch_sleep: $fetch_sleep  prev_failed_start: $prev_failed_start sleep_time: $sleep_time end_time: ", $end_time->epoch(), "\n";
+        print "WTF! fetch_sleep: $fetch_sleep  prev_failed_start: $prev_failed_start sleep_time: $sleep_time end_time: ", $end_time->epoch(), "\n";
         exit 1;
     }
 }
