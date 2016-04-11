@@ -214,7 +214,7 @@ def initialize_upload(options):
 def resumable_upload(insert_request):
   response = None
   error = None
-  retry = 30
+  retry = 0
   while response is None:
     try:
       logger.info("Uploading file ...")
