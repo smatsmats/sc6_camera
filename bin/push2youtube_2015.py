@@ -7,7 +7,7 @@ import urllib2
 import os
 import random
 import sys
-import time
+import time as t
 import dateutil.parser
 from pytz import timezone
 from datetime import *
@@ -242,7 +242,7 @@ def resumable_upload(insert_request):
       max_sleep = 2 ** retry
       sleep_seconds = random.random() * max_sleep
       logger.error("Sleeping %f seconds and then retrying..." % sleep_seconds)
-      time.sleep(sleep_seconds)
+      t.sleep(sleep_seconds)
 
   return response
 
