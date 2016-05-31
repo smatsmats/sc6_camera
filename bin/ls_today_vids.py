@@ -36,6 +36,13 @@ from optparse import OptionParser
 import logging
 import logging.config
 
+# exit codes for Nagios monitoring
+EXIT_CODE_OK = 0
+EXIT_CODE_WARNING = 1
+EXIT_CODE_CRITICAL = 2
+EXIT_CODE_UNKNOWN = 3
+exit_code = EXIT_CODE_OK
+
 gconfig_root = yaml.load(file("/usr/local/cam/conf/push2youtube_config.yml"))
 gconfig = gconfig_root['Prod']
 config_root = yaml.load(file("/usr/local/cam/conf/config.yml"))
@@ -47,6 +54,7 @@ logging.config.dictConfig(lconfig)
 
 # create logger
 logger = logging.getLogger('ls_today_vids')
+logger.info("started")
 
 # this will soon come from command line or somewhere
 vid_selector = "Daily"
@@ -134,8 +142,6 @@ def search_todays_videos(options):
   search_options = options
   options.max_results = 50
   options.q = options.title
-#  options.q = "SeaCrest 6 2015-04-21"
-#  options.q = ""
   return youtube_search(options)
 
 def list_playlists():
@@ -230,11 +236,12 @@ def add_to_playlist(playlist_id, video_id):
 
 def youtube_search(search_options):
   global youtube
+  global exit_code
   youtube_public = youtube 
 #  youtube_public = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
 #        developerKey=DEVELOPER_KEY)
 
-  print "Searching for: " + search_options.q
+#  print "Searching for: " + search_options.q
   # Call the search.list method to retrieve results matching the specified
   # query term.
   search_response = youtube_public.search().list(
@@ -245,16 +252,18 @@ def youtube_search(search_options):
   ).execute()
 
   videos = []
+  exit_code = EXIT_CODE_CRITICAL
 
   # Add each result to the appropriate list, and then display the lists of
   # matching videos, channels, and playlists.
   for search_result in search_response.get("items", []):
     if search_result["id"]["kind"] == "youtube#video":
+      exit_code = EXIT_CODE_OK
 #      dt = new datetime
 
       dt = dateutil.parser.parse(search_result["snippet"]["publishedAt"])
       localPublishedAt = dt.astimezone(timezone('America/Los_Angeles'))
-      print "id: %s Title: %s Date / Time: %s (%s)" % (search_result["id"]["videoId"], search_result["snippet"]["title"], localPublishedAt, search_result["snippet"]["publishedAt"])
+      print "OK - id: %s Title: %s Date / Time: %s (%s)" % (search_result["id"]["videoId"], search_result["snippet"]["title"], localPublishedAt, search_result["snippet"]["publishedAt"])
       videos.append(search_result["id"]["videoId"])
 
   return videos
@@ -295,6 +304,9 @@ if __name__ == '__main__':
   youtube = get_authenticated_service()
 
   search_todays_videos(options)
+  if exit_code == EXIT_CODE_CRITICAL:
+    print "CRITICAL - no videos for today"
+  sys.exit(exit_code)
 #  list_playlists()
 #  list_playlist('PLJAbMNd9phmKLcEnYpGxjJB8gEsRDEMrB')
 #  create_playlist()
