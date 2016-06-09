@@ -41,6 +41,7 @@ unless (flock(DATA, LOCK_EX|LOCK_NB)) {
 }
 
 my $dt;
+my $date_from_args = 0;
 if ( $date ) {
     print $date, "\n" if ( $debug );
     my ($seconds, $error) = parsedate($date);
@@ -52,6 +53,8 @@ if ( $date ) {
 	print $seconds, "\n" if ( $debug );
         $dt = DateTime->from_epoch(  epoch => $seconds, time_zone => $config->{'General'}->{'Timezone'} );
     }
+    $force = 1;
+    $date_from_args = 1;
 }
 else {
     $dt = DateTime->now(  time_zone => $config->{'General'}->{'Timezone'} );
@@ -132,6 +135,9 @@ sub usage
 
 sub push_to_youtube {
     my $cmd = $config->{'Bins'}->{'push2youtube'} . " " . $config->{'Bins'}->{'push2youtube_args'};
+    if ( $date_from_args == 1 ) {
+        $cmd .= " " . "--videoDate=" . $dt->ymd;
+    }
     do_cmd($cmd, $dryrun);
 }
 

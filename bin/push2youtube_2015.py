@@ -164,6 +164,7 @@ def youtube_search(title):
     if search_result["id"]["kind"] == "youtube#video":
       dt = dateutil.parser.parse(search_result["snippet"]["publishedAt"])
       localPublishedAt = dt.astimezone(timezone('America/Los_Angeles'))
+      logger.info("full search result: %s" % search_result)
       logger.info("id: %s Title: %s Date / Time: %s (%s)" % (search_result["id"]["videoId"], 
           search_result["snippet"]["title"], localPublishedAt, 
 	  search_result["snippet"]["publishedAt"]))
@@ -178,7 +179,10 @@ def remove_old_video(id):
   global youtube
 
   logger.info("going to remove: " + id)
-  youtube.videos().delete(id=id).execute()
+  try:
+    youtube.videos().delete(id=id).execute()
+  except HttpError, e:
+    logger.info("exception trying to delete %s : %s, will continue" % (id, e))
 
 def initialize_upload(options):
   global youtube
@@ -265,6 +269,8 @@ if __name__ == '__main__':
   parser.add_argument("--privacyStatus", dest="privacyStatus",
     help="Video privacy status: public, private or unlisted",
     default="public")
+  parser.add_argument("--videoDate", dest="videoDate", default="", 
+    help="video is for some other date than today")
   parser.add_argument("--doDeletes", action='store_true', help="clenaup other uploades from today")
   parser.add_argument("--dontUpload", action='store_true', help="for testing, don't actually do the upload")
   args = parser.parse_args()
@@ -273,7 +279,10 @@ if __name__ == '__main__':
   args.file = gconfig['Paths']['video_file']
 
   # titles and stuff for video
-  date_string = date.today().isoformat()
+  if args.videoDate:
+    date_string = args.videoDate
+  else:
+    date_string = date.today().isoformat()
   # first build dictionary of substitutions
   d = dict([('date', date_string), ('underbar_date', date_string.replace('-', '_')), ('video_created', getVidDateTime().ctime()), ('video_uploaded', datetime.now().ctime())])
   
