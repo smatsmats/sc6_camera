@@ -41,7 +41,8 @@ sub get_image_dir {
     $ci .= sprintf ("%4d%02d%02d/", $ldt->year, $ldt->month, $ldt->day);
     mkdir ($ci, 0775) or die "can't make dir $ci: $!\n" unless ( -d $ci );
     my $o = $ci . $format . "/" ;
-    mkdir ($o, 0775) or die "can't make dir $o: $!\n" unless ( -d $o );
+    # change this test to existss instead of directory to allow for symlinks
+    mkdir ($o, 0775) or die "can't make dir $o: $!\n" unless ( -e $o );
 
     return $o;
 }
