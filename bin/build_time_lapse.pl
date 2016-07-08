@@ -12,6 +12,8 @@ use SC6::Cam::Sun;
 use Getopt::Long;
 use Data::Dumper;
 
+$|++;
+
 my $force = 0;
 my $mode = "prod";
 my $dryrun = 0;
@@ -123,8 +125,9 @@ sub compress_moovie {
 
 sub usage
 {
-    print "usage: $0 [-d|--debug] [-f|--force] [-h|--help] [-n|--dry-run] [-m|mode=mode]\n";
+    print "usage: $0 [-d|--debug] [--date=date] [-f|--force] [-h|--help] [-n|--dry-run] [-m|mode=mode]\n";
     print "\t-f|--force    - Force building of the video files\n";
+    print "\t--date        - Date of files to build and push\n";
     print "\t-h|--help     - This message\n";
     print "\t-n|--dry-run  - perform a trial run with no changes made\n";
     print "\t-np|--no-push - don't push to youtube\n";
