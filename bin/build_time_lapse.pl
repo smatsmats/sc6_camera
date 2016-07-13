@@ -89,8 +89,9 @@ make_moovie($format, $mode);
 my %metadata = collect_metadata();
 compress_moovie($format, $mode, %metadata);
 if ( ! $no_push ) {
-    push_to_youtube();
+    push_to_youtube($format, $mode);
 }
+cleanup($format, $mode);
 
 print "buh bye\n";
 
@@ -136,11 +137,26 @@ sub usage
 
 }
 
+sub cleanup {
+    my ($format, $mode) = @_;
+
+    if ( $config->{'Video'}->{'Daily'}->{'Disposable'} ) {
+        my $out = get_video_file($dt, $format, 'mp4', $mode);
+        unlink $out or die "Can't remove $out: $!\n";
+        $out = get_video_file($dt, $format, 'avi', $mode);
+        unlink $out or die "Can't remove $out: $!\n";
+    }
+}
+
 sub push_to_youtube {
+    my ($format, $mode) = @_;
+
     my $cmd = $config->{'Bins'}->{'push2youtube'} . " " . $config->{'Bins'}->{'push2youtube_args'};
     if ( $date_from_args == 1 ) {
         $cmd .= " " . "--videoDate=" . $dt->ymd;
     }
+    my $out = get_video_file($dt, $format, 'mp4', $mode);
+    $cmd .= " --file " . $out;
     do_cmd($cmd, $dryrun);
 }
 
