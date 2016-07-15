@@ -57,7 +57,7 @@ logger = logging.getLogger('push2youtube')
 vid_selector = "Daily"
 
 # set the path for the video file binary
-video_file = gconfig['Paths']['video_file']
+#video_file = gconfig['Paths']['video_file']
 
 youtube = None
 
@@ -129,8 +129,8 @@ def get_authenticated_service():
   return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
     http=credentials.authorize(httplib2.Http()))
 
-def getVidDateTime():
-  vdate = os.stat(video_file).st_mtime
+def getVidDateTime(file):
+  vdate = os.stat(file).st_mtime
   return datetime.fromtimestamp(vdate)
 
 def writeUrl(vid_url):
@@ -276,7 +276,8 @@ if __name__ == '__main__':
   args = parser.parse_args()
 
   # file
-  args.file = gconfig['Paths']['video_file']
+  if args.file is None:
+    args.file = gconfig['Paths']['video_file']
 
   # titles and stuff for video
   if args.videoDate:
@@ -284,7 +285,7 @@ if __name__ == '__main__':
   else:
     date_string = date.today().isoformat()
   # first build dictionary of substitutions
-  d = dict([('date', date_string), ('underbar_date', date_string.replace('-', '_')), ('video_created', getVidDateTime().ctime()), ('video_uploaded', datetime.now().ctime())])
+  d = dict([('date', date_string), ('underbar_date', date_string.replace('-', '_')), ('video_created', getVidDateTime(args.file).ctime()), ('video_uploaded', datetime.now().ctime())])
   
   args.title = Template(config['Video'][vid_selector]['TitleTemplate']).safe_substitute(d)
   d['title'] = args.title # make the title available for later substitution
