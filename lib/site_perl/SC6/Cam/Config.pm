@@ -12,8 +12,10 @@ sub new {
         _config_file => shift,
         _config => shift,
         _debug  => shift,
+        _in  => shift,
     };
     my $in = YAML::Tiny->read( $self->{_config_file} );
+    $self->{_in} = $in;
     $self->{_config} = $in->[0]->{Root1};
     if ( ! $self->{_config} ) {
         print "failed to read $self->{_config_file} $! ", YAML::Tiny->errstr, "\n";
@@ -21,9 +23,8 @@ sub new {
     }
     $self->{_debug} = $self->{_config}->{'Debug'}->{'Level'};
 
-    my $debug_dump_config = $self->{_config}->{'Debug'}->{'DumpConfig'};
-    if ( $self->{_debug} >= $debug_dump_config ) {
-        print Dumper($self->{_config});
+    if ( $self->{_debug} >= $self->{_config}->{'Debug'}->{'DumpConfig'} ) {
+        print "read config:", Dumper($self->{_config});
     }
 
     bless $self, $class;
@@ -34,6 +35,20 @@ sub getConfig {
     my ($self ) = @_;
 
     return $self->{_config};
+}
+
+sub writeConfig {
+    my ($self, $old ) = @_;
+
+    # replace config
+    $self->{_in}->[0]->{Root1} = $old;
+    if ( $self->{_debug} >= $self->{_config}->{'Debug'}->{'DumpConfig'} ) {
+        print "going to write:", Dumper($self->{_in});
+    }
+    # write new config
+    if ( ! $self->{_in}->write( $self->{_config_file} ) {
+        die "errors writing $self->{_config_file} : $!\n";
+    }
 }
 
 sub getDebug {
