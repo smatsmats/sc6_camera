@@ -92,7 +92,11 @@ sub get_video_dir {
 sub get_video_file {
     my ($dt, $format, $postfix, $mode) = @_;
     
-    return get_video_dir($dt, $format, $mode) . "output_" . $format . "." . $postfix;
+    my $file =  get_video_dir($dt, $format, $mode) . "output_" . $format . "." . $postfix;
+    if ( $main::config->{Video}->{Daily}->{Disposable} ) {
+        $file =  get_video_dir($dt, $format, $mode) . "output_" . $format . "_" . $$ . "." . $postfix;
+    }
+    return $file;
 }
 
 sub do_cmd {
