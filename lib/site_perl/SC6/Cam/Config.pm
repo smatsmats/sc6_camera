@@ -46,8 +46,8 @@ sub writeConfig {
         print "going to write:", Dumper($self->{_in});
     }
     # write new config
-    if ( ! $self->{_in}->write( $self->{_config_file} ) {
-        die "errors writing $self->{_config_file} : $!\n";
+    if ( ! $self->{_in}->write( $self->{_config_file} ) ) {
+        die "errors writing ", $self->{_config_file}, " : $!\n";
     }
 }
 
