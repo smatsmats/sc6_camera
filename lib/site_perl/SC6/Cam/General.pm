@@ -105,6 +105,7 @@ sub do_cmd {
     if ( ! $dryrun ) {
         print `$cmd`;
 #        print `$cmd 2>&1`;
+        return $?;
     }
 }
 
