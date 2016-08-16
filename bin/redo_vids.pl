@@ -30,9 +30,14 @@ my $result = GetOptions (  "n|dry-run" => \$dryrun,
 my $conf;
 my $count = 0;
 while () {
-    print "time is: ", scalar localtime(), "\n";
+    print "top loop time is: ", scalar localtime(), "\n";
     $conf = reread_conf();
 
+    if ( $count == 0 ) {
+        $conf->{'StopTimeOriginal'} = $conf->{'StopTime'};
+        $conf->{'StartDateOriginal'} = $conf->{'StartDate'};
+        $conf->{'BailAfterOriginal'} = $conf->{'BailAfter'};
+    }
     
     my ($stop_seconds, $stop_error);
     my $stop;
@@ -76,7 +81,6 @@ while () {
         exit;
     }
 
-
     my $cmd = $build_and_push_cmd . " --trickle --date $start --debug";
     print "are we going to trickle: ", $conf->{'Trickle'}, "\n";
     if ( $conf->{'Trickle'} eq "False" || $conf->{'Trickle'} == 0 ) {
@@ -89,7 +93,6 @@ while () {
     my $fail = 0;
     if ($ret_code > 0) {
         print "fail from $cmd : $!\n";
-        print scalar localtime(), "\n";
         $fail = 1;
     }
     else {
@@ -98,6 +101,9 @@ while () {
         $conf->{'StartDate'} = $start->strftime('%m/%d/%Y');
     }
     $conf->{'BailAfter'} = $counter - 1;
+
+    print "after build and push time is: ", scalar localtime(), "\n";
+
     write_config();
     $count++;
 
@@ -147,11 +153,16 @@ sub write_config {
     if ( defined $conf->{'StopTime'} ) {
         if ( $new->{'StopTime'} != $conf->{'StopTime'} ) {
             print "looks like the config changed while I was running I'll use your new Stop Time.\n";
+            $new->{'StopTimeOriginal'} = $new->{'StopTime'};
         }
         else {
             $new->{'StopTime'} = $conf->{'StopTimeDecoded'};
             $new->{'StopTimeDecoded'} = $conf->{'StopTimeDecoded'};
         }
     }
+    $new->{'StopTimeOriginal'} = $conf->{'StopTimeOriginal'};
+    $new->{'StartDateOriginal'} = $conf->{'StartDateOriginal'};
+    $new->{'BailAfterOriginal'} = $conf->{'BailAfterOriginal'};
+    print Dumper($new);
     $c->writeConfig($new);
 }
