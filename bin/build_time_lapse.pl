@@ -11,6 +11,9 @@ use SC6::Cam::Config;
 use SC6::Cam::Sun;
 use Getopt::Long;
 use Data::Dumper;
+use IO::Select;
+use IPC::Open3;
+use Symbol 'gensym';
 
 $|++;
 
@@ -24,6 +27,10 @@ our $config = $c->getConfig();
 our $debug = $c->getDebug();
 my $date;
 my $no_push;
+my $silent = 0;
+my $trickle = 0;
+my $trickle_cmd = "trickle -s -u 200";
+my $out = "";
 
 my $result = GetOptions (  "n|dry-run" => \$dryrun,
                         "f|force"  => \$force,
@@ -31,14 +38,23 @@ my $result = GetOptions (  "n|dry-run" => \$dryrun,
                         "m|mode=s"  => \$mode,
                         "t|date=s"  => \$date,
                         "np|no-push"  => \$no_push,
+                        "trickle"  => \$trickle,
+                        "silent"  => \$silent,
                         "d|debug+"  => \$debug);
 if ( ! $result ) {
     usage();
     exit;
 }
 
+# debug trumps silent
+if ( $debug && $silent ) {
+    $silent = 0;
+}
+
 unless (flock(DATA, LOCK_EX|LOCK_NB)) {
-    print "$0 is already running. Exiting.\n";
+    if ( ! $silent ) {
+        print "$0 is already running. Exiting.\n";
+    }
     exit(1);
 }
 
@@ -49,7 +65,7 @@ if ( $date ) {
     my ($seconds, $error) = parsedate($date);
     if ( not $seconds ) {
 	print "Error can't parse date: $date : $error\n";
-        exit;
+        exit(1);
     }
     else {
 	print $seconds, "\n" if ( $debug );
@@ -69,31 +85,39 @@ if ( $force ) {
 }
 else {
     if ( $s->is_sun($dt) ) {
-        print "Sun is up!\n";
+        print "Sun is up!\n" unless ( $silent);
     }
     elsif ( $s->is_hour_after_dusk($dt) ) {
-        print "Sun is down, but for less than an hour!\n";
+        print "Sun is down, but for less than an hour!\n" unless ( $silent);
     }
     else  {
-        print "Sun is down!\n";
+        print "Sun is down!\n" unless ( $silent);
         exit;
     }
 }
 
 if ( $dryrun ) {
-    print "This is a dry run, not doing anything\n";
+    print "This is a dry run, not doing anything\n" unless ( $silent);
 }
 
 my $format = 'orig';
 make_moovie($format, $mode);
 my %metadata = collect_metadata();
 compress_moovie($format, $mode, %metadata);
+my $push_return_code;
 if ( ! $no_push ) {
-    push_to_youtube($format, $mode);
+    $push_return_code = push_to_youtube($format, $mode);
 }
 cleanup($format, $mode);
 
-print "buh bye\n";
+if ( $debug ) {
+    print "buh bye\n";
+    print "push still returned $push_return_code\n";
+}
+if ( $push_return_code != 0 ) {
+    exit 1;
+}
+exit($push_return_code);
 
 sub make_moovie {
     my ($format, $mode) = @_;
@@ -107,7 +131,7 @@ sub make_moovie {
         ":fps=" . $config->{'FPS'};
 
     my $cmd = "mencoder -msglevel all=1 -nosound -noskip -oac copy -ovc copy -o $out -mf $mf $in";
-    do_cmd($cmd, $dryrun);
+    my_do_cmd($cmd, $dryrun);
 }
 
 sub compress_moovie {
@@ -121,17 +145,20 @@ sub compress_moovie {
     }
     my $cmd = $config->{'Bins'}->{'ffmpeg'};
     $cmd .= " -y -loglevel $ll -i $in $md -r 25 -s 1920x1080 -vcodec libx264 -b:v 30000k $out";
-    do_cmd($cmd, $dryrun);
+    my_do_cmd($cmd, $dryrun);
 }
 
 sub usage
 {
-    print "usage: $0 [-d|--debug] [--date=date] [-f|--force] [-h|--help] [-n|--dry-run] [-m|mode=mode]\n";
+    print "usage: $0 [-d|--debug] [--date=date] [-f|--force] [-h|--help] [--debug] [--silent] [--trickle] [-n|--dry-run] [-m|mode=mode]\n";
     print "\t-f|--force    - Force building of the video files\n";
     print "\t--date        - Date of files to build and push\n";
     print "\t-h|--help     - This message\n";
     print "\t-n|--dry-run  - perform a trial run with no changes made\n";
     print "\t-np|--no-push - don't push to youtube\n";
+    print "\t--trickle     - use trickle to limit bandwidth\n";
+    print "\t--silent      - don't print normal amount of information\n";
+    print "\t--debug       - print extra debugging information (debug trumps silent)\n";
     print "\t-m|--mode     - mode, prod or test\n";
     exit(1);
 
@@ -151,13 +178,18 @@ sub cleanup {
 sub push_to_youtube {
     my ($format, $mode) = @_;
 
-    my $cmd = $config->{'Bins'}->{'push2youtube'} . " " . $config->{'Bins'}->{'push2youtube_args'};
+    my $cmd = "";
+    if ( $trickle ) {
+        $cmd = $trickle_cmd . " ";
+    }
+    $cmd .= $config->{'Bins'}->{'push2youtube'} . " " . $config->{'Bins'}->{'push2youtube_args'};
     if ( $date_from_args == 1 ) {
         $cmd .= " " . "--videoDate=" . $dt->ymd;
     }
     my $out = get_video_file($dt, $format, 'mp4', $mode);
     $cmd .= " --file " . $out;
-    do_cmd($cmd, $dryrun);
+    my $rcode = my_do_cmd($cmd, $dryrun);
+    return $rcode;
 }
 
 sub collect_metadata {
@@ -169,6 +201,56 @@ sub collect_metadata {
 
     return %h;
 }
+
+sub myoutput {
+    my $error = shift;
+    if ( $debug || $error ) {
+        print $out;
+        print scalar localtime(), "\n";
+    }
+}
+
+sub my_do_cmd {
+    my ($cmd, $dryrun) = @_;
+#    print $cmd, "\n";
+    if ( ! $dryrun ) {
+#        print `$cmd`;
+        my  $ret = `$cmd 2>&1`;
+        if ( $debug ) {
+            print $ret;
+        }
+        return $?;
+    }
+}
+
+sub new_do_cmd {
+    my $cmd = shift;
+    my $wtr = gensym;
+    my $rdr = gensym;
+    my $err = gensym;
+
+    print TMPOUT "command: $cmd\n";
+
+    my $errors;
+    if( ! open3($wtr, $rdr, $err, $cmd) ) {
+        print TMPOUT "open3 of cmd $cmd failed $!";
+        $errors = 1;
+        return 1;
+    }
+    close $wtr;
+    while(<$rdr>) {
+        print TMPOUT;
+    }
+    close $rdr;
+    while(<$err>) {
+        print TMPOUT;
+        $errors = 1;
+    }
+    close $err;
+
+    return 0;
+}
+
 
 __DATA__
 This exists so flock() code above works.
