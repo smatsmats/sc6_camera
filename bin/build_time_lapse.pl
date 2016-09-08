@@ -212,7 +212,9 @@ sub myoutput {
 
 sub my_do_cmd {
     my ($cmd, $dryrun) = @_;
-#    print $cmd, "\n";
+    if ( $debug ) {
+        print $cmd, "\n";
+    }
     if ( ! $dryrun ) {
 #        print `$cmd`;
         my  $ret = `$cmd 2>&1`;
