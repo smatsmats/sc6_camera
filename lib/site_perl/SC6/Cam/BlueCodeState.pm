@@ -12,7 +12,6 @@ sub new {
     my $class = shift;
     my $self = {
         _mode => shift,
-        _push_to_google => shift,
         _dryrun => shift,
     };
 
@@ -33,12 +32,10 @@ sub checkBluecode {
         $self->{_bluecode} = $new_bluecode;
         save_is_blueist_stash($self, $new_image);
         save_is_blueist_local($self, $www_image_50pct, $www_image_orig);
-        if ( $self->{_push_to_google} ) {
-            save_is_blueist_gstore($self, $www_image_50pct, $www_image_orig);
-        }
         cache($self);
+        return 1;
     }
-    return $self;
+    return 0;
 }
 
 sub getBluecode {
@@ -89,19 +86,6 @@ sub save_is_blueist_local {
 
 }
 
-sub save_is_blueist_gstore {
-    my ( $self, $bf_50pct, $bf_orig ) = @_;
-    my $bc = $self->{_bluecode};
-    my $blueist_file_50pct = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'BlueistImage'} . "_50pct";
-    my $blueist_file_orig = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'BlueistImage'} . "_orig";
-
-    # copies on google
-    my $bucket_dir = $main::config->{GStore}->{'BlueistDir'};
-    $main::gstore->cp_fs2bucket($bf_50pct, $bucket_dir);
-    $main::gstore->cp_fs2bucket($bf_orig, $bucket_dir);
-
-}
-
 sub cache {
     my ($self) = @_;
 
@@ -116,7 +100,7 @@ sub prime {
     my ($self) = @_;
 
     my $priming_bluecode = $main::config->{BlueCode}->{'PrimingValue'};
-    my $blue_code_file = $main::config->{BlueCode}->{'File'};
+    my $blue_code_file = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'File'};
 
     if ( -f $blue_code_file ) {
         open F, $blue_code_file or die "Can't open $blue_code_file$!\n";

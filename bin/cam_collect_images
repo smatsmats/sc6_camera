@@ -31,7 +31,7 @@ $result = GetOptions (  "n|dry-run" => \$dryrun,
 
 # prime bluecode
 my $push_to_google = $config->{'GStore'}->{'Enable'};
-my $bcr = new SC6::Cam::BlueCodeState($mode, $push_to_google, $dryrun);
+my $bcr = new SC6::Cam::BlueCodeState($mode, $dryrun);
 
 print "primed bluecode is: ", $bcr->getBluecode(), "\n" if ( $debug );
 our $gstore = new SC6::Cam::GStore();
@@ -67,7 +67,6 @@ while() {
             $current_image->make_public_version();
             $current_image->do_image_overlays();
             $current_image->resizes_and_links();
-            $bcr->checkBluecode($current_image);
             
             # normal sleep, but prune sleep time to account for processing
             $end_time = DateTime->now(  time_zone => $config->{'General'}->{'Timezone'} );
@@ -79,21 +78,36 @@ while() {
             }
             $prev_failed_start = 0;
             
+            # file and dir locations
+            # this directory crap is a mess, fix it.  
+            my $current = $config->{GStore}->{'CurrentDir'};
+            my $www_dir = get_www_dir($format, $mode);
+            my $www_image_orig = $www_dir . $config->{Image}->{File}->{orig};
+            my $www_image_50pct = $www_dir . $config->{Image}->{File}->{'50pct'};
+            my $public = $config->{GStore}->{'PublicDir'};
+            my $public_image_orig = $current_image->getPublicWWWFile();
+            my $public_image_50pct = $current_image->getPublicWWWFile_50pct();
+            my $blue_bucket = $main::config->{GStore}->{'BlueistDir'};
+            my $blueist_file_50pct = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'BlueistImage'} . "_50pct";
+            my $blueist_file_orig = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'BlueistImage'} . "_orig";
+
+            # check blue code and push blue file maybe
+            if ( $bcr->checkBluecode($current_image) == 1 ) {
+                print "new blue\n";
+                $gstore->cp_fs2bucket($public_image_orig, $blue_bucket);
+                $gstore->cp_fs2bucket($public_image_50pct, $blue_bucket);
+            }
+            else {
+                print "old blue\n";
+            }
+
             # push the images to gstore
             # this should really be a seperate loop or even process, but for now it's here
             if ( $last_gstore_push + $gstore_interval < $end_time->epoch() ) { 
-                # this directory crap is a mess, fix it.  
-                my $current = $config->{GStore}->{'CurrentDir'};
-                my $www_dir = get_www_dir($format, $mode);
-                my $www_image_orig = $www_dir . $config->{Image}->{File}->{orig};
-                my $www_image_50pct = $www_dir . $config->{Image}->{File}->{'50pct'};
                 $gstore->cp_fs2bucket($www_image_orig, $current);
     # skip copying up 50pct images
     #            $gstore->cp_fs2bucket($www_image_50pct, $current);
     
-                my $public = $config->{GStore}->{'PublicDir'};
-                my $public_image_orig = $current_image->getPublicWWWFile();
-                my $public_image_50pct = $current_image->getPublicWWWFile_50pct();
                 $gstore->cp_fs2bucket($public_image_orig, $public);
     # skip copying up 50pct images
     #            $gstore->cp_fs2bucket($public_image_50pct, $public);
