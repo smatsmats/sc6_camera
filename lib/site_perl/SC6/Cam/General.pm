@@ -101,7 +101,7 @@ sub get_video_file {
 
 sub do_cmd {
     my ($cmd, $dryrun) = @_;
-    print $cmd, "\n";
+#    print $cmd, "\n";
     if ( ! $dryrun ) {
         print `$cmd`;
 #        print `$cmd 2>&1`;
