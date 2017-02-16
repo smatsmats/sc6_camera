@@ -1,4 +1,4 @@
-# !/usr/bin/python
+#!/usr/bin/python
 
 import httplib
 import httplib2
