@@ -1,4 +1,4 @@
-#!/usr/bin/python
+# !/usr/bin/python
 
 import httplib
 import httplib2
@@ -26,10 +26,10 @@ from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
 from oauth2client.file import Storage
 from oauth2client.client import flow_from_clientsecrets
-#from oauth2client.tools import run
+# from oauth2client.tools import run
 from argparse import ArgumentParser
 
-#from libavwrapper import AVConv, Input, Output, VideoCodec, VideoFilter
+# from libavwrapper import AVConv, Input, Output, VideoCodec, VideoFilter
 
 import logging
 import logging.config
@@ -47,17 +47,17 @@ logging.config.dictConfig(lconfig)
 logger = logging.getLogger('push2youtube')
 
 # 'application' code
-#logger.debug('debug message')
-#logger.info('info message')
-#logger.warn('warn message')
-#logger.error('error message')
-#logger.critical('critical message')
+# logger.debug('debug message')
+# logger.info('info message')
+# logger.warn('warn message')
+# logger.error('error message')
+# logger.critical('critical message')
 
 # this will soon come from command line or somewhere
 vid_selector = "Daily"
 
 # set the path for the video file binary
-#video_file = gconfig['Paths']['video_file']
+# video_file = gconfig['Paths']['video_file']
 
 youtube = None
 
@@ -70,9 +70,9 @@ MAX_RETRIES = 10
 
 # Always retry when these exceptions are raised.
 RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
-  httplib.IncompleteRead, httplib.ImproperConnectionState,
-  httplib.CannotSendRequest, httplib.CannotSendHeader,
-  httplib.ResponseNotReady, httplib.BadStatusLine)
+                        httplib.IncompleteRead, httplib.ImproperConnectionState,
+                        httplib.CannotSendRequest, httplib.CannotSendHeader,
+                        httplib.ResponseNotReady, httplib.BadStatusLine)
 
 # Always retry when an apiclient.errors.HttpError with one of these status
 # codes is raised.
@@ -81,7 +81,7 @@ RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
 # CLIENT_SECRETS_FILE, name of a file containing the OAuth 2.0 information for
 # this application, including client_id and client_secret. You can acquire an
 # ID/secret pair from the API Access tab on the Google APIs Console
-#   http://code.google.com/apis/console#access
+# http://code.google.com/apis/console#access
 # For more information about using OAuth2 to access Google APIs, please visit:
 #   https://developers.google.com/accounts/docs/OAuth2
 # For more information about the client_secrets.json file format, please visit:
@@ -109,213 +109,230 @@ found at:
    %s
 
 with information from the APIs Console
-https://code.google.com/apis/console#access
+https://code.google.com/apis/console# access
 
 For more information about the client_secrets.json file format, please visit:
 https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 """ % os.path.abspath(os.path.join(os.path.dirname(__file__),
                                    CLIENT_SECRETS_FILE))
 
+
 def get_authenticated_service():
-  flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, scope=YOUTUBE_SCOPE,
-    message=MISSING_CLIENT_SECRETS_MESSAGE)
+    flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, scope=YOUTUBE_SCOPE,
+                                   message=MISSING_CLIENT_SECRETS_MESSAGE)
 
-  storage = Storage(gconfig['Google']['Auth']['oauth_token_file'])
-  credentials = storage.get()
+    storage = Storage(gconfig['Google']['Auth']['oauth_token_file'])
+    credentials = storage.get()
 
-  if credentials is None or credentials.invalid:
-    credentials = run(flow, storage)
+    if credentials is None or credentials.invalid:
+        credentials = run(flow, storage)
 
-  return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-    http=credentials.authorize(httplib2.Http()))
+    return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
+                 http=credentials.authorize(httplib2.Http()))
+
 
 def getVidDateTime(file):
-  vdate = os.stat(file).st_mtime
-  return datetime.fromtimestamp(vdate)
+    vdate = os.stat(file).st_mtime
+    return datetime.fromtimestamp(vdate)
+
 
 def writeUrl(vid_url):
-  url_file = config['Video'][vid_selector]['URL_file']
-  try:
-    f = open(url_file, 'w')
-    f.write(vid_url)
-    f.close
-  except IOError, ioex:
-    logger.error('errno:', ioex.errno)
-    logger.error('err code:', errno.errorcode[ioex.errno])
-    logger.error('err message:', os.strerror(ioex.errno))
+    url_file = config['Video'][vid_selector]['URL_file']
+    try:
+        f = open(url_file, 'w')
+        f.write(vid_url)
+        f.close
+    except IOError, ioex:
+        logger.error('errno:', ioex.errno)
+        logger.error('err code:', errno.errorcode[ioex.errno])
+        logger.error('err message:', os.strerror(ioex.errno))
+
 
 def youtube_search(title):
-  global youtube
+    global youtube
 
-  # Call the search.list method to retrieve results matching the specified
-  # query term.
-  search_response = youtube.search().list(
-    q=title,
-    part="id,snippet",
-    type="video",
-    maxResults=35,
-  ).execute()
+    # Call the search.list method to retrieve results matching the specified
+    # query term.
+    search_response = youtube.search().list(
+        q=title,
+      part="id,snippet",
+      type="video",
+      maxResults=35,
+    ).execute()
 
-  videos = []
+    videos = []
 
-  # Add each result to the appropriate list, and then display the lists of
-  # matching videos, channels, and playlists.
-  for search_result in search_response.get("items", []):
-    if search_result["id"]["kind"] == "youtube#video":
-      dt = dateutil.parser.parse(search_result["snippet"]["publishedAt"])
-      localPublishedAt = dt.astimezone(timezone('America/Los_Angeles'))
-      logger.info("full search result: %s" % search_result)
-      logger.info("id: %s Title: %s Date / Time: %s (%s)" % (search_result["id"]["videoId"], 
-          search_result["snippet"]["title"], localPublishedAt, 
-	  search_result["snippet"]["publishedAt"]))
-      if search_result["snippet"]["title"] != title:
-	logger.error("WTF! %s != %s" % (search_result["snippet"]["title"], title))
-      else:
-        videos.append(search_result["id"]["videoId"])
+    # Add each result to the appropriate list, and then display the lists of
+    # matching videos, channels, and playlists.
+    for search_result in search_response.get("items", []):
+        if search_result["id"]["kind"] == "youtube# video":
+            dt = dateutil.parser.parse(search_result["snippet"]["publishedAt"])
+            localPublishedAt = dt.astimezone(timezone('America/Los_Angeles'))
+            logger.info("full search result: %s" % search_result)
+            logger.info(
+                "id: %s Title: %s Date / Time: %s (%s)" % (search_result["id"]["videoId"],
+                                                           search_result["snippet"][
+                                                               "title"], localPublishedAt,
+                                                           search_result["snippet"]["publishedAt"]))
+            if search_result["snippet"]["title"] != title:
+                logger.error("WTF! %s != %s" %
+                             (search_result["snippet"]["title"], title))
+            else:
+                videos.append(search_result["id"]["videoId"])
 
-  return videos
+    return videos
+
 
 def remove_old_video(id):
-  global youtube
+    global youtube
 
-  logger.info("going to remove: " + id)
-  try:
-    youtube.videos().delete(id=id).execute()
-  except HttpError, e:
-    logger.info("exception trying to delete %s : %s, will continue" % (id, e))
+    logger.info("going to remove: " + id)
+    try:
+        youtube.videos().delete(id=id).execute()
+    except HttpError, e:
+        logger.info(
+            "exception trying to delete %s : %s, will continue" % (id, e))
+
 
 def initialize_upload(options):
-  global youtube
+    global youtube
 
-  tags = None
-  if options.keywords:
-    tags = options.keywords.split(",")
+    tags = None
+    if options.keywords:
+        tags = options.keywords.split(",")
 
-  insert_request = youtube.videos().insert(
-    part="snippet,status",
-    body=dict(
-      snippet=dict(
-        title=options.title,
-        description=options.description,
-        tags=tags,
-        categoryId=options.category
+    insert_request = youtube.videos().insert(
+        part="snippet,status",
+      body=dict(
+          snippet=dict(
+              title=options.title,
+              description=options.description,
+              tags=tags,
+              categoryId=options.category
+          ),
+        status=dict(
+            privacyStatus=options.privacyStatus
+        )
       ),
-      status=dict(
-        privacyStatus=options.privacyStatus
-      )
-    ),
-    # chunksize=-1 means that the entire file will be uploaded in a single
-    # HTTP request. (If the upload fails, it will still be retried where it
-    # left off.) This is usually a best practice, but if you're using Python
-    # older than 2.6 or if you're running on App Engine, you should set the
-    # chunksize to something like 1024 * 1024 (1 megabyte).
-    media_body=MediaFileUpload(options.file, chunksize=-1, resumable=True)
-  )
+      # chunksize=-1 means that the entire file will be uploaded in a single
+      # HTTP request. (If the upload fails, it will still be retried where it
+      # left off.) This is usually a best practice, but if you're using Python
+      # older than 2.6 or if you're running on App Engine, you should set the
+      # chunksize to something like 1024 * 1024 (1 megabyte).
+      media_body=MediaFileUpload(options.file, chunksize=-1, resumable=True)
+    )
 
-  return resumable_upload(insert_request)
+    return resumable_upload(insert_request)
 
 
 def resumable_upload(insert_request):
-  response = None
-  error = None
-  retry = 0
-  while response is None:
-    try:
-      logger.info("Uploading file ...")
-      status, response = insert_request.next_chunk()
-      if 'id' in response:
-        logger.info("'%s' (video id: %s) was successfully uploaded." % (
-          response['snippet']['title'], response['id']))
-      else:
-        exit("The upload failed with an unexpected response: %s" % response)
-    except HttpError, e:
-      if e.resp.status in RETRIABLE_STATUS_CODES:
-        error = "A retriable HTTP error %d occurred:\n%s" % (e.resp.status,
-                                                             e.content)
-      else:
-        raise
-    except RETRIABLE_EXCEPTIONS, e:
-      error = "A retriable error occurred: %s" % e
+    response = None
+    error = None
+    retry = 0
+    while response is None:
+        try:
+            logger.info("Uploading file ...")
+            status, response = insert_request.next_chunk()
+            if 'id' in response:
+                logger.info("'%s' (video id: %s) was successfully uploaded." % (
+                            response['snippet']['title'], response['id']))
+            else:
+                exit("The upload failed with an unexpected response: %s" %
+                     response)
+        except HttpError, e:
+            if e.resp.status in RETRIABLE_STATUS_CODES:
+                error = "A retriable HTTP error %d occurred:\n%s" % (e.resp.status,
+                                                                     e.content)
+            else:
+                raise
+        except RETRIABLE_EXCEPTIONS, e:
+            error = "A retriable error occurred: %s" % e
 
-    if error is not None:
-      logger.error(error)
-      retry += 1
-      if retry > MAX_RETRIES:
-        exit("No longer attempting to retry.")
+        if error is not None:
+            logger.error(error)
+            retry += 1
+            if retry > MAX_RETRIES:
+                exit("No longer attempting to retry.")
 
-      max_sleep = (2 ** retry ) * 5
-      sleep_seconds = random.random() * max_sleep
-      logger.error("Sleeping %f seconds and then retrying (retry: %s of %s)." % (sleep_seconds, retry, MAX_RETRIES))
-      t.sleep(sleep_seconds)
+            max_sleep = (2 ** retry) * 5
+            sleep_seconds = random.random() * max_sleep
+            logger.error("Sleeping %f seconds and then retrying (retry: %s of %s)." %
+                         (sleep_seconds, retry, MAX_RETRIES))
+            t.sleep(sleep_seconds)
 
-  return response
+    return response
 
 
 if __name__ == '__main__':
-  parser = ArgumentParser()
-  parser.add_argument("--file", dest="file", help="Video file to upload")
-  parser.add_argument("--title", dest="title", help="Video title",
-    default="Test Title")
-  parser.add_argument("--description", dest="description",
-    help="Video description",
-    default="Test Description")
-  parser.add_argument("--category", dest="category",
-    help="Numeric video category. " +
-      "See https://developers.google.com/youtube/v3/docs/videoCategories/list",
-          #youtube.videos().delete(id=ID).execute()
-    default="22")
-  parser.add_argument("--keywords", dest="keywords",
-    help="Video keywords, comma separated", default="")
-  parser.add_argument("--privacyStatus", dest="privacyStatus",
-    help="Video privacy status: public, private or unlisted",
-    default="public")
-  parser.add_argument("--videoDate", dest="videoDate", default="", 
-    help="video is for some other date than today")
-  parser.add_argument("--doDeletes", action='store_true', help="clenaup other uploades from today")
-  parser.add_argument("--dontUpload", action='store_true', help="for testing, don't actually do the upload")
-  args = parser.parse_args()
+    parser = ArgumentParser()
+    parser.add_argument("--file", dest="file", help="Video file to upload")
+    parser.add_argument("--title", dest="title", help="Video title",
+                        default="Test Title")
+    parser.add_argument("--description", dest="description",
+                        help="Video description",
+                        default="Test Description")
+    parser.add_argument("--category", dest="category",
+                        help="Numeric video category. " +
+                        "See https://developers.google.com/youtube/v3/docs/videoCategories/list",
+                        # youtube.videos().delete(id=ID).execute()
+                        default="22")
+    parser.add_argument("--keywords", dest="keywords",
+                        help="Video keywords, comma separated", default="")
+    parser.add_argument("--privacyStatus", dest="privacyStatus",
+                        help="Video privacy status: public, private or unlisted",
+                        default="public")
+    parser.add_argument("--videoDate", dest="videoDate", default="",
+                        help="video is for some other date than today")
+    parser.add_argument(
+        "--doDeletes", action='store_true', help="clenaup other uploades from today")
+    parser.add_argument("--dontUpload", action='store_true',
+                        help="for testing, don't actually do the upload")
+    args = parser.parse_args()
 
-  # file
-  if args.file is None:
-    args.file = gconfig['Paths']['video_file']
+    # file
+    if args.file is None:
+        args.file = gconfig['Paths']['video_file']
 
-  # titles and stuff for video
-  if args.videoDate:
-    date_string = args.videoDate
-  else:
-    date_string = date.today().isoformat()
-  # first build dictionary of substitutions
-  d = dict([('date', date_string), ('underbar_date', date_string.replace('-', '_')), ('video_created', getVidDateTime(args.file).ctime()), ('video_uploaded', datetime.now().ctime())])
-  
-  args.title = Template(config['Video'][vid_selector]['TitleTemplate']).safe_substitute(d)
-  d['title'] = args.title # make the title available for later substitution
-  args.developer_tag = Template(config['Video'][vid_selector]['TitleTagTemplate']).safe_substitute(d)
-  args.description = Template(config['Video'][vid_selector]['DescriptionTemplate']).safe_substitute(d)
+    # titles and stuff for video
+    if args.videoDate:
+        date_string = args.videoDate
+    else:
+        date_string = date.today().isoformat()
+    # first build dictionary of substitutions
+    d = dict(
+        [('date', date_string), ('underbar_date', date_string.replace('-', '_')),
+            ('video_created', getVidDateTime(args.file).ctime()), ('video_uploaded', datetime.now().ctime())])
 
-  youtube = get_authenticated_service()
+    args.title = Template(
+        config['Video'][vid_selector]['TitleTemplate']).safe_substitute(d)
+    d['title'] = args.title  # make the title available for later substitution
+    args.developer_tag = Template(
+        config['Video'][vid_selector]['TitleTagTemplate']).safe_substitute(d)
+    args.description = Template(
+        config['Video'][vid_selector]['DescriptionTemplate']).safe_substitute(d)
+
+    youtube = get_authenticated_service()
 #  youtube_public = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
 #        developerKey=DEVELOPER_KEY)
 
-
-  res = {}
-  vid_url = ""
-  if args.file is None or not os.path.exists(args.file):
-    exit("Please specify a valid file using the --file= parameter.")
-  else:
-    if args.dontUpload:
-      logger.info("dontUpload is set, we won't upload")
-      vid_url = "no upload"
-      res['id'] = "XXX"
+    res = {}
+    vid_url = ""
+    if args.file is None or not os.path.exists(args.file):
+        exit("Please specify a valid file using the --file= parameter.")
     else:
-      res = initialize_upload(args)
-      vid_url = gconfig['Url']['pre'] + res['id']
-      logger.info("url: " + vid_url)
-      writeUrl(vid_url)
+        if args.dontUpload:
+            logger.info("dontUpload is set, we won't upload")
+            vid_url = "no upload"
+            res['id'] = "XXX"
+        else:
+            res = initialize_upload(args)
+            vid_url = gconfig['Url']['pre'] + res['id']
+            logger.info("url: " + vid_url)
+            writeUrl(vid_url)
 
-  for vid_id in youtube_search(args.title):
-    if vid_id != res['id']:
-      if args.doDeletes is True:
-        remove_old_video(vid_id)
-      else:
-        logger.debug("would hav deleted: " + vid_id)
-
+    for vid_id in youtube_search(args.title):
+        if vid_id != res['id']:
+            if args.doDeletes is True:
+                remove_old_video(vid_id)
+            else:
+                logger.debug("would hav deleted: " + vid_id)
