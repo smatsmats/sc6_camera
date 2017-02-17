@@ -54,7 +54,7 @@ logger = logging.getLogger('push2youtube')
 # logger.critical('critical message')
 
 # this will soon come from command line or somewhere
-vid_selector = "Daily"
+vid_select = "Daily"
 
 # set the path for the video file binary
 # video_file = gconfig['Paths']['video_file']
@@ -69,10 +69,14 @@ httplib2.RETRIES = 1
 MAX_RETRIES = 10
 
 # Always retry when these exceptions are raised.
-RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
-                        httplib.IncompleteRead, httplib.ImproperConnectionState,
-                        httplib.CannotSendRequest, httplib.CannotSendHeader,
-                        httplib.ResponseNotReady, httplib.BadStatusLine)
+RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError,
+                        httplib.NotConnected,
+                        httplib.IncompleteRead,
+                        httplib.ImproperConnectionState,
+                        httplib.CannotSendRequest,
+                        httplib.CannotSendHeader,
+                        httplib.ResponseNotReady,
+                        httplib.BadStatusLine)
 
 # Always retry when an apiclient.errors.HttpError with one of these status
 # codes is raised.
@@ -137,7 +141,7 @@ def getVidDateTime(file):
 
 
 def writeUrl(vid_url):
-    url_file = config['Video'][vid_selector]['URL_file']
+    url_file = config['Video'][vid_select]['URL_file']
     try:
         f = open(url_file, 'w')
         f.write(vid_url)
@@ -155,9 +159,9 @@ def youtube_search(title):
     # query term.
     search_response = youtube.search().list(
         q=title,
-      part="id,snippet",
-      type="video",
-      maxResults=35,
+        part="id,snippet",
+        type="video",
+        maxResults=35,
     ).execute()
 
     videos = []
@@ -170,10 +174,11 @@ def youtube_search(title):
             localPublishedAt = dt.astimezone(timezone('America/Los_Angeles'))
             logger.info("full search result: %s" % search_result)
             logger.info(
-                "id: %s Title: %s Date / Time: %s (%s)" % (search_result["id"]["videoId"],
-                                                           search_result["snippet"][
-                                                               "title"], localPublishedAt,
-                                                           search_result["snippet"]["publishedAt"]))
+                "id: %s Title: %s Date / Time: %s (%s)" %
+                       (search_result["id"]["videoId"],
+                        search_result["snippet"][
+                        "title"], localPublishedAt,
+                        search_result["snippet"]["publishedAt"]))
             if search_result["snippet"]["title"] != title:
                 logger.error("WTF! %s != %s" %
                              (search_result["snippet"]["title"], title))
@@ -203,23 +208,24 @@ def initialize_upload(options):
 
     insert_request = youtube.videos().insert(
         part="snippet,status",
-      body=dict(
-          snippet=dict(
-              title=options.title,
-              description=options.description,
-              tags=tags,
-              categoryId=options.category
-          ),
-        status=dict(
-            privacyStatus=options.privacyStatus
-        )
-      ),
-      # chunksize=-1 means that the entire file will be uploaded in a single
-      # HTTP request. (If the upload fails, it will still be retried where it
-      # left off.) This is usually a best practice, but if you're using Python
-      # older than 2.6 or if you're running on App Engine, you should set the
-      # chunksize to something like 1024 * 1024 (1 megabyte).
-      media_body=MediaFileUpload(options.file, chunksize=-1, resumable=True)
+        body=dict(
+            snippet=dict(
+                title=options.title,
+                description=options.description,
+                tags=tags,
+                categoryId=options.category
+            ),
+            status=dict(
+                privacyStatus=options.privacyStatus
+            )
+        ),
+        # chunksize=-1 means that the entire file will be uploaded in a single
+        # HTTP request. (If the upload fails, it will still be retried where it
+        # left off.) This is usually a best practice,
+        # but if you're using Python
+        # older than 2.6 or if you're running on App Engine, you should set the
+        # chunksize to something like 1024 * 1024 (1 megabyte).
+        media_body=MediaFileUpload(options.file, chunksize=-1, resumable=True)
     )
 
     return resumable_upload(insert_request)
@@ -234,15 +240,16 @@ def resumable_upload(insert_request):
             logger.info("Uploading file ...")
             status, response = insert_request.next_chunk()
             if 'id' in response:
-                logger.info("'%s' (video id: %s) was successfully uploaded." % (
-                            response['snippet']['title'], response['id']))
+                logger.info(
+                    "'%s' (video id: %s) was successfully uploaded." % (
+                        response['snippet']['title'], response['id']))
             else:
                 exit("The upload failed with an unexpected response: %s" %
                      response)
         except HttpError, e:
             if e.resp.status in RETRIABLE_STATUS_CODES:
-                error = "A retriable HTTP error %d occurred:\n%s" % (e.resp.status,
-                                                                     e.content)
+                error = "A retriable HTTP error %d occurred:\n%s" % (
+                    e.resp.status, e.content)
             else:
                 raise
         except RETRIABLE_EXCEPTIONS, e:
@@ -256,7 +263,8 @@ def resumable_upload(insert_request):
 
             max_sleep = (2 ** retry) * 5
             sleep_seconds = random.random() * max_sleep
-            logger.error("Sleeping %f seconds and then retrying (retry: %s of %s)." %
+            logger.error("Sleeping %f seconds and then retrying " +
+                         "(retry: %s of %s)." %
                          (sleep_seconds, retry, MAX_RETRIES))
             t.sleep(sleep_seconds)
 
@@ -273,18 +281,21 @@ if __name__ == '__main__':
                         default="Test Description")
     parser.add_argument("--category", dest="category",
                         help="Numeric video category. " +
-                        "See https://developers.google.com/youtube/v3/docs/videoCategories/list",
+                        "See https://developers.google.com/" +
+                        "youtube/v3/docs/videoCategories/list",
                         # youtube.videos().delete(id=ID).execute()
                         default="22")
     parser.add_argument("--keywords", dest="keywords",
                         help="Video keywords, comma separated", default="")
     parser.add_argument("--privacyStatus", dest="privacyStatus",
-                        help="Video privacy status: public, private or unlisted",
+                        help="Video privacy status: public, " +
+                        "private or unlisted",
                         default="public")
     parser.add_argument("--videoDate", dest="videoDate", default="",
                         help="video is for some other date than today")
     parser.add_argument(
-        "--doDeletes", action='store_true', help="clenaup other uploades from today")
+        "--doDeletes", action='store_true',
+        help="clenaup other uploades from today")
     parser.add_argument("--dontUpload", action='store_true',
                         help="for testing, don't actually do the upload")
     args = parser.parse_args()
@@ -300,16 +311,19 @@ if __name__ == '__main__':
         date_string = date.today().isoformat()
     # first build dictionary of substitutions
     d = dict(
-        [('date', date_string), ('underbar_date', date_string.replace('-', '_')),
-            ('video_created', getVidDateTime(args.file).ctime()), ('video_uploaded', datetime.now().ctime())])
+        [('date', date_string), ('underbar_date',
+                                 date_string.replace('-', '_')),
+            ('video_created',
+             getVidDateTime(args.file).ctime()),
+            ('video_uploaded', datetime.now().ctime())])
 
     args.title = Template(
-        config['Video'][vid_selector]['TitleTemplate']).safe_substitute(d)
+        config['Video'][vid_select]['TitleTemplate']).safe_substitute(d)
     d['title'] = args.title  # make the title available for later substitution
     args.developer_tag = Template(
-        config['Video'][vid_selector]['TitleTagTemplate']).safe_substitute(d)
+        config['Video'][vid_select]['TitleTagTemplate']).safe_substitute(d)
     args.description = Template(
-        config['Video'][vid_selector]['DescriptionTemplate']).safe_substitute(d)
+        config['Video'][vid_select]['DescriptionTemplate']).safe_substitute(d)
 
     youtube = get_authenticated_service()
 #  youtube_public = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
