@@ -1,3 +1,4 @@
 
-- make push to youtbue app take a date argument for when you're pushing a differnt day's vid - added 8/31/2015
 - rewrite all perl in python - added 8/31/2015
+- change image store directories to be more heirarchichal year/month/day - added 1/19/2017
+
