@@ -169,10 +169,10 @@ def youtube_search(title):
     # Add each result to the appropriate list, and then display the lists of
     # matching videos, channels, and playlists.
     for search_result in search_response.get("items", []):
-        if search_result["id"]["kind"] == "youtube# video":
+        logger.info("full search result: %s" % search_result)
+        if search_result["id"]["kind"] == "youtube#video":
             dt = dateutil.parser.parse(search_result["snippet"]["publishedAt"])
             localPublishedAt = dt.astimezone(timezone('America/Los_Angeles'))
-            logger.info("full search result: %s" % search_result)
             logger.info(
                 "id: %s Title: %s Date / Time: %s (%s)" %
                        (search_result["id"]["videoId"],
