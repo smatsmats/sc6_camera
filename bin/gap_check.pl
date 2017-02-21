@@ -13,11 +13,10 @@ our $config = $c->getConfig();
 our $debug = $c->getDebug();
 
 my $dt = DateTime->now(  time_zone => $config->{'General'}->{'Timezone'} );
-#my $d = "/data/cam_images/20130209/orig";
 my $d = get_image_dir($dt, "orig", $mode);
 
 opendir(my $dh, $d) || die;
-$ok_gap = 35;
+$ok_gap = 45;
 
 my $last_was_big = 0;
 my $last = 0;
@@ -28,7 +27,6 @@ foreach my $f ( sort @files ) {
     my $n = $f;
     $n =~ s/image(\d+)_orig.jpg/$1/; 
     $last = $n if ( $last == 0 );
-#image1360089169_orig.jpg
     if ( $n - $last <= $ok_gap ) {
         $last_was_big = 0;
     }
