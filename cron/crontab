@@ -1,1 +1,2 @@
-0 * * * * /usr/local/cam/bin/hourly.sh> /dev/null 2>&1
+0 * * * * /usr/local/cam/bin/build_time_lapse.pl --trickle --silent
+*/15 * * * * /usr/local/cam/bin/gap_check.pl
