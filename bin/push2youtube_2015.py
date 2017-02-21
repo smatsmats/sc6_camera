@@ -29,8 +29,6 @@ from oauth2client.client import flow_from_clientsecrets
 # from oauth2client.tools import run
 from argparse import ArgumentParser
 
-# from libavwrapper import AVConv, Input, Output, VideoCodec, VideoFilter
-
 import logging
 import logging.config
 
@@ -55,9 +53,6 @@ logger = logging.getLogger('push2youtube')
 
 # this will soon come from command line or somewhere
 vid_select = "Daily"
-
-# set the path for the video file binary
-# video_file = gconfig['Paths']['video_file']
 
 youtube = None
 
