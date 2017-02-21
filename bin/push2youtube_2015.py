@@ -113,7 +113,7 @@ found at:
    %s
 
 with information from the APIs Console
-https://code.google.com/apis/console# access
+https://code.google.com/apis/console#access
 
 For more information about the client_secrets.json file format, please visit:
 https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
