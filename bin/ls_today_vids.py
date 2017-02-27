@@ -59,9 +59,6 @@ logger.info("started")
 # this will soon come from command line or somewhere
 vid_select = "Daily"
 
-# set the path for the video file binary
-video_file = gconfig['Paths']['video_file']
-
 youtube = None
 
 # Explicitly tell the underlying HTTP transport library not to retry, since
@@ -136,12 +133,6 @@ def get_authenticated_service():
 
     return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
                  http=credentials.authorize(httplib2.Http()))
-
-
-def getVidDateTime():
-    vdate = os.stat(video_file).st_mtime
-    return datetime.fromtimestamp(vdate)
-
 
 def search_todays_videos(options):
     search_options = options
@@ -308,17 +299,12 @@ if __name__ == '__main__':
                       default="public")
     (options, args) = parser.parse_args()
 
-    # file
-    options.file = gconfig['Paths']['video_file']
-
     # titles and stuff for video
     date_string = date.today().isoformat()
     # first build dictionary of substitutions
     d = dict(
         [('date', date_string), ('underbar_date',
                                  date_string.replace('-', '_')),
-            ('video_created',
-             getVidDateTime().ctime()),
             ('video_uploaded', datetime.now().ctime())])
 
     options.title = Template(
