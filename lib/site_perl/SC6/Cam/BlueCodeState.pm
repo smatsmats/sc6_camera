@@ -25,7 +25,9 @@ sub checkBluecode {
     my ($self, $new_image) = @_;
 
     my $new_bluecode = $new_image->getBluecode();
-    if ( $new_bluecode > $self->{_bluecode} ) {
+    my $current_bluecode = $self->getConfirmedBluecode();
+
+    if ( $new_bluecode > $current_bluecode ) {
         print "new bluecode: $new_bluecode old: ", $self->{_bluecode}, "\n";
         my $www_image_50pct = $new_image->{_www_image_50pct};
         my $www_image_orig = $new_image->{_www_image_orig};
@@ -36,6 +38,20 @@ sub checkBluecode {
         return 1;
     }
     return 0;
+}
+
+sub getConfirmedBluecode {
+    my ($self) = @_;
+    my $blue_code_file = $main::config->{BlueCode}->{'File'};
+
+    my $new_file_time = (stat($blue_code_file))[9];
+    if ( $new_file_time != $self->{_blue_change_time} ) {
+        if ( -f $blue_code_file ) {
+            $self->{_bluecode} = readBluecodeFile($blue_code_file);
+            $self->{_blue_change_time} = (stat($blue_code_file))[9];
+        }
+    }
+    return $self->{_bluecode};
 }
 
 sub getBluecode {
@@ -59,6 +75,7 @@ sub clear {
         unlink($blue_code_file) or die "Can't unlink $blue_code_file: $!\n";
     }
     $self->{_bluecode} = $priming_bluecode;
+    $self->{_blue_change_time} = 0;
     return $self->{_bluecode};
 }
 
@@ -93,6 +110,7 @@ sub cache {
     open F, ">$blue_code_file" or die "Can't open $blue_code_file$!\n";
     print F $self->{_bluecode};
     print "writing bluecode file locally.  Current bluecode: ", $self->{_bluecode}, "\n" if ( $main::debug );
+    $self->{_blue_change_time} = (stat($blue_code_file))[9];
     close F;
 }
 
@@ -103,11 +121,8 @@ sub prime {
     my $blue_code_file = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'File'};
 
     if ( -f $blue_code_file ) {
-        open F, $blue_code_file or die "Can't open $blue_code_file$!\n";
-        my $in = <F>;
-        chomp($in);
-        $self->{_bluecode} = $in;
-        print "Bluecode file ($blue_code_file) found, priming with $in\n" if ( $main::debug );
+        $self->{_bluecode} = readBluecodeFile($blue_code_file);
+        print "Bluecode file ($blue_code_file) found, priming with ", $self->{_bluecode}, "\n" if ( $main::debug );
         return $self;
     }
     else {
@@ -115,6 +130,14 @@ sub prime {
         $self->{_bluecode} = $priming_bluecode;
         return $self;
     }
+}
+
+sub readBluecodeFile {
+    my $file = shift;
+    open F, $file or die "Can't open $file $!\n";
+    my $in = <F>;
+    chomp($in);
+    return $in;
 }
 
 END {    # module clean-up code here (global destructor)
