@@ -37,6 +37,9 @@ sub get_blue {
     my $cum_r = 0;
     my $cum_g = 0;
     my $cum_b = 0;
+    my $a_new_w = 0;
+    
+    my $only_bc = 1;  # change if playing with new maths for computing bluecode.
 
     for ( my $x=0; $x <= $width; $x += $sample ) {
         for ( my $y = $start_row; $y <= $start_row + $rows; $y += $sample ) {
@@ -47,26 +50,32 @@ sub get_blue {
             # don't use the green value for the difference 
             # because dusk and down can be very green
             $cum_bc += ($b - $r ) * ( 2 * ((0.2126*$r) + (0.7152*$g) + (0.0722*$b)));
-            $cum_lum += (0.2126*$r) + (0.7152*$g) + (0.0722*$b);
-            $cum_r += $r;
-            $cum_g += $g;
-            $cum_b += $b;
-            # Base BlueCode: $b - ( ($r + $g) / 2);
-            # Luminence: (0.2126*$r) + (0.7152*$g) + (0.0722*$b)
-            # double the Luminence
-            if ( $r >= 32 && $g >= 32 ) {
-                $cum_new_bc += ($b - $g ) * ( 2 * ((0.2126*$r) + (0.7152*$g) + (0.0722*$b)));
+
+            if ( ! $only_bc ) {
+                $cum_lum += (0.2126*$r) + (0.7152*$g) + (0.0722*$b);
+                $cum_r += $r;
+                $cum_g += $g;
+                $cum_b += $b;
+                # Base BlueCode: $b - ( ($r + $g) / 2);
+                # Luminence: (0.2126*$r) + (0.7152*$g) + (0.0722*$b)
+                # double the Luminence
+                if ( $r >= 32 && $g >= 32 ) {
+                    $cum_new_bc += ($b - $g ) * ( 2 * ((0.2126*$r) + (0.7152*$g) + (0.0722*$b)));
+                }
             }
+
         }
     }
 
     my $scaling_factor = $main::config->{BlueCode}->{CodeScaling};
     my $a_w = $cum_bc / ( $width * $rows ) * $scaling_factor;
-    my $a_new_w = $cum_new_bc / ( $width * $rows ) * $scaling_factor;
-    $cum_r = $cum_r / ( $width * $rows );
-    $cum_g = $cum_g / ( $width * $rows );
-    $cum_b = $cum_b / ( $width * $rows );
-    $cum_lum = $cum_lum / ( $width * $rows );
+    if ( ! $only_bc ) {
+        $a_new_w = $cum_new_bc / ( $width * $rows ) * $scaling_factor;
+        $cum_r = $cum_r / ( $width * $rows );
+        $cum_g = $cum_g / ( $width * $rows );
+        $cum_b = $cum_b / ( $width * $rows );
+        $cum_lum = $cum_lum / ( $width * $rows );
+    }
 
 #    print "Blue code: $a_w\n" if ( $main::debug );
 #    print "New Blue code: $a_new_w\n" if ( $main::debug );
