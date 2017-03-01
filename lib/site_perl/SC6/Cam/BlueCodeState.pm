@@ -27,8 +27,9 @@ sub checkBluecode {
     my $new_bluecode = $new_image->getBluecode();
     my $current_bluecode = $self->getConfirmedBluecode();
 
+    print "checking bluecode, new: $new_bluecode old: ", $current_bluecode, "\n";
     if ( $new_bluecode > $current_bluecode ) {
-        print "new bluecode: $new_bluecode old: ", $self->{_bluecode}, "\n";
+        print "new bluecode: $new_bluecode old: ", $current_bluecode, "\n";
         my $www_image_50pct = $new_image->{_www_image_50pct};
         my $www_image_orig = $new_image->{_www_image_orig};
         $self->{_bluecode} = $new_bluecode;
@@ -42,13 +43,16 @@ sub checkBluecode {
 
 sub getConfirmedBluecode {
     my ($self) = @_;
-    my $blue_code_file = $main::config->{BlueCode}->{'File'};
+    my $blue_code_file = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'File'};
 
     my $new_file_time = (stat($blue_code_file))[9];
     if ( $new_file_time != $self->{_blue_change_time} ) {
         if ( -f $blue_code_file ) {
             $self->{_bluecode} = readBluecodeFile($blue_code_file);
             $self->{_blue_change_time} = (stat($blue_code_file))[9];
+        }
+        else {
+            $self->prime();
         }
     }
     return $self->{_bluecode};
@@ -69,7 +73,7 @@ sub setBluecode {
 sub clear {
     my ( $self ) = @_;
 
-    my $blue_code_file = $main::config->{BlueCode}->{'File'};
+    my $blue_code_file = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'File'};
     my $priming_bluecode = $main::config->{BlueCode}->{'PrimingValue'};
     if ( -f $blue_code_file ) {
         unlink($blue_code_file) or die "Can't unlink $blue_code_file: $!\n";
