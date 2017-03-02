@@ -134,6 +134,7 @@ def get_authenticated_service():
     return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
                  http=credentials.authorize(httplib2.Http()))
 
+
 def search_todays_videos(options):
     search_options = options
     options.max_results = 50
