@@ -216,11 +216,9 @@ sub my_do_cmd {
         print $cmd, "\n";
     }
     if ( ! $dryrun ) {
-#        print `$cmd`;
+        print `$cmd` if ( $debug );
         my  $ret = `$cmd 2>&1`;
-        if ( $debug ) {
-            print $ret;
-        }
+        print $ret if ( $debug );
         return $?;
     }
 }
