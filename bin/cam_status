@@ -22,7 +22,7 @@ else {
 #print `ps auwwx | grep build_time_lapse.pl`, "\n";
 
 print "Is there a push happening:\n";
-$res =  `pidof -x push2youtube_2015.py`;
+$res =  `pidof -x push2youtube.py`;
 if ( $res ne "" ) {
     print "Yes!  Process: $res\n";
 }
