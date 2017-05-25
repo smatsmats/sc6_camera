@@ -150,7 +150,7 @@ sub compress_moovie {
 
 sub usage
 {
-    print "usage: $0 [-d|--debug] [--date=date] [-f|--force] [-h|--help] [--debug] [--silent] [--trickle] [-n|--dry-run] [-m|mode=mode]\n";
+    print "usage: $0 [-d|--debug] [--date=date] [-f|--force] [-h|--help] [--silent] [--trickle] [-n|--dry-run] [-m|mode=mode]\n";
     print "\t-f|--force    - Force building of the video files\n";
     print "\t--date        - Date of files to build and push\n";
     print "\t-h|--help     - This message\n";
