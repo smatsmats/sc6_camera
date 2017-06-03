@@ -15,6 +15,7 @@ use Time::ParseDate;
 my $mode = "prod";
 my $date;
 my $interval = 45;
+my $grace = 5;
 
 my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml");
 our $config = $c->getConfig();
@@ -23,6 +24,7 @@ our $debug = $c->getDebug();
 my $result = GetOptions (  "h|help"  => \&usage,
                         "t|date=s"  => \$date,
                         "D|destination=s"  => \$destination,
+                        "g|grace=i"  => \$grace,
                         "i|new_interval=i"  => \$interval,
                         "d|debug+"  => \$debug);
 
@@ -69,29 +71,36 @@ foreach my $f ( sort @files ) {
 
     my $n = $f;
     $n =~ s/image(\d+)_orig.jpg/$1/; 
-    $last = $n if ( $last == 0 );
-    if ( $n - $last <= $interval ) {
-        $last_was_big = 0;
+
+    # first file
+    if ( $last == 0 ) {
+        do_link($d, $f);
+        $last = $n;
     }
     else {
-        print "$f $n";
-        print " Big gap: ", $n - $last, " ", scalar localtime($n);
-        if ( $last_was_big ) {
-            print " prior was also big\n";
+        # link the next file that matches interval or skip it
+        if ( $n >= $last + $interval - $grace ) {
+            do_link($d, $f);
+            $last = $n;
         }
-        else {
-            print "\n";
+        else { 
+            #skip
+            print "gonna skip $f\n";
         }
-        $last_was_big = 1;
-    }
-    $last = $n;
+    } 
+
 }
 
-#    my $new =  $d . "/" . $_;
-#    $new =~ s/.jpg$//;
-#    $new .= "_orig.jpg";
-#    print "mv $d/$_ $new\n";
 closedir $dh;
+
+sub do_link {
+    my ($old_dir, $old_file) = @_;
+   
+    my $old = $old_dir . "/" . $old_file;
+    my $new = $destination . "/" . $old_file;
+    print "gonna link $old to $new\n";
+    link $old, $new or die "Can't link $old to $new :$!\n";
+}
 
 sub usage
 {
@@ -99,6 +108,7 @@ sub usage
     print "\t-t|--date     - Date of files to check\n";
     print "\t-h|--help     - This message\n";
     print "\t-i|--gap      - OK gap in images\n";
+    print "\t-g|--grace    - how far below next interval to accept (default == 5)\n";
     print "\t--debug       - print extra debugging information (debug trumps silent)\n";
     exit(1);
 
