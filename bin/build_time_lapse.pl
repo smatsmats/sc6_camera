@@ -32,6 +32,7 @@ my $trickle = 0;
 my $trickle_cmd = "trickle -s -u 200";
 my $keep = 0;
 my $out = "";
+my $directory;   # overrides the date
 
 my $result = GetOptions (  "n|dry-run" => \$dryrun,
                         "f|force"  => \$force,
@@ -39,6 +40,7 @@ my $result = GetOptions (  "n|dry-run" => \$dryrun,
                         "k|keep"  => \$keep,
                         "m|mode=s"  => \$mode,
                         "t|date=s"  => \$date,
+                        "D|directory=s"  => \$directory,
                         "np|no-push"  => \$no_push,
                         "trickle"  => \$trickle,
                         "silent"  => \$silent,
@@ -153,16 +155,17 @@ sub compress_moovie {
 sub usage
 {
     print "usage: $0 [-d|--debug] [-t|--date=date] [-f|--force] [-h|--help] [--silent] [--trickle] [-n|--dry-run] [-m|mode=mode]\n";
-    print "\t-f|--force    - Force building of the video files\n";
-    print "\t-t|--date     - Date of files to build and push\n";
-    print "\t-h|--help     - This message\n";
-    print "\t-n|--dry-run  - perform a trial run with no changes made\n";
-    print "\t-k|--keep     - don't remove disposable video files\n";
-    print "\t-np|--no-push - don't push to youtube\n";
-    print "\t--trickle     - use trickle to limit bandwidth\n";
-    print "\t--silent      - don't print normal amount of information\n";
-    print "\t--debug       - print extra debugging information (debug trumps silent)\n";
-    print "\t-m|--mode     - mode, prod or test\n";
+    print "\t-f|--force     - force building of the video files\n";
+    print "\t-t|--date      - date of files to build and push\n";
+    print "\t-D|--directory - directory to build and push (overrides date)\n";
+    print "\t-h|--help      - this message\n";
+    print "\t-n|--dry-run   - perform a trial run with no changes made\n";
+    print "\t-k|--keep      - don't remove disposable video files\n";
+    print "\t-np|--no-push  - don't push to youtube\n";
+    print "\t--trickle      - use trickle to limit bandwidth\n";
+    print "\t--silent       - don't print normal amount of information\n";
+    print "\t--debug        - print extra debugging information (debug overrides silent)\n";
+    print "\t-m|--mode      - mode, prod or test\n";
     exit(1);
 
 }
