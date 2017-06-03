@@ -14,32 +14,34 @@ my $ok_gap = 45;
 my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml");
 our $config = $c->getConfig();
 our $debug = $c->getDebug();
+my $d;
 
 my $result = GetOptions (  "h|help"  => \&usage,
                         "t|date=s"  => \$date,
+                        "D|directory=s"  => \$d,
                         "i|gap=i"  => \$ok_gap,
                         "d|debug+"  => \$debug);
 
-my $dt;
-my $date_from_args = 0;
-if ( $date ) {
-    print $date, "\n" if ( $debug );
-    my ($seconds, $error) = parsedate($date);
-    if ( not $seconds ) {
-        print "Error can't parse date: $date : $error\n";
-        exit(1);
+if ( ! $d ) {
+    my $dt;
+    if ( $date ) {
+        print $date, "\n" if ( $debug );
+        my ($seconds, $error) = parsedate($date);
+        if ( not $seconds ) {
+            print "Error can't parse date: $date : $error\n";
+            exit(1);
+        }
+        else {
+            print $seconds, "\n" if ( $debug );
+            $dt = DateTime->from_epoch(  epoch => $seconds, time_zone => $config->{'General'}->{'Timezone'} );
+        }
     }
     else {
-        print $seconds, "\n" if ( $debug );
-        $dt = DateTime->from_epoch(  epoch => $seconds, time_zone => $config->{'General'}->{'Timezone'} );
+        $dt = DateTime->now(  time_zone => $config->{'General'}->{'Timezone'} );
     }
-    $date_from_args = 1;
+    
+    $d = get_image_dir($dt, "orig", $mode);
 }
-else {
-    $dt = DateTime->now(  time_zone => $config->{'General'}->{'Timezone'} );
-}
-
-my $d = get_image_dir($dt, "orig", $mode);
 
 opendir(my $dh, $d) || die;
 
@@ -78,10 +80,11 @@ closedir $dh;
 sub usage
 {
     print "usage: $0 [-d|--debug] [-t|--date=date] [-i|--gap=interval] [-h|--help] \n";
-    print "\t-t|--date     - Date of files to check\n";
-    print "\t-h|--help     - This message\n";
-    print "\t-i|--gap      - OK gap in images\n";
-    print "\t--debug       - print extra debugging information (debug trumps silent)\n";
+    print "\t-t|--date      - date of files to check\n";
+    print "\t-D|--directory - directory to check (overrules date based directory)\n";
+    print "\t-h|--help      - This message\n";
+    print "\t-i|--gap       - OK gap in images\n";
+    print "\t--debug        - print extra debugging information\n";
     exit(1);
 
 }
