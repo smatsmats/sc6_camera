@@ -30,11 +30,13 @@ my $no_push;
 my $silent = 0;
 my $trickle = 0;
 my $trickle_cmd = "trickle -s -u 200";
+my $keep = 0;
 my $out = "";
 
 my $result = GetOptions (  "n|dry-run" => \$dryrun,
                         "f|force"  => \$force,
                         "h|help"  => \&usage,
+                        "k|keep"  => \$keep,
                         "m|mode=s"  => \$mode,
                         "t|date=s"  => \$date,
                         "np|no-push"  => \$no_push,
@@ -81,17 +83,17 @@ else {
 my $s = new SC6::Cam::Sun();
 print "Now: $dt\n" if ( $debug );
 if ( $force ) {
-    print "We're forced to do this\n" if ( $debug );
+    print scalar localtime(), "We're forced to do this\n" if ( $debug );
 }
 else {
     if ( $s->is_sun($dt) ) {
-        print "Sun is up!\n" unless ( $silent);
+        print scalar localtime(), "Sun is up!\n" unless ( $silent);
     }
     elsif ( $s->is_hour_after_dusk($dt) ) {
-        print "Sun is down, but for less than an hour!\n" unless ( $silent);
+        print scalar localtime(), "Sun is down, but for less than an hour!\n" unless ( $silent);
     }
     else  {
-        print "Sun is down!\n" unless ( $silent);
+        print scalar localtime(), "Sun is down!\n" unless ( $silent);
         exit;
     }
 }
@@ -111,8 +113,8 @@ if ( ! $no_push ) {
 cleanup($format, $mode);
 
 if ( $debug ) {
-    print "buh bye\n";
-    print "push still returned $push_return_code\n";
+    print scalar localtime(), "buh bye\n";
+    print scalar localtime(), "push still returned $push_return_code\n";
 }
 if ( $push_return_code != 0 ) {
     exit 1;
@@ -155,6 +157,7 @@ sub usage
     print "\t-t|--date     - Date of files to build and push\n";
     print "\t-h|--help     - This message\n";
     print "\t-n|--dry-run  - perform a trial run with no changes made\n";
+    print "\t-k|--keep     - don't remove disposable video files\n";
     print "\t-np|--no-push - don't push to youtube\n";
     print "\t--trickle     - use trickle to limit bandwidth\n";
     print "\t--silent      - don't print normal amount of information\n";
@@ -166,6 +169,9 @@ sub usage
 
 sub cleanup {
     my ($format, $mode) = @_;
+
+    # don't delete video files if we were asked to keep them
+    return if ( $keep );
 
     if ( $config->{'Video'}->{'Daily'}->{'Disposable'} ) {
         my $out = get_video_file($dt, $format, 'mp4', $mode);
@@ -202,23 +208,17 @@ sub collect_metadata {
     return %h;
 }
 
-sub myoutput {
-    my $error = shift;
-    if ( $debug || $error ) {
-        print $out;
-        print scalar localtime(), "\n";
-    }
-}
-
 sub my_do_cmd {
     my ($cmd, $dryrun) = @_;
     if ( $debug ) {
-        print $cmd, "\n";
+        print scalar localtime(), $cmd, "\n";
     }
     if ( ! $dryrun ) {
         print `$cmd` if ( $debug );
         my  $ret = `$cmd 2>&1`;
+        print scalar localtime(), "Start command\n" if ( $debug );
         print $ret if ( $debug );
+        print scalar localtime(), "Stop command\n" if ( $debug );
         return $?;
     }
 }
