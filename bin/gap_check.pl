@@ -17,7 +17,7 @@ our $debug = $c->getDebug();
 
 my $result = GetOptions (  "h|help"  => \&usage,
                         "t|date=s"  => \$date,
-                        "g|gap=i"  => \$ok_gap,
+                        "i|gap=i"  => \$ok_gap,
                         "d|debug+"  => \$debug);
 
 my $dt;
@@ -77,10 +77,10 @@ closedir $dh;
 
 sub usage
 {
-    print "usage: $0 [-d|--debug] [-t|--date=date] [-h|--help] \n";
+    print "usage: $0 [-d|--debug] [-t|--date=date] [-i|--gap=interval] [-h|--help] \n";
     print "\t-t|--date     - Date of files to check\n";
     print "\t-h|--help     - This message\n";
-    print "\t-g|--gap      - OK gap in images\n";
+    print "\t-i|--gap      - OK gap in images\n";
     print "\t--debug       - print extra debugging information (debug trumps silent)\n";
     exit(1);
 
