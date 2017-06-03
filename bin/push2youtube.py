@@ -267,6 +267,7 @@ def resumable_upload(insert_request):
 
 
 if __name__ == '__main__':
+    logger.debug("top of main.")
     parser = ArgumentParser()
     parser.add_argument("--file", dest="file", help="Video file to upload")
     parser.add_argument("--title", dest="title", help="Video title",
@@ -320,12 +321,14 @@ if __name__ == '__main__':
     args.description = Template(
         config['Video'][vid_select]['DescriptionTemplate']).safe_substitute(d)
 
+    logger.debug("auth stuff")
     youtube = get_authenticated_service()
 #  youtube_public = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
 #        developerKey=DEVELOPER_KEY)
 
     res = {}
     vid_url = ""
+    logger.debug("upload logic")
     if args.file is None or not os.path.exists(args.file):
         exit("Please specify a valid file using the --file= parameter.")
     else:
@@ -339,9 +342,12 @@ if __name__ == '__main__':
             logger.info("url: " + vid_url)
             writeUrl(vid_url)
 
+    logger.debug("search/delete")
     for vid_id in youtube_search(args.title):
         if vid_id != res['id']:
             if args.doDeletes is True:
                 remove_old_video(vid_id)
             else:
                 logger.debug("would hav deleted: " + vid_id)
+    logger.debug("bottom of main.")
+    sys.exit(0)
