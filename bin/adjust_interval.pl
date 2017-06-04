@@ -105,11 +105,12 @@ sub do_link {
 sub usage
 {
     print "usage: $0 [-d|--debug] [-t|--date=date] [-i|--gap=interval] [-h|--help] \n";
-    print "\t-t|--date     - Date of files to check\n";
-    print "\t-h|--help     - This message\n";
-    print "\t-i|--gap      - OK gap in images\n";
-    print "\t-g|--grace    - how far below next interval to accept (default == 5)\n";
-    print "\t--debug       - print extra debugging information (debug trumps silent)\n";
+    print "\t-t|--date      - date of files to check\n";
+    print "\t-D|--directory - destination directory to check (overrules date based directory)\n";
+    print "\t-h|--help      - This message\n";
+    print "\t-i|--gap       - OK gap in images\n";
+    print "\t-g|--grace     - how far below next interval to accept (default == 5)\n";
+    print "\t--debug        - print extra debugging information (debug trumps silent)\n";
     exit(1);
 
 }
