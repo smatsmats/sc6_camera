@@ -45,6 +45,7 @@ my $result = GetOptions (  "n|dry-run" => \$dryrun,
                         "trickle"  => \$trickle,
                         "silent"  => \$silent,
                         "d|debug+"  => \$debug);
+
 if ( ! $result ) {
     usage();
     exit;
@@ -84,7 +85,10 @@ else {
 
 my $s = new SC6::Cam::Sun();
 print "Now: $dt\n" if ( $debug );
-if ( $force ) {
+if ( $directory ) {
+    print scalar localtime(), "We hav a direcotry to process: $directory\n";
+}
+elsif ( $force ) {
     print scalar localtime(), "We're forced to do this\n" if ( $debug );
 }
 else {
@@ -128,7 +132,15 @@ sub make_moovie {
 
     my $image_dir = 'public';
     my $out = get_video_file($dt, $format, 'avi', $mode);
-    my $in = "'mf://" . get_image_dir($dt, $image_dir, $mode) . "/*_" . $format . ".jpg'";
+
+    if ( $directory ) {
+        $image_dir = $directory;
+    }
+    else {
+        $image_dir = get_image_dir($dt, $image_dir, $mode);
+    }
+
+    my $in = "'mf://" . $image_dir . "/*_" . $format . ".jpg'";
     my $mf = "w=" . $config->{'Sizes'}->{$format}->{'width'} . 
         ":h=" . $config->{'Sizes'}->{$format}->{'height'} . 
         ":type=" . $config->{'Type'} . 
