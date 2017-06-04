@@ -265,9 +265,7 @@ def resumable_upload(insert_request):
 
     return response
 
-
 if __name__ == '__main__':
-    logger.debug("top of main.")
     parser = ArgumentParser()
     parser.add_argument("--file", dest="file", help="Video file to upload")
     parser.add_argument("--title", dest="title", help="Video title",
@@ -349,5 +347,3 @@ if __name__ == '__main__':
                 remove_old_video(vid_id)
             else:
                 logger.debug("would hav deleted: " + vid_id)
-    logger.debug("bottom of main.")
-    sys.exit(0)
