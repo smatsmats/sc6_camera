@@ -16,6 +16,8 @@ my $mode = "prod";
 my $date;
 my $interval = 45;
 my $grace = 5;
+our $type = "public";
+our $multi;
 
 my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml");
 our $config = $c->getConfig();
@@ -23,6 +25,8 @@ our $debug = $c->getDebug();
 
 my $result = GetOptions (  "h|help"  => \&usage,
                         "t|date=s"  => \$date,
+                        "T|type=s"  => \$type,
+                        "m|multi"  => \$multi,
                         "D|destination=s"  => \$destination,
                         "g|grace=i"  => \$grace,
                         "i|new_interval=i"  => \$interval,
@@ -59,7 +63,7 @@ if ( ! -d $destination ) {
     exit;
 }
 
-my $d = get_image_dir($dt, "orig", $mode);
+my $d = get_image_dir($dt, $type, $mode);
 
 opendir(my $dh, $d) || die;
 
@@ -74,18 +78,30 @@ foreach my $f ( sort @files ) {
 
     # first file
     if ( $last == 0 ) {
-        do_link($d, $f);
+        do_link($d, $f, $destination, $f);
         $last = $n;
     }
     else {
-        # link the next file that matches interval or skip it
-        if ( $n >= $last + $interval - $grace ) {
-            do_link($d, $f);
+        if ( $multi ) {
+            print "for $last to $n (", $n-$last, ")\n";
+            for (my $i=$last+1 ; $i < $n ; $i++ ) {
+                my $this_file = "/image" . $i . "_orig.jpg";
+                do_link($d, $f, $destination, $this_file);
+                print $this_file, "\n";
+            }
+            do_link($d, $f, $destination, $f);
             $last = $n;
         }
-        else { 
-            #skip
-            print "gonna skip $f\n";
+        else {
+            # link the next file that matches interval or skip it
+            if ( $n >= $last + $interval - $grace ) {
+                do_link($d, $f, $destination, $f);
+                $last = $n;
+            }
+            else { 
+                #skip
+                print "gonna skip $f\n";
+            }
         }
     } 
 
@@ -94,10 +110,10 @@ foreach my $f ( sort @files ) {
 closedir $dh;
 
 sub do_link {
-    my ($old_dir, $old_file) = @_;
+    my ($old_dir, $old_file, $new_dir, $new_file) = @_;
    
     my $old = $old_dir . "/" . $old_file;
-    my $new = $destination . "/" . $old_file;
+    my $new = $new_dir . "/" . $new_file;
     print "gonna link $old to $new\n";
     link $old, $new or die "Can't link $old to $new :$!\n";
 }
@@ -105,12 +121,14 @@ sub do_link {
 sub usage
 {
     print "usage: $0 [-d|--debug] [-t|--date=date] [-i|--gap=interval] [-h|--help] \n";
-    print "\t-t|--date      - date of files to check\n";
-    print "\t-D|--directory - destination directory to check (overrules date based directory)\n";
-    print "\t-h|--help      - This message\n";
-    print "\t-i|--gap       - OK gap in images\n";
-    print "\t-g|--grace     - how far below next interval to accept (default == 5)\n";
-    print "\t--debug        - print extra debugging information (debug trumps silent)\n";
+    print "\t-t|--date        - date of files to check\n";
+    print "\t-T|--type        - type of image from date to pull, \"orig\", \"public\" (default), \"public_50pct\", or \"50pct\"\n";
+    print "\t-m|--multi       - use multiple links to files to spread them out \n";
+    print "\t-D|--destination - destination directory to check (overrules date based directory)\n";
+    print "\t-h|--help        - This message\n";
+    print "\t-i|--gap         - OK gap in images\n";
+    print "\t-g|--grace       - how far below next interval to accept (default == 5)\n";
+    print "\t--debug          - print extra debugging information (debug trumps silent)\n";
     exit(1);
 
 }
