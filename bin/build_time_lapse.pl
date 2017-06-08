@@ -44,7 +44,7 @@ my $result = GetOptions (  "n|dry-run" => \$dryrun,
                         "D|directory=s"  => \$directory,
                         "np|no-push"  => \$no_push,
                         "trickle"  => \$trickle,
-                        "fps=i"  => \$fps,
+                        "fps=f"  => \$fps,
                         "silent"  => \$silent,
                         "d|debug+"  => \$debug);
 
