@@ -1,7 +1,7 @@
 %YAML 1.2
 ---
 
-Root1:
+Prod:
     Debug:
         Level: 1
         DumpConfig: 2

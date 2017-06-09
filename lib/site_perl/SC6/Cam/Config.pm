@@ -16,7 +16,7 @@ sub new {
     };
     my $in = YAML::Tiny->read( $self->{_config_file} );
     $self->{_in} = $in;
-    $self->{_config} = $in->[0]->{Root1};
+    $self->{_config} = $in->[0]->{Prod};
     if ( ! $self->{_config} ) {
         print "failed to read $self->{_config_file} $! ", YAML::Tiny->errstr, "\n";
         exit();
@@ -41,7 +41,7 @@ sub writeConfig {
     my ($self, $old ) = @_;
 
     # replace config
-    $self->{_in}->[0]->{Root1} = $old;
+    $self->{_in}->[0]->{Prod} = $old;
     if ( $self->{_debug} >= $self->{_config}->{'Debug'}->{'DumpConfig'} ) {
         print "going to write:", Dumper($self->{_in});
     }
