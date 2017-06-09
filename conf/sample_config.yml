@@ -1,6 +1,13 @@
 %YAML 1.2
 ---
 
+Test:
+    Debug:
+        Level: 3
+        DumpConfig: 0
+    Config:
+        Template: 'Prod' # copy config from Prod and overlay Test portion
+
 Prod:
     Debug:
         Level: 1
