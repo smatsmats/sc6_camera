@@ -62,15 +62,15 @@ sub load_privacy_mask {
 sub fetch {
     my ($self) = @_;
 
-    my $misc_args = $main::config->{Image}->{Fetch}->{MiscArgs};
-    my $auth = $main::config->{Image}->{Fetch}->{Auth};
-    my $url = $main::config->{Image}->{Fetch}->{Url};
+    my $first_args = $main::config->{Image}->{Fetch}->{FirstArgs};
+    my $middle_args = $main::config->{Image}->{Fetch}->{MiddleArgs};
+    my $final_args = $main::config->{Image}->{Fetch}->{FinalArgs};
     my $extra_debug = $main::config->{Image}->{Fetch}->{ExtraDebug};
     my $cmd = $main::config->{Image}->{Fetch}->{Command};
 
     my $output = $self->{_output};
 
-    my $fetch_cmd = "$cmd $extra_debug $misc_args $auth $url > $output";
+    my $fetch_cmd = "$cmd $extra_debug $first_args $middle_args $final_args $output";
     i_do_cmd($self, $fetch_cmd);
 
     if ( -z $output ) {
