@@ -46,7 +46,7 @@ exit_code = EXIT_CODE_OK
 gconfig_root = yaml.load(file("/usr/local/cam/conf/push2youtube_config.yml"))
 gconfig = gconfig_root['Prod']
 config_root = yaml.load(file("/usr/local/cam/conf/config.yml"))
-config = config_root['Prod']
+config = config_root['prod']
 
 with open(gconfig['Logging']['log_config'], 'rt') as f:
     lconfig = yaml.load(f.read())
