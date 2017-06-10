@@ -8,9 +8,9 @@ use Getopt::Long;
 use Data::Dumper;
 
 my $force = 0;
-my $mode = "test";
+my $mode = "prod";
 
-my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml");
+my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml", $mode);
 our $config = $c->getConfig();
 our $debug = $c->getDebug();
 
