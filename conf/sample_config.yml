@@ -1,14 +1,14 @@
 %YAML 1.2
 ---
 
-Test:
+test:
     Debug:
         Level: 3
         DumpConfig: 0
     Config:
-        Template: 'Prod' # copy config from Prod and overlay Test portion
+        Template: 'prod' # copy config from Prod and overlay Test portion
 
-Prod:
+prod:
     Debug:
         Level: 1
         DumpConfig: 2
@@ -87,9 +87,9 @@ Prod:
     Image:
         Fetch:
             Command: "/usr/bin/curl"
-            Url: "http://10.1.1.40/jpeg.cgi"
-            Auth: "--user foo:bar"
-            MiscArgs: "--max-time 5"
+            FirstArgs: "http://10.1.1.40/jpeg.cgi"
+            MiddleArgs: "--user foo:bar --max-time 5"
+            FinalArgs: ">"
 #            ExtraDebug: "--verbose --trace-time"
             ExtraDebug: ""
 

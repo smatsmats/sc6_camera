@@ -23,9 +23,9 @@ sub new {
         exit(1);
     }
 
-    # default to Prod
+    # default to prod
     if ( ! $self->{_mode} ) {
-        $self->{_mode} = "Prod";
+        $self->{_mode} = "prod";
     }
 
     # load base tree
@@ -70,7 +70,7 @@ sub writeConfig {
     my ($self, $old ) = @_;
 
     # replace config
-    $self->{_in}->[0]->{Prod} = $old;
+    $self->{_in}->[0]->{prod} = $old;
     if ( $self->{_debug} >= $self->{_config}->{'Debug'}->{'DumpConfig'} ) {
         print "going to write:", Dumper($self->{_in});
     }
