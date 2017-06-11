@@ -73,12 +73,17 @@ sub fetch {
     my $fetch_cmd = "$cmd $extra_debug $first_args $middle_args $final_args $output";
     i_do_cmd($self, $fetch_cmd);
 
-    if ( -z $output ) {
-        unlink $output or die "Can't unlink $output $!\n";
-        $self->{_success} = 0;
+    if ( -f $output ) {
+        if ( -z $output ) {
+            unlink $output or die "Can't unlink $output $!\n";
+            $self->{_success} = 0;
+        }
+        else {
+            $self->{_success} = 1;
+        }
     }
     else {
-        $self->{_success} = 1;
+        $self->{_success} = 0;
     }
 
     return $self->{_success};
