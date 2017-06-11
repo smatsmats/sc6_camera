@@ -15,11 +15,6 @@ our $mode = "prod";
 my $dryrun = 0;
 my $current_bluecode;
 
-my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml");
-our $config = $c->getConfig();
-our $debug = $c->getDebug();
-print "\n***** STARTING *****\n" if ( $debug );
-
 # startup mail
 startup_mail();
 
@@ -28,6 +23,11 @@ $result = GetOptions (  "n|dry-run" => \$dryrun,
                         "h|help"  => \&usage,
                         "m|mode=s"  => \$mode,
                         "d|debug+"  => \$debug);
+
+my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml", $mode);
+our $config = $c->getConfig();
+our $debug = $c->getDebug();
+print "\n***** STARTING *****\n" if ( $debug );
 
 # prime bluecode
 my $push_to_google = $config->{'GStore'}->{'Enable'};
