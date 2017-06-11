@@ -19,6 +19,7 @@ my $d;
 my $result = GetOptions (  "h|help"  => \&usage,
                         "t|date=s"  => \$date,
                         "D|directory=s"  => \$d,
+                        "m|mode=s"  => \$mode,
                         "i|gap=i"  => \$ok_gap,
                         "d|debug+"  => \$debug);
 
@@ -84,6 +85,7 @@ sub usage
     print "\t-D|--directory - directory to check (overrules date based directory)\n";
     print "\t-h|--help      - This message\n";
     print "\t-i|--gap       - OK gap in images\n";
+    print "\t-m|--mode      - set mode (prod is default\n";
     print "\t--debug        - print extra debugging information\n";
     exit(1);
 
