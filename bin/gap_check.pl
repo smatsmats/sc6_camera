@@ -22,7 +22,7 @@ my $result = GetOptions (  "h|help"  => \&usage,
                         "t|date=s"  => \$date,
                         "D|directory=s"  => \$d,
                         "m|mode=s"  => \$mode,
-                        "m|only-last-hour"  => \$only_last_hour,
+                        "o|only-last-hour"  => \$only_last_hour,
                         "i|gap=i"  => \$ok_gap,
                         "d|debug+"  => \$debug);
 
@@ -49,6 +49,7 @@ if ( ! $d ) {
     $d = get_image_dir($dt, "orig", $mode);
 }
 
+print "directory: $d\n" if ( $debug );
 opendir(my $dh, $d) || die;
 
 my $last_was_big = 0;
