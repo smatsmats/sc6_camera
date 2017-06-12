@@ -10,6 +10,8 @@ use Time::ParseDate;
 my $mode = "prod";
 my $date;
 my $ok_gap = 45;
+my $only_last_hour;
+my $ONE_HOUR = (60*60);
 
 my $c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml");
 our $config = $c->getConfig();
@@ -20,8 +22,11 @@ my $result = GetOptions (  "h|help"  => \&usage,
                         "t|date=s"  => \$date,
                         "D|directory=s"  => \$d,
                         "m|mode=s"  => \$mode,
+                        "m|only-last-hour"  => \$only_last_hour,
                         "i|gap=i"  => \$ok_gap,
                         "d|debug+"  => \$debug);
+
+my $now = time();
 
 if ( ! $d ) {
     my $dt;
@@ -59,15 +64,17 @@ foreach my $f ( sort @files ) {
         $last_was_big = 0;
     }
     else {
-        print "$f $n";
-        print " Big gap: ", $n - $last, " ", scalar localtime($n);
-        if ( $last_was_big ) {
-            print " prior was also big\n";
-        }
-        else {
-            print "\n";
-        }
-        $last_was_big = 1;
+        if ( ! $only_last_hour || $now - $n < $ONE_HOUR ) {
+            print "$f $n";
+            print " Big gap: ", $n - $last, " ", scalar localtime($n);
+            if ( $last_was_big ) {
+                print " prior was also big\n";
+            }
+            else {
+                print "\n";
+            }
+       }
+       $last_was_big = 1;
     }
     $last = $n;
 }
@@ -81,12 +88,13 @@ closedir $dh;
 sub usage
 {
     print "usage: $0 [-d|--debug] [-t|--date=date] [-i|--gap=interval] [-h|--help] \n";
-    print "\t-t|--date      - date of files to check\n";
-    print "\t-D|--directory - directory to check (overrules date based directory)\n";
-    print "\t-h|--help      - This message\n";
-    print "\t-i|--gap       - OK gap in images\n";
-    print "\t-m|--mode      - set mode (prod is default\n";
-    print "\t--debug        - print extra debugging information\n";
+    print "\t-t|--date                - date of files to check\n";
+    print "\t-D|--directory           - directory to check (overrules date based directory)\n";
+    print "\t-h|--help                - This message\n";
+    print "\t-i|--gap                 - OK gap in images\n";
+    print "\t-m|--mode                - set mode (prod is default)\n";
+    print "\t-o|--only-last-hour      - only report issues from tha last hour\n";
+    print "\t--debug                  - print extra debugging information\n";
     exit(1);
 
 }
