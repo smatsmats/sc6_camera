@@ -88,9 +88,16 @@ sub save_is_blueist_stash {
 
     my $stash_dir = get_image_dir($new_image->{_dt}, "stash", $main::mode);
     my $stash = $stash_dir . "/" . $self->{_bluecode} . ".jpg";
+    my $current_link = $stash_dir . "/" . "current.jpg";
     my $image = $new_image->{_output};
     print "going to symlink $image to $stash\n";
     symlink($image, $stash) or die "Can't symlink $image to $stash: $!\n";
+    
+    if ( -f $current_link ) {
+        unlink($current_link) or die "Can't unlink $current_link:$!\n";
+    }
+    print "going to symlink $image to $current_link\n";
+    symlink($image, $current_link) or die "Can't symlink $image to $current_link: $!\n";
 }
 
 sub save_is_blueist_local {
