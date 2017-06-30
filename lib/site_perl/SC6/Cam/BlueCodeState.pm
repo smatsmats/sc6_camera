@@ -46,7 +46,7 @@ sub getConfirmedBluecode {
     my $blue_code_file = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'File'};
 
     my $new_file_time = (stat($blue_code_file))[9];
-    if ( $new_file_time != $self->{_blue_change_time} ) {
+    if ( ! defined $self->{_blue_change_time} || $new_file_time != $self->{_blue_change_time} ) {
         if ( -f $blue_code_file ) {
             $self->{_bluecode} = readBluecodeFile($blue_code_file);
             $self->{_blue_change_time} = (stat($blue_code_file))[9];
