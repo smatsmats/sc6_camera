@@ -72,6 +72,17 @@ sub init {
     $self->{sunrise} = $both_times->start;
     $self->{sunset} = $both_times->end;
 
+    $self->{noon} = DateTime->new(
+      year       => $self->{_dt}->year,
+      month      => $self->{_dt}->month,
+      day        => $self->{_dt}->day,
+      hour       => 12,
+      minute     => 0,
+      second     => 0,
+      nanosecond => 0,
+      time_zone  => $main::config->{'General'}->{'Timezone'},
+    );
+
 #    print $self->{_sun_message} if ( $main::debug );
 
     return($self);
@@ -134,6 +145,39 @@ sub is_hour_after_dusk {
     else {
         return 0;
     }
+}
+
+sub is_after_noon {
+    my ($self, $dt) = @_;
+    if ( DateTime->compare( $dt, $self->{noon} ) >= 1 ) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+    
+}
+
+sub is_after_sunrise {
+    my ($self, $dt) = @_;
+    if ( DateTime->compare( $dt, $self->{sunrise} ) >= 1 ) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+    
+}
+
+sub is_after_sunset {
+    my ($self, $dt) = @_;
+    if ( DateTime->compare( $dt, $self->{sunset} ) >= 1 ) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+    
 }
 
 1;  # don't forget to return a true value from the file

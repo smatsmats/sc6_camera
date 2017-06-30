@@ -125,6 +125,28 @@ sub resizes_and_links {
     }
     symlink($public_output_orig, $www_public_image_orig) or die "Can't symlink $public_output_orig to $www_public_image_orig: $!\n";
 
+    my $stash_dir = get_image_dir($self->{_dt}, "stash", $self->{_mode});
+    my $noon_link = $stash_dir . "/noon.jpg";
+    my $rise_link = $stash_dir . "/sunrise.jpg";
+    my $set_link = $stash_dir . "/sunrise.jpg";
+    if ( ! -l $noon_link ) {
+        if ( $self->{_sun}->is_after_noon($self->{_dt}) ) {
+            print "gonna link $output_orig to $noon_link\n";# do link stuff
+            symlink($output_orig, $noon_link) or die "Can't link $output_orig to $noon_link: $!\n";
+        }
+    }
+    if ( ! -l $rise_link ) {
+        if ( $self->{_sun}->is_after_sunrise($self->{_dt}) ) {
+            print "gonna link $output_orig to $rise_link\n";# do link stuff
+            symlink($output_orig, $rise_link) or die "Can't link $output_orig to $rise_link: $!\n";
+        }
+    }
+    if ( ! -l $set_link ) {
+        if ( $self->{_sun}->is_after_sunset($self->{_dt}) ) {
+            print "gonna link $output_orig to $set_link\n";# do link stuff
+            symlink($output_orig, $set_link) or die "Can't link $output_orig to $set_link: $!\n";
+        }
+    }
 }
 
 sub getSun {
