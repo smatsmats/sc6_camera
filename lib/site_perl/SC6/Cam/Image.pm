@@ -128,7 +128,7 @@ sub resizes_and_links {
     my $stash_dir = get_image_dir($self->{_dt}, "stash", $self->{_mode});
     my $noon_link = $stash_dir . "/noon.jpg";
     my $rise_link = $stash_dir . "/sunrise.jpg";
-    my $set_link = $stash_dir . "/sunrise.jpg";
+    my $set_link = $stash_dir . "/sunset.jpg";
     if ( ! -l $noon_link ) {
         if ( $self->{_sun}->is_after_noon($self->{_dt}) ) {
             print "gonna link $output_orig to $noon_link\n";# do link stuff
