@@ -33,7 +33,7 @@ import logging
 import logging.config
 
 gconfig_root = yaml.load(file("/usr/local/cam/conf/push2youtube_config.yml"))
-gconfig = gconfig_root['Prod']
+gconfig = gconfig_root['prod']
 config_root = yaml.load(file("/usr/local/cam/conf/config.yml"))
 config = config_root['prod']
 

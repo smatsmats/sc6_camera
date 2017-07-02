@@ -44,7 +44,7 @@ EXIT_CODE_UNKNOWN = 3
 exit_code = EXIT_CODE_OK
 
 gconfig_root = yaml.load(file("/usr/local/cam/conf/push2youtube_config.yml"))
-gconfig = gconfig_root['Prod']
+gconfig = gconfig_root['prod']
 config_root = yaml.load(file("/usr/local/cam/conf/config.yml"))
 config = config_root['prod']
 
