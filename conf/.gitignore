@@ -1,5 +1,5 @@
 config.yml
-.config.yml.swp
+config_test.yml
 logging.yml
+logging_test.yml
 push2youtube_config.yml
-.push2youtube_config.yml.swp
