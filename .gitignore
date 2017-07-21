@@ -1,8 +1,7 @@
 *.swp
 *.swo
-data/.DS_Store
-data/._.DS_Store
 sekrits/*
+data/*
 logs/*
 bin/*.pyc
 bin/can/*.pyc
