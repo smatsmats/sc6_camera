@@ -92,6 +92,7 @@ prod:
             FinalArgs: ">"
 #            ExtraDebug: "--verbose --trace-time"
             ExtraDebug: ""
+        MinSize: 100000
 
     WX:
         RRD_File: "/usr/local/oww/oww.rrd"
