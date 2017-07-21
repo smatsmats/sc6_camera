@@ -71,18 +71,25 @@ sub fetch {
     my $output = $self->{_output};
 
     my $fetch_cmd = "$cmd $extra_debug $first_args $middle_args $final_args $output";
-    i_do_cmd($self, $fetch_cmd);
+    my $ret = i_do_cmd($self, $fetch_cmd);
 
-    if ( -f $output ) {
-        if ( -z $output ) {
-            unlink $output or die "Can't unlink $output $!\n";
-            $self->{_success} = 0;
+    if ( $ret == 0 ) {
+        if ( -f $output ) {
+            my $size = (stat($output))[7];
+            if ( $size < $main::config->{Image}->{MinSize} ) {
+                unlink $output or die "Can't unlink $output $!\n";
+                $self->{_success} = 0;
+            }
+            else {
+                $self->{_success} = 1;
+            }
         }
         else {
-            $self->{_success} = 1;
+            $self->{_success} = 0;
         }
     }
     else {
+        print "return code is not zero: $ret\n" if ( $main::debug );
         $self->{_success} = 0;
     }
 
@@ -251,6 +258,7 @@ sub i_do_cmd {
         print `$cmd`;
 #        print `$cmd 2>&1`;
     }
+    return $?
 }
 
 1;  # don't forget to return a true value from the file
