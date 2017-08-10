@@ -73,24 +73,18 @@ sub fetch {
     my $fetch_cmd = "$cmd $extra_debug $first_args $middle_args $final_args $output";
     my $ret = i_do_cmd($self, $fetch_cmd);
 
-    if ( $ret == 0 ) {
-        if ( -f $output ) {
-            my $size = (stat($output))[7];
-            if ( $size < $main::config->{Image}->{MinSize} ) {
-                unlink $output or die "Can't unlink $output $!\n";
-                $self->{_success} = 0;
-            }
-            else {
-                $self->{_success} = 1;
-            }
-        }
-        else {
-            $self->{_success} = 0;
+    $self->{_success} = 0;
+    my $size = 0;
+    if ( $ret == 0 && -f $output ) {
+        $size = (stat($output))[7];
+        if ( $size > $main::config->{Image}->{MinSize} ) {
+            $self->{_success} = 1;
         }
     }
-    else {
-        print "return code is not zero: $ret\n" if ( $main::debug );
-        $self->{_success} = 0;
+
+    if ( $self->{_success} == 0 ) {
+        unlink $output; # done't complain if we can't unlink
+        print "return code is not zero: $ret or file is too small, size: $size\n";
     }
 
     return $self->{_success};
@@ -259,6 +253,22 @@ sub i_do_cmd {
 #        print `$cmd 2>&1`;
     }
     return $?
+}
+
+sub print_my_dirs {
+    my ( $self ) = @_;
+    print "self->{_output}:\t", $self->{_output}, "\n";
+    print "self->{_output_50pct}:\t", $self->{_output_50pct}, "\n";
+
+    # public version of image (with mask) saved for one day so we can make video
+    print "self->{_public_output}:\t", $self->{_public_output}, "\n";
+    print "self->{_public_output_50pct}:\t", $self->{_public_output_50pct}, "\n";
+    
+    print "self->{_www_image_orig}:\t", $self->{_www_image_orig}, "\n";
+    print "self->{_www_image_50pct}:\t", $self->{_www_image_50pct}, "\n";
+    print "self->{_www_public_image_orig}:\t", $self->{_www_public_image_orig}, "\n";
+    print "self->{_www_public_image_50pct}:\t", $self->{_www_public_image_50pct}, "\n";
+
 }
 
 1;  # don't forget to return a true value from the file
