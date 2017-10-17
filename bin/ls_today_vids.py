@@ -137,7 +137,7 @@ def get_authenticated_service():
 
 def search_todays_videos(options):
     search_options = options
-    options.max_results = 50
+    options.max_results = 10
     options.q = options.title
     return youtube_search(options)
 
@@ -245,15 +245,16 @@ def youtube_search(search_options):
     global youtube
     global exit_code
     youtube_public = youtube
-#  youtube_public = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
+#    youtube_public = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
 #        developerKey=DEVELOPER_KEY)
 
-#  print "Searching for: " + search_options.q
+    print "Searching for: " + search_options.q
     # Call the search.list method to retrieve results matching the specified
     # query term.
     search_response = youtube_public.search().list(
         q=search_options.q,
         part="id,snippet",
+        forMine=True,
         type="video",
         maxResults=search_options.max_results
     ).execute()

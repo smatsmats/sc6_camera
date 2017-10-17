@@ -155,6 +155,7 @@ def youtube_search(title):
     search_response = youtube.search().list(
         q=title,
         part="id,snippet",
+        forMine=True,
         type="video",
         maxResults=35,
     ).execute()
