@@ -115,7 +115,7 @@ while() {
                 $last_gstore_push = $end_time->epoch();
             }
             else {
-                print "No gstore push until ", $last_gstore_push + $gstore_interval, "\n";
+                print "No gstore push until ", scalar localtime($last_gstore_push + $gstore_interval), "\n";
             }
     
         }
