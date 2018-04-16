@@ -156,6 +156,7 @@ sub make_moovie {
     my $ret = my_do_cmd($cmd, $dryrun);
     if ( $ret != 0 ) {
         print "Failed to make a movie, maybe no images?  Return: $ret\n";
+        exit($ret);
     }
 }
 
