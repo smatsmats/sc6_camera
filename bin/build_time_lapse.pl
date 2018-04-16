@@ -153,7 +153,10 @@ sub make_moovie {
         ":fps=" . $fps;
 
     my $cmd = "mencoder -msglevel all=1 -nosound -noskip -oac copy -ovc copy -o $out -mf $mf $in";
-    my_do_cmd($cmd, $dryrun);
+    my $ret = my_do_cmd($cmd, $dryrun);
+    if ( $ret != 0 ) {
+        print "Failed to make a movie, maybe no images?  Return: $ret\n";
+    }
 }
 
 sub compress_moovie {
