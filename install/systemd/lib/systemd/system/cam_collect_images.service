@@ -5,6 +5,7 @@ Description=Job that runs the cam_collect_images process
 [Service]
 Type=simple
 ExecStart=/usr/local/cam/bin/cam_collect_images
+Restart=on-failure
 User=willey
 Group=willey
 
