@@ -145,16 +145,14 @@ while() {
         }
     }
 
-    if ( $fetch_sleep >= 0 ) {
-#        print "fetch_sleep: $fetch_sleep  prev_failed_start: $prev_failed_start sleep_time: $sleep_time end_time: ", $end_time->epoch(), "\n" if ( $debug );
-        print "Gonna sleep: $fetch_sleep\n\n" if ( $debug );
-        sleep $fetch_sleep;
-        print "done sleeping; sleep: $fetch_sleep\n\n" if ( $debug );
-    }
-    else {
+    if ( $fetch_sleep < 0 ) {
         print "WTF! fetch_sleep: $fetch_sleep  prev_failed_start: $prev_failed_start sleep_time: $sleep_time end_time: ", $end_time->epoch(), "\n";
-        exit 1;
+        print "setting fetch_sleep to sleep_time: $sleep_time\n";
+        $fetch_sleep = $sleep_time;
     }
+    print "Gonna sleep: $fetch_sleep\n\n" if ( $debug );
+    sleep $fetch_sleep;
+    print "done sleeping; sleep: $fetch_sleep\n\n" if ( $debug );
 }
 
 sub usage
