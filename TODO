@@ -5,14 +5,16 @@ DONE:
 - change image store directories to be more heirarchichal year/month/day -
         - Added 1/19/2017
 	- Done 2/2017
+- make pushes to gstore happen less frequently than with each image capture
 
 # shit to do
 
 - Review and restructure config
 - document, document, document
 - make all of the file storage functions more modular (temp area, locally served, gstore served)
-- make pushes to gstore happen less frequently than with each image capture
 - move config options used in pushtoyoutube to another level
+- make pushes to gstore seperate process
+- use api for pushes to gstore
 - more work on video_dispatcher
 - make web page js, instead of cgi
 - add code for capturing when the moon is in frame
