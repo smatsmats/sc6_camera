@@ -127,6 +127,7 @@ def get_authenticated_service():
         credentials = run(flow, storage)
 
     return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
+                 cache_discovery=False,
                  http=credentials.authorize(httplib2.Http()))
 
 
