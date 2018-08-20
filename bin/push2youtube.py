@@ -313,13 +313,30 @@ if __name__ == '__main__':
              getVidDateTime(args.file).ctime()),
             ('video_uploaded', datetime.now().ctime())])
 
-    args.title = Template(
-        config['Video'][vid_select]['TitleTemplate']).safe_substitute(d)
-    d['title'] = args.title  # make the title available for later substitution
-    args.developer_tag = Template(
-        config['Video'][vid_select]['TitleTagTemplate']).safe_substitute(d)
-    args.description = Template(
-        config['Video'][vid_select]['DescriptionTemplate']).safe_substitute(d)
+    try:
+        args.title
+    except AttributeError:
+        pass
+    else:
+        args.title = Template(
+            config['Video'][vid_select]['TitleTemplate']).safe_substitute(d)
+        d['title'] = args.title  # squirrerl away
+
+    try:
+        args.developer_tag
+    except AttributeError:
+        pass
+    else:
+        args.developer_tag = Template(
+            config['Video'][vid_select]['TitleTagTemplate']).safe_substitute(d)
+
+    try:
+        args.description
+    except AttributeError:
+        pass
+    else:
+        args.description = Template(
+            config['Video'][vid_select]['DescriptionTemplate']).safe_substitute(d)
 
     logger.debug("auth stuff")
     youtube = get_authenticated_service()
