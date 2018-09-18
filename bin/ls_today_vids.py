@@ -28,6 +28,7 @@ from atom import ExtensionElement
 from apiclient.discovery import build
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
+from oauth2client.tools import argparser, run_flow
 from oauth2client.file import Storage
 from oauth2client.client import flow_from_clientsecrets
 # from oauth2client.tools import run
@@ -120,7 +121,7 @@ https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
                                    CLIENT_SECRETS_FILE))
 
 
-def get_authenticated_service():
+def get_authenticated_service(args):
     flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, scope=YOUTUBE_SCOPE,
                                    message=MISSING_CLIENT_SECRETS_MESSAGE)
 
@@ -129,7 +130,7 @@ def get_authenticated_service():
 
     if credentials is None or credentials.invalid:
         print flow
-        credentials = run(flow, storage)
+        credentials = run_flow(flow, storage)
 
     return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
                  cache_discovery=False,
@@ -282,25 +283,24 @@ def youtube_search(search_options):
     return videos
 
 if __name__ == '__main__':
-    parser = OptionParser()
-    parser.add_option("--file", dest="file", help="Video file to upload")
-    parser.add_option("--title", dest="title", help="Video title",
+    argparser.add_argument("--file", dest="file", help="Video file to upload")
+    argparser.add_argument("--title", dest="title", help="Video title",
                       default="Test Title")
-    parser.add_option("--description", dest="description",
+    argparser.add_argument("--description", dest="description",
                       help="Video description",
                       default="Test Description")
-    parser.add_option("--category", dest="category",
+    argparser.add_argument("--category", dest="category",
                       help="Numeric video category. " +
                       "See https://developers.google.com/" +
                       "youtube/v3/docs/videoCategories/list",
                       # youtube.videos().delete(id=ID).execute()
                       default="22")
-    parser.add_option("--keywords", dest="keywords",
+    argparser.add_argument("--keywords", dest="keywords",
                       help="Video keywords, comma separated", default="")
-    parser.add_option("--privacyStatus", dest="privacyStatus",
+    argparser.add_argument("--privacyStatus", dest="privacyStatus",
                       help="Video privacy status: public, private or unlisted",
                       default="public")
-    (options, args) = parser.parse_args()
+    args = argparser.parse_args()
 
     # titles and stuff for video
     date_string = date.today().isoformat()
@@ -310,17 +310,17 @@ if __name__ == '__main__':
                                  date_string.replace('-', '_')),
             ('video_uploaded', datetime.now().ctime())])
 
-    options.title = Template(
+    args.title = Template(
         config['Video'][vid_select]['TitleTemplate']).safe_substitute(d)
-    d['title'] = options.title  # make the title available for later subst
-    options.developer_tag = Template(
+    d['title'] = args.title  # make the title available for later subst
+    args.developer_tag = Template(
         config['Video'][vid_select]['TitleTagTemplate']).safe_substitute(d)
-    options.description = Template(
+    args.description = Template(
         config['Video'][vid_select]['DescriptionTemplate']).safe_substitute(d)
 
-    youtube = get_authenticated_service()
+    youtube = get_authenticated_service(args)
 
-    search_todays_videos(options)
+    search_todays_videos(args)
     if exit_code == EXIT_CODE_CRITICAL:
         print "CRITICAL - no videos for today"
     sys.exit(exit_code)
