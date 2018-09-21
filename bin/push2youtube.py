@@ -26,6 +26,8 @@ from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
 from oauth2client.file import Storage
 from oauth2client.client import flow_from_clientsecrets
+from oauth2client.tools import argparser, run_flow
+
 # from oauth2client.tools import run
 from argparse import ArgumentParser
 
@@ -116,7 +118,7 @@ https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
                                    CLIENT_SECRETS_FILE))
 
 
-def get_authenticated_service():
+def get_authenticated_service(args):
     flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, scope=YOUTUBE_SCOPE,
                                    message=MISSING_CLIENT_SECRETS_MESSAGE)
 
@@ -268,33 +270,32 @@ def resumable_upload(insert_request):
     return response
 
 if __name__ == '__main__':
-    parser = ArgumentParser()
-    parser.add_argument("--file", dest="file", help="Video file to upload")
-    parser.add_argument("--title", dest="title", help="Video title",
+    argparser.add_argument("--file", dest="file", help="Video file to upload")
+    argparser.add_argument("--title", dest="title", help="Video title",
                         default="Test Title")
-    parser.add_argument("--description", dest="description",
+    argparser.add_argument("--description", dest="description",
                         help="Video description",
                         default="Test Description")
-    parser.add_argument("--category", dest="category",
+    argparser.add_argument("--category", dest="category",
                         help="Numeric video category. " +
                         "See https://developers.google.com/" +
                         "youtube/v3/docs/videoCategories/list",
                         # youtube.videos().delete(id=ID).execute()
                         default="22")
-    parser.add_argument("--keywords", dest="keywords",
+    argparser.add_argument("--keywords", dest="keywords",
                         help="Video keywords, comma separated", default="")
-    parser.add_argument("--privacyStatus", dest="privacyStatus",
+    argparser.add_argument("--privacyStatus", dest="privacyStatus",
                         help="Video privacy status: public, " +
                         "private or unlisted",
                         default="public")
-    parser.add_argument("--videoDate", dest="videoDate", default="",
+    argparser.add_argument("--videoDate", dest="videoDate", default="",
                         help="video is for some other date than today")
-    parser.add_argument(
+    argparser.add_argument(
         "--doDeletes", action='store_true',
         help="clenaup other uploades from today")
-    parser.add_argument("--dontUpload", action='store_true',
+    argparser.add_argument("--dontUpload", action='store_true',
                         help="for testing, don't actually do the upload")
-    args = parser.parse_args()
+    args = argparser.parse_args()
 
     # file
     if args.file is None:
@@ -339,7 +340,7 @@ if __name__ == '__main__':
             config['Video'][vid_select]['DescriptionTemplate']).safe_substitute(d)
 
     logger.debug("auth stuff")
-    youtube = get_authenticated_service()
+    youtube = get_authenticated_service(args)
 #  youtube_public = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
 #        developerKey=DEVELOPER_KEY)
 
