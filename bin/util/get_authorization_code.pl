@@ -4,7 +4,7 @@ use strict;
 
 my $oauth_url = "https://accounts.google.com/o/oauth2/auth";
 my $scope = "email%20profile";
-my $state = <state;
+my $state = "state";
 my $redirect_uri = "urn:ietf:wg:oauth:2.0:oob";
 my $response_type = "code"; 
 my $client_id = <client_id>
