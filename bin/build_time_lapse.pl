@@ -118,6 +118,9 @@ my $push_return_code;
 if ( ! $no_push ) {
     $push_return_code = push_to_youtube($format, $mode);
 }
+else {
+    $push_return_code = 0;
+}
 cleanup($format, $mode);
 
 if ( $debug ) {
