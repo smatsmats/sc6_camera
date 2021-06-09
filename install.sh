@@ -17,6 +17,7 @@ sudo cp -p bin/cam_collect_images /usr/local/cam/bin
 sudo cp -p bin/ls_today_vids.py /usr/local/cam/bin
 sudo cp -p bin/cam_status /usr/local/cam/bin
 sudo cp -p bin/sun.pl /usr/local/cam/bin
+sudo cp -p bin/bucket_shiz.py /usr/local/cam/bin
 
 [ -d /usr/local/cam/sekrits/ ] || sudo mkdir -p /usr/local/cam/sekrits/
 

@@ -1,0 +1,22 @@
+%YAML 1.2
+---
+
+prod:
+    Google:
+        Auth:
+            service_key_secrets: "/usr/local/cam/sekrits/sc6-cam-static-fc98efaf9e00.json"
+    Paths:
+        video_file: "/usr/local/cam/data/video/output_orig.mp4"
+    Logging: 
+        log_config: "/home/willey/sc6_camera/conf/logging.yml"
+test:
+    Google:
+        Auth:
+            service_key_secrets: "/usr/local/cam/sekrits/sc6-cam-static-fc98efaf9e00.json"
+        YouTube:
+            PlaylistID: "PLVHBOWmyzOCkHKJNRFasWI_hYUnuvmfC_rMQEL28R03w"
+    Paths:
+        video_file: "/usr/local/cam/data/video/output_orig-test.mp4"
+    Logging: 
+        log_config: "/home/willey/sc6_camera/conf/logging.yml"
+...
