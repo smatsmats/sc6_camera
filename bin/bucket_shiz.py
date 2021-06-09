@@ -44,7 +44,7 @@ class MyBucket:
         blob.upload_from_filename(source_file_name)
     
         print(
-            "File {} uploaded to {}.".format(
+            "bucket_shiz: File {} uploaded to {}.".format(
                 source_file_name, destination_blob_name
             )
         )
@@ -53,10 +53,12 @@ class MyBucket:
     def cp_in_bucket(self, src_name, dst_name):    
         src_blob = self.bucket.blob(src_name)
         new_blob = self.bucket.copy_blob(src_blob, self.bucket, dst_name)
+        print("bucket_shiz: File copied")
         pp.pprint(new_blob)
 
     def list_bucket(self):    
         b = self.storage_client.list_blobs(self.bucket_name)
+        print("bucket_shiz: File list:")
         for item in b:
           pp.pprint(item)
 
