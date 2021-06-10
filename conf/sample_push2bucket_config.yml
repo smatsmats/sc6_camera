@@ -1,0 +1,20 @@
+%YAML 1.2
+---
+
+prod:
+    Google:
+        Auth:
+            service_key_secrets: "/usr/local/cam/sekrits/XXX.json"
+    Paths:
+        video_file: "/usr/local/cam/data/video/output_orig.mp4"
+    Logging: 
+        log_config: "/home/willey/sc6_camera/conf/logging.yml"
+test:
+    Google:
+        Auth:
+            service_key_secrets: "/usr/local/cam/sekrits/XXX.json"
+    Paths:
+        video_file: "/usr/local/cam/data/video/output_orig-test.mp4"
+    Logging: 
+        log_config: "/home/willey/sc6_camera/conf/logging.yml"
+...

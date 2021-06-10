@@ -28,16 +28,40 @@ prod:
         MailCommand: "/usr/bin/mail"
         MailRecipient: "nobody@foo.bar"
 
-    GStore:
-        ImageBucket: 'image_bucket'
-        gsutilPath: '/url/local/bin/gsutil'
+    BucketShiz:
+        Enable: True
+        ImageBucket: 'cam_bucket'
+        bucketshizPath: '/usr/local/cam/bin/bucket_shiz.py'
         CurrentDir: 'current'
+        BlueistDir: 'blueist'
+        PublicDir: 'public'
+        Cache:
+            Cache-Control: "publc"
+            max-age:
+                image_50pct.jpg: 600
+                image_orig.jpg: 600
+                current_image_50pct.jpg: 600
+                current_image_orig.jpg: 600
+                blueist_image.jpg: 18000
+        PushInterval:
+            # seconds
+            SunUp: 570
+
+    GStore:
+        Enable: True
+        ImageBucket: 'cam_bucket'
+        gsutilPath: 'gsutil'
+        CurrentDir: 'current'
+        BlueistDir: 'blueist'
+        PublicDir: 'public'
         URL_Prefix: 'http://commondatastorage.googleapis.com/'
         CacheTimeout:
+            image_50pct.jpg: 600
+            image_orig.jpg: 600
             current_image_50pct.jpg: 600
             current_image_orig.jpg: 600
             blueist_image.jpg: 18000
-        PushInterval: 
+        PushInterval:
             # seconds
             SunUp: 570
 
@@ -238,3 +262,7 @@ prod:
         width: 960
         height: 688
 ...
+
+
+
+
