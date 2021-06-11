@@ -65,9 +65,7 @@ class MyBucket:
     def set_blob_metadata(self, blob_name, metadata):
 
         blob = self.bucket.get_blob(blob_name)
-        pp.pprint(metadata)
         mdict = {metadata[0]: metadata[1]}
-        pp.pprint(mdict)
 
     # metadata={'color': 'Red', 'name': 'Test'}
         blob.metadata = mdict

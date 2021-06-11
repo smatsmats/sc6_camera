@@ -9,6 +9,7 @@ use SC6::Cam::Sun;
 use SC6::Cam::GStore;
 use Getopt::Long;
 use Data::Dumper;
+use File::Basename;
 
 my $force = 0;
 our $mode = "test";
@@ -95,4 +96,7 @@ print("\n");
 $gstore->cp_fs2bucket($public_image_orig, $public);
 print("\n");
 $gstore->cp_fs2bucket($www_image_orig, $current);
-
+my $full = $current . "/" . basename($www_image_orig);
+my $cmd = "/usr/local/cam/bin/bucket_shiz.py --get_metadata --blob_name $full";
+print("Going to do: ", $cmd, "\n");
+print(`$cmd`);

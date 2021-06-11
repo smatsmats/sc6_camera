@@ -30,7 +30,7 @@ print "\n***** STARTING *****\n" if ( $debug );
 startup_mail();
 
 # prime bluecode
-my $push_to_google = $config->{'GStore'}->{'Enable'};
+my $push_to_google = $config->{'BucketShiz'}->{'Enable'};
 my $bcr = new SC6::Cam::BlueCodeState($mode, $dryrun);
 
 print "primed bluecode is: ", $bcr->getBluecode(), "\n" if ( $debug );
@@ -40,7 +40,7 @@ my $sleep_time = $config->{'General'}->{'ImageInterval'}->{'SunUp'};
 my $sleep_time_night = $config->{'General'}->{'ImageInterval'}->{'SunDown'};
 my $fetch_sleep;
 my $last_gstore_push = 0;
-my $gstore_interval = $config->{'GStore'}->{'PushInterval'}->{'SunUp'};
+my $gstore_interval = $config->{'BucketShiz'}->{'PushInterval'}->{'SunUp'};
 my $prev_failed_start = 0;
 my $s = new SC6::Cam::Sun();
 my $end_time;
@@ -80,14 +80,14 @@ while() {
             
             # file and dir locations
             # this directory crap is a mess, fix it.  
-            my $current = $config->{GStore}->{'CurrentDir'};
+            my $current = $config->{BucketShiz}->{'CurrentDir'};
             my $www_dir = get_www_dir($format, $mode);
             my $www_image_orig = $www_dir . $config->{Image}->{File}->{orig};
             my $www_image_50pct = $www_dir . $config->{Image}->{File}->{'50pct'};
-            my $public = $config->{GStore}->{'PublicDir'};
+            my $public = $config->{BucketShiz}->{'PublicDir'};
             my $public_image_orig = $current_image->getPublicWWWFile();
             my $public_image_50pct = $current_image->getPublicWWWFile_50pct();
-            my $blue_bucket = $main::config->{GStore}->{'BlueistDir'};
+            my $blue_bucket = $main::config->{BucketShiz}->{'BlueistDir'};
             my $blueist_file_50pct = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'BlueistImage'} . "_50pct";
             my $blueist_file_orig = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'BlueistImage'} . "_orig";
 
@@ -133,9 +133,9 @@ while() {
             $last_gstore_push = 0;
  
             # cp blueist to current
-            my $current_dir = $config->{GStore}->{'CurrentDir'};
-            my $blueist_dir = $config->{GStore}->{'BlueistDir'};
-            my $public_dir = $config->{GStore}->{'PublicDir'};
+            my $current_dir = $config->{BucketShiz}->{'CurrentDir'};
+            my $blueist_dir = $config->{BucketShiz}->{'BlueistDir'};
+            my $public_dir = $config->{BucketShiz}->{'PublicDir'};
             my $blueist_image_orig = $blueist_dir . "/" . $config->{Image}->{File}->{orig};
             my $blueist_image_50pct = $blueist_dir . "/" . $config->{Image}->{File}->{'50pct'};
             $gstore->cp_bucket2bucket($blueist_image_orig, $current_dir);

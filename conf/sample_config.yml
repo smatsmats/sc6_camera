@@ -7,6 +7,10 @@ test:
         DumpConfig: 0
     Config:
         Template: 'prod' # copy config from Prod and overlay Test portion
+    BucketShiz:
+        CurrentDir: 'current_test'
+        BlueistDir: 'blueist_test'
+        PublicDir: 'public_test'
 
 prod:
     Debug:
@@ -36,8 +40,8 @@ prod:
         BlueistDir: 'blueist'
         PublicDir: 'public'
         Cache:
-            Cache-Control: "publc"
-            max-age:
+            CacheControl: "public"
+            MaxAge:
                 image_50pct.jpg: 600
                 image_orig.jpg: 600
                 current_image_50pct.jpg: 600
