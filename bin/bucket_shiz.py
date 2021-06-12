@@ -62,6 +62,14 @@ class MyBucket:
         for item in b:
             pp.pprint(item)
 
+    def set_blob_cachecontrol(self, blob_name, cachecontrol):
+
+        blob = self.bucket.get_blob(blob_name)
+        blob.cache_control = cachecontrol
+        blob.patch()
+
+        print("bucket_shiz: The cachecontrol for the blob {} is {}".format(blob.name, cachecontrol))
+
     def set_blob_metadata(self, blob_name, metadata):
 
         blob = self.bucket.get_blob(blob_name)
@@ -148,6 +156,10 @@ if __name__ == '__main__':
                        required=False,
                        action='store_true',
                        help="Set blob metadata", default=False)
+    group.add_argument("--set_cachecontrol", dest="do_set_cachecontrol",
+                       required=False,
+                       action='store_true',
+                       help="Set blob cachecontrol", default=False)
     parser.add_argument("--file", dest="file", default=None,
                         required=False,
                         help="Image file to upload")
@@ -162,6 +174,9 @@ if __name__ == '__main__':
                         required=False)
     parser.add_argument("--metadata", dest="metadata", nargs=2,
                         help="Metadata to set on blob",
+                        required=False)
+    parser.add_argument("--cachecontrol", dest="cachecontrol", nargs=1,
+                        help="cachecontrol to set on blob",
                         required=False)
     args = parser.parse_args()
 
@@ -198,3 +213,11 @@ if __name__ == '__main__':
             print("Need metadata")
             sys.exit(0)
         mybuck.set_blob_metadata(args.blob_name, args.metadata)
+    elif args.do_set_cachecontrol:
+        if args.blob_name is None:
+            print("Need blob name")
+            sys.exit(0)
+        if args.cachecontrol is None:
+            print("Need cachecontrol")
+            sys.exit(0)
+        mybuck.set_blob_cachecontrol(args.blob_name, args.cachecontrol)

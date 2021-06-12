@@ -37,7 +37,6 @@ sub cp_bucket2bucket {
     print $buckcmd, "\n" if ( $main::debug );
     print `$buckcmd`;
 
-    print ("full_destxxxxxxxx: ", $full_dest, "\n");
     set_cache_control($self, $full_dest);
 }
 
@@ -62,16 +61,13 @@ sub cp_fs2bucket {
 sub set_cache_control {
     my ($self, $full_dest) = @_;
 
-
     my $f = basename($full_dest);
     my $cache_timeout = $main::config->{BucketShiz}->{Cache}->{MaxAge}->{$f};
     my $cache_control = $main::config->{BucketShiz}->{Cache}->{CacheControl};
 
-    my $cc_metadata_arg = "Cache-Control";
-    my $cc_metadata_val = "'" . $cache_control . ", max-age=" . $cache_timeout . "'";
+    my $cachecontrol_val = "'" . $cache_control . ", max-age=" . $cache_timeout . "'";
 
-    print "going to set $cc_metadata_arg to $cc_metadata_val\n";
-    my $buckcmd = $self->{_bucketshiz} . " --blob_name " . $full_dest . " --set_metadata --metadata " . $cc_metadata_arg . " " . $cc_metadata_val;
+    my $buckcmd = $self->{_bucketshiz} . " --blob_name " . $full_dest . " --set_cachecontrol --cachecontrol " . $cachecontrol_val;
     print $buckcmd, "\n" if ( $main::debug );
     print `$buckcmd`;
 
