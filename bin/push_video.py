@@ -39,7 +39,6 @@ import bucket_shiz
 
 bshiz = bucket_shiz.MyBucket()
 print(bshiz.list_bucket())
-quit()
 
 gconfig_root = yaml.load(file("/usr/local/cam/conf/push_video_config.yml"))
 gconfig = gconfig_root['prod']
@@ -63,6 +62,7 @@ logger = logging.getLogger('push_video')
 # this will soon come from command line or somewhere
 vid_select = "Daily"
 
+quit()
 youtube = None
 
 # Explicitly tell the underlying HTTP transport library not to retry, since

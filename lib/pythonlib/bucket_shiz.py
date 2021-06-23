@@ -15,7 +15,7 @@ pp = pprint.PrettyPrinter(indent=4)
 
 class MyBucket:
     def __init__(self):
-        with open('/usr/local/cam/conf/push2bucket_config.yml', 'r') as file:
+        with open('/usr/local/cam/conf/bucket_shiz_config.yml', 'r') as file:
             gconfig_root = yaml.safe_load(file)
         gconfig = gconfig_root['prod']
         with open('/usr/local/cam/conf/config.yml', 'r') as file:
