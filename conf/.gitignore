@@ -3,3 +3,5 @@ config_test.yml
 logging.yml
 logging_test.yml
 push2youtube_config.yml
+push_video_config.yml
+bucket_shiz_config.yml

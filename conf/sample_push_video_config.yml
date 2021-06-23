@@ -1,0 +1,14 @@
+%YAML 1.2
+---
+
+prod:
+    Paths:
+        video_file: "/usr/local/cam/data/video/output_orig.mp4"
+    Logging: 
+        log_config: "/home/willey/sc6_camera/conf/logging.yml"
+test:
+    Paths:
+        video_file: "/usr/local/cam/data/video/output_orig-test.mp4"
+    Logging: 
+        log_config: "/home/willey/sc6_camera/conf/logging.yml"
+...
