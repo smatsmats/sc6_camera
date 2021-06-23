@@ -11,6 +11,7 @@ test:
         CurrentDir: 'current_test'
         BlueistDir: 'blueist_test'
         PublicDir: 'public_test'
+        VideoDir: 'vidoe_test'
 
 prod:
     Debug:
@@ -35,10 +36,11 @@ prod:
     BucketShiz:
         Enable: True
         ImageBucket: 'cam_bucket'
-        bucketshizPath: '/usr/local/cam/bin/bucket_shiz.py'
+        bucketshizPath: '/usr/local/cam/lib/pythonlib/bucket_shiz.py'
         CurrentDir: 'current'
         BlueistDir: 'blueist'
         PublicDir: 'public'
+        VideoDir: 'video'
         Cache:
             CacheControl: "public"
             MaxAge:
@@ -47,6 +49,9 @@ prod:
                 current_image_50pct.jpg: 600
                 current_image_orig.jpg: 600
                 blueist_image.jpg: 18000
+                today_video.mp4: 1800
+                yesterday_video.mp4: 18000
+                default_video: 18000
         PushInterval:
             # seconds
             SunUp: 570
