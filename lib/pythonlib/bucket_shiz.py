@@ -27,7 +27,7 @@ class MyBucket:
         logging.config.dictConfig(lconfig)
 
         # create logger
-        self.logger = logging.getLogger('push2bucket')
+        self.logger = logging.getLogger('bucketShiz')
 
         # Explicitly use service account credentials by specifying the private key
         # file.
@@ -147,7 +147,7 @@ if __name__ == '__main__':
                        help="Do a copy", default=False)
     group.add_argument("--list", dest="do_list", required=False,
                        action='store_true',
-                       help="Do an upload", default=False)
+                       help="List our bucket", default=False)
     group.add_argument("--get_metadata", dest="do_get_metadata",
                        required=False,
                        action='store_true',
@@ -176,7 +176,7 @@ if __name__ == '__main__':
                         help="Metadata to set on blob",
                         required=False)
     parser.add_argument("--cachecontrol", dest="cachecontrol", nargs=1,
-                        help="cachecontrol to set on blob",
+                        help="Cachecontrol to set on blob",
                         required=False)
     args = parser.parse_args()
 

@@ -5,3 +5,4 @@ data/*
 logs/*
 bin/*.pyc
 bin/can/*.pyc
+lib/pythonlib/*.pyc

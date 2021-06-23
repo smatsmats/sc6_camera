@@ -41,6 +41,10 @@ prod:
         BlueistDir: 'blueist'
         PublicDir: 'public'
         VideoDir: 'video'
+        VideoNameTemplate: 'sc6_cam_video_%Y%m%d'
+        VideoNameSuffix: '.mp4'
+        TodayVideoName: "today_video.mp4"
+        YesterdayVideoName: "today_video.mp4"
         Cache:
             CacheControl: "public"
             MaxAge:
