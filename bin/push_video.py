@@ -27,22 +27,6 @@ logging.config.dictConfig(lconfig)
 logger = logging.getLogger('push_video')
 
 
-def getVidDateTime(file):
-    vdate = os.stat(file).st_mtime
-    return datetime.fromtimestamp(vdate)
-
-
-def remove_old_video(id):
-    global youtube
-
-    logger.info("going to remove: " + id)
-    try:
-        youtube.videos().delete(id=id).execute()
-    except HttpError, e:
-        logger.info(
-            "exception trying to delete %s : %s, will continue" % (id, e))
-
-
 def today_video_name():
     vdir = config['BucketShiz']['VideoDir']
     t_name = config['BucketShiz']['TodayVideoName']
@@ -97,19 +81,9 @@ if __name__ == '__main__':
         date_string = args.videoDate
     else:
         date_string = date.today().isoformat()
-    # first build dictionary of substitutions
-    d = dict(
-        [('date', date_string), ('underbar_date',
-                                 date_string.replace('-', '_')),
-            ('video_created',
-             getVidDateTime(args.file).ctime()),
-            ('video_uploaded', datetime.now().ctime())])
 
     bshiz = bucket_shiz.MyBucket()
-    print(bshiz.list_bucket())
 
-    res = {}
-    vid_url = ""
     logger.debug("upload logic")
     if args.file is None or not os.path.exists(args.file):
         exit("Please specify a valid file using the --file= parameter.")
@@ -119,10 +93,9 @@ if __name__ == '__main__':
 
         if args.dontUpload:
             logger.info("dontUpload is set, we won't upload")
-            vid_url = "no upload"
-            res['id'] = "XXX"
         else:
             # send-up the video and set cache
+            logger.info("upload")
             bshiz.upload_blob(args.file, dest_name)
             set_cache_timeout(dest_name)
 
