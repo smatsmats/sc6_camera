@@ -29,8 +29,10 @@ class MyBucket:
         # create logger
         self.logger = logging.getLogger('bucketShiz')
 
-        # Explicitly use service account credentials by specifying the private key
-        # file.
+        self.standalone = False
+
+        # Explicitly use service account credentials by specifying the
+        # private key file.
         self.storage_client = storage.Client.from_service_account_json(
                 gconfig['Google']['Auth']['service_key_secrets'])
 
@@ -44,23 +46,29 @@ class MyBucket:
 
         blob.upload_from_filename(source_file_name)
 
-        print(
-            "bucket_shiz: File {} uploaded to {}.".format(
-                source_file_name, destination_blob_name
-            )
-        )
+        if self.standalone:
+            print("bucket_shiz: File {} uploaded to {}.".format(
+                source_file_name, destination_blob_name))
+
+        self.logger.info("File {} uploaded to {}.".format(
+            source_file_name, destination_blob_name))
 
     def cp_in_bucket(self, src_name, dst_name):
         src_blob = self.bucket.blob(src_name)
         new_blob = self.bucket.copy_blob(src_blob, self.bucket, dst_name)
-        print("bucket_shiz: File copied")
-        pp.pprint(new_blob)
+        if self.standalone:
+            print("bucket_shiz: File copied")
+            pp.pprint(new_blob)
+        self.logger.info("File copied src_name {}, dst_name {} blob {}".format(
+            src_name, dst_name, new_blob))
 
     def list_bucket(self):
         b = self.storage_client.list_blobs(self.bucket_name)
-        print("bucket_shiz: File list:")
-        for item in b:
-            pp.pprint(item)
+        if self.standalone:
+            print("bucket_shiz: File list:")
+            for item in b:
+                pp.pprint(item)
+        self.logger.info("File list was printed")
 
     def set_blob_cachecontrol(self, blob_name, cachecontrol):
 
@@ -68,65 +76,70 @@ class MyBucket:
         blob.cache_control = cachecontrol
         blob.patch()
 
-        print("bucket_shiz: The cachecontrol for the blob {} is {}".format(blob.name, cachecontrol))
+        if self.standalone:
+            print("bucket_shiz: The cachecontrol for the blob {} is {}".format(
+                blob.name, cachecontrol))
+        self.logger.info("Cachecontrol for the blob {} is {}".format(
+            blob.name, cachecontrol))
 
-    def set_blob_metadata(self, blob_name, metadata):
+    def set_blob_metadata(self, blob_name, arg, value):
 
         blob = self.bucket.get_blob(blob_name)
-        mdict = {metadata[0]: metadata[1]}
-
-    # metadata={'color': 'Red', 'name': 'Test'}
-        blob.metadata = mdict
+        blob.metadata = {arg: value}
         blob.patch()
 
-        print("bucket_shiz: The metadata for the blob {} is {}".format(blob.name, blob.metadata))
+        if self.standalone:
+            print("bucket_shiz: The metadata for the blob {} is {}".format(
+                blob.name, blob.metadata))
+        self.logger.info("The metadata for the blob {} is {}".format(
+                blob.name, blob.metadata))
 
     def get_blob_metadata(self, blob_name):
 
         blob = self.bucket.get_blob(blob_name)
 
-        print("bucket_shiz: blob metadata:")
-        print("Blob: {}".format(blob.name))
-        print("Bucket: {}".format(blob.bucket.name))
-        print("Storage class: {}".format(blob.storage_class))
-        print("ID: {}".format(blob.id))
-        print("Size: {} bytes".format(blob.size))
-        print("Updated: {}".format(blob.updated))
-        print("Generation: {}".format(blob.generation))
-        print("Metageneration: {}".format(blob.metageneration))
-        print("Etag: {}".format(blob.etag))
-        print("Owner: {}".format(blob.owner))
-        print("Component count: {}".format(blob.component_count))
-        print("Crc32c: {}".format(blob.crc32c))
-        print("md5_hash: {}".format(blob.md5_hash))
-        print("Cache-control: {}".format(blob.cache_control))
-        print("Content-type: {}".format(blob.content_type))
-        print("Content-disposition: {}".format(blob.content_disposition))
-        print("Content-encoding: {}".format(blob.content_encoding))
-        print("Content-language: {}".format(blob.content_language))
-        print("Metadata: {}".format(blob.metadata))
-        print("Custom Time: {}".format(blob.custom_time))
-        print(
-            "Temporary hold: ",
-            "enabled" if blob.temporary_hold else "disabled")
-        print(
-            "Event based hold: ",
-            "enabled" if blob.event_based_hold else "disabled")
-        if blob.retention_expiration_time:
+        if self.standalone:
+            print("bucket_shiz: blob metadata:")
+            print("Blob: {}".format(blob.name))
+            print("Bucket: {}".format(blob.bucket.name))
+            print("Storage class: {}".format(blob.storage_class))
+            print("ID: {}".format(blob.id))
+            print("Size: {} bytes".format(blob.size))
+            print("Updated: {}".format(blob.updated))
+            print("Generation: {}".format(blob.generation))
+            print("Metageneration: {}".format(blob.metageneration))
+            print("Etag: {}".format(blob.etag))
+            print("Owner: {}".format(blob.owner))
+            print("Component count: {}".format(blob.component_count))
+            print("Crc32c: {}".format(blob.crc32c))
+            print("md5_hash: {}".format(blob.md5_hash))
+            print("Cache-control: {}".format(blob.cache_control))
+            print("Content-type: {}".format(blob.content_type))
+            print("Content-disposition: {}".format(blob.content_disposition))
+            print("Content-encoding: {}".format(blob.content_encoding))
+            print("Content-language: {}".format(blob.content_language))
+            print("Metadata: {}".format(blob.metadata))
+            print("Custom Time: {}".format(blob.custom_time))
             print(
-                "retentionExpirationTime: {}".format(
-                    blob.retention_expiration_time)
-            )
+                "Temporary hold: ",
+                "enabled" if blob.temporary_hold else "disabled")
+            print(
+                "Event based hold: ",
+                "enabled" if blob.event_based_hold else "disabled")
+            if blob.retention_expiration_time:
+                print(
+                    "retentionExpirationTime: {}".format(
+                        blob.retention_expiration_time)
+                )
 
 
 def testme():
     mybuck = MyBucket()
     mybuck.list_bucket()
-    sample_file = "/usr/local/cam/data/cam_images/2021/06/08/public/image1623187155_orig.jpg"
+    sample_file = "/usr/local/cam/data/sample_images/good.jpg"
     mybuck.upload_blob(sample_file, "test/image_orig.jpg")
     mybuck.cp_in_bucket("test/image_orig.jpg", "test/image_orig2.jpg")
-    mybuck.set_blob_metadata('test/image_orig.jpg',
-                             {'Cache-Control': 'public, max-age=300'})
+    mybuck.set_blob_metadata('test/image_orig.jpg', 'arg', 'value')
     mybuck.get_blob_metadata('test/image_orig.jpg')
 
 
@@ -136,6 +149,9 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='mess with goog buckets.')
     group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--silent", dest="silent", required=False,
+                       action='store_true',
+                       help="should we be silent", default=False)
     group.add_argument("--test", dest="do_test", required=False,
                        action='store_true',
                        help="just run the test", default=False)
@@ -221,3 +237,8 @@ if __name__ == '__main__':
             print("Need cachecontrol")
             sys.exit(0)
         mybuck.set_blob_cachecontrol(args.blob_name, args.cachecontrol)
+
+    if args.silent:
+        mybuck.standalone = False
+    else:
+        mybuck.standalone = True
