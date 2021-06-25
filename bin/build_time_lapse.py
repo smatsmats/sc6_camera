@@ -5,6 +5,10 @@
 #use SC6::Cam::Config
 #use SC6::Cam::Sun
 
+# todo
+# - Concurrance locking
+# - deal with building / pushing a date other than today
+
 mode = "prod"
 dryrun = 0
 sleep_time = 30
@@ -14,6 +18,7 @@ sys.path.append('/usr/local/cam/lib/pythonlib')
 import bucket_shiz
 
 import os
+import fcntl
 from datetime import *
 import argparse
 import yaml
@@ -23,9 +28,12 @@ from stat import *
 import logging
 import logging.config
 
-gconfig_root = yaml.safe_load(file("/usr/local/cam/conf/push_video_config.yml"))
+
+with open('/usr/local/cam/conf/push_video_config.yml', 'r') as file:
+    gconfig_root = yaml.safe_load(file)
 gconfig = gconfig_root['prod']
-config_root = yaml.safe_load(file("/usr/local/cam/conf/config.yml"))
+with open('/usr/local/cam/conf/config.yml', 'r') as file:
+    config_root = yaml.safe_load(file)
 config = config_root['prod']
 
 with open(config['Logging']['LogConfig'], 'rt') as f:
@@ -33,7 +41,7 @@ with open(config['Logging']['LogConfig'], 'rt') as f:
 logging.config.dictConfig(lconfig)
 
 # create logger
-logger = logging.getLogger('push_video')
+logger = logging.getLogger('build_timelapse')
 
 
 def today_video_name():
@@ -71,47 +79,149 @@ def set_cache_timeout(dest_name):
 
 
 
-#our $config = $c->getConfig()
-#our $debug = $c->getDebug()
-#my $date
-#my $no_push
-#my $silent = 0
-#my $trickle = 0
-#my $trickle_cmd = "trickle -s -u 200"
-#my $keep = 0
-#my $out = ""
-#my $directory;   # overrides the date
-#my $fps;   # overrides fps
 #
-#my $result = GetOptions (  "n|dry-run" => \$dryrun,
-#                        "f|force"  => \$force,
-#                        "h|help"  => \&usage,
-#                        "k|keep"  => \$keep,
-#                        "m|mode=s"  => \$mode,
-#                        "t|date=s"  => \$date,
-#                        "D|directory=s"  => \$directory,
-#                        "np|no-push"  => \$no_push,
-#                        "trickle"  => \$trickle,
-#                        "fps=f"  => \$fps,
-#                        "silent"  => \$silent,
-#                        "d|debug+"  => \$debug)
+#sub make_moovie {
+#    my ($format, $mode) = @_
 #
-#if ( ! $result ) {
-#    usage()
-#    exit
-#}
+#    my $image_dir = 'public'
+#    my $out = get_video_file($dt, $format, 'avi', $mode)
 #
-## debug trumps silent
-#if ( $debug && $silent ) {
-#    $silent = 0
-#}
-#
-#unless (flock(DATA, LOCK_EX|LOCK_NB)) {
-#    if ( ! $silent ) {
-#        print "$0 is already running. Exiting.\n"
+#    if ( $directory ) {
+#        $image_dir = $directory
 #    }
-#    exit(1)
+#    else {
+#        $image_dir = get_image_dir($dt, $image_dir, $mode)
+#    }
+#
+#    if ( ! $fps ) {
+#        $fps = $config->{'FPS'}
+#    }
+#
+#    my $in = "'mf://" . $image_dir . "/*_" . $format . ".jpg'"
+#    my $mf = "w=" . $config->{'Sizes'}->{$format}->{'width'} . 
+#        ":h=" . $config->{'Sizes'}->{$format}->{'height'} . 
+#        ":type=" . $config->{'Type'} . 
+#        ":fps=" . $fps
+#
+#    my $cmd = "mencoder -msglevel all=1 -nosound -noskip -oac copy -ovc copy -o $out -mf $mf $in"
+#    my $ret = my_do_cmd($cmd, $dryrun)
+#    if ( $ret != 0 ) {
+#        print "Failed to make a movie, maybe no images?  Return: $ret\n"
+#        exit($ret)
+#    }
 #}
+#
+#sub compress_moovie {
+#    my ($format, $mode, %metadata) = @_
+#    my $in = get_video_file($dt, $format, 'avi', $mode)
+#    my $out = get_video_file($dt, $format, 'mp4', $mode)
+#    my $ll =  $config->{'FFMpegLogLevel'}
+#    my $md
+#    foreach my $k ( keys %metadata ) {
+#	$md .= " -metadata $k='" . $metadata{$k} . "'"
+#    }
+#    my $cmd = $config->{'Bins'}->{'ffmpeg'}
+#    $cmd .= " -y -loglevel $ll -i $in $md -r 25 -s 1920x1080 -vcodec libx264 -b:v 30000k $out"
+#    my_do_cmd($cmd, $dryrun)
+#}
+#
+#sub cleanup {
+#    my ($format, $mode) = @_
+#
+#    # don't delete video files if we were asked to keep them
+#    return if ( $keep )
+#
+#    if ( $config->{'Video'}->{'Daily'}->{'Disposable'} ) {
+#        my $out = get_video_file($dt, $format, 'mp4', $mode)
+#        unlink $out or die "Can't remove $out: $!\n"
+#        $out = get_video_file($dt, $format, 'avi', $mode)
+#        unlink $out or die "Can't remove $out: $!\n"
+#    }
+#}
+#
+def push_to_bucket():
+
+    # deal with date
+
+    out = get_video_file(dt, format, 'mp4', mode)
+    cmd = " --file " + out
+#    rcode = my_do_cmd($cmd, $dryrun)
+#    return $rcode
+
+
+class Vmeta:
+    def __init__(self):
+        self.title = "test title"
+        self.tags = "test tags"
+        self.description = "test description"
+        self.date = "test date"
+
+
+if __name__ == '__main__':
+
+# TODO
+#    # lock 
+#    try:
+#        lokky = open(lock_file, 'w+')
+#        fcntl.flock(lokky, fcntl.LOCK_EX | fcntl.LOCK_NB)
+#        break
+#    except IOError as e:
+#        # raise on unrelated IOErrors
+#        if e.errno != errno.EAGAIN:
+#            raise
+#        else:
+#
+#            time.sleep(0.1)
+#    fcntl.flock(x, fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+
+    argparser = argparse.ArgumentParser(description='build time lapse video.')
+    argparser.add_argument("--file", dest="file", help="Video file to upload")
+    argparser.add_argument("--directory", dest="directory", help="a directory")
+    argparser.add_argument("--fps", dest="fps", help="frames per second")
+    argparser.add_argument("--mode", dest="mode", help="prod, test, dev", 
+                           default="prod")
+    argparser.add_argument("--date", dest="date_in", help="override date")
+# how we implement something like trickle and throttleing?  
+#    argparser.add_argument("--trickle", dest="trickle",  action='store_true',
+#                           default=False,
+#                           help="trickle the data in")
+#    argparser.add_argument("--trickle-cmd", dest="trickle_cmd",  
+#                           default="trickle -s -u 200",
+#                           help="trickle the data in")
+    argparser.add_argument("--dry-run", action='store_true', dest='dryrun',
+                           help="don't actually do anything")
+    argparser.add_argument("--force", action='store_true', dest='force',
+                           help="force thigns to happen")
+    argparser.add_argument("--videoDate", dest="videoDate", default="",
+                           help="video is for some other date than today")
+    argparser.add_argument("--keep", action='store_true',
+                           default=False,
+                           help="keep video, don't delete")
+    argparser.add_argument("--silent", action='store_true', dest='silent',
+                           default=False,
+                           help="no output")
+    argparser.add_argument("--debug", action='store_true', dest='debug',
+                           help="lots of output",
+                           default=config['Debug'])
+    argparser.add_argument("--dontUpload", action='store_true',
+                           help="for testing, don't actually do the upload")
+    args = argparser.parse_args()
+
+    # debug trumps silent
+    if args.debug && args.silent:
+        args.silent = False
+
+    # file
+    if args.file is None:
+        args.file = gconfig['Paths']['video_file']
+
+    # titles and stuff for video
+    if args.videoDate:
+        date_string = args.videoDate
+    else:
+        date_string = date.today().isoformat()
+
 #
 #my $dt
 #my $date_from_args = 0
@@ -178,176 +288,6 @@ def set_cache_timeout(dest_name):
 #if ( $push_return_code != 0 ) {
 #    exit 1
 #}
-#exit($push_return_code)
-#
-#sub make_moovie {
-#    my ($format, $mode) = @_
-#
-#    my $image_dir = 'public'
-#    my $out = get_video_file($dt, $format, 'avi', $mode)
-#
-#    if ( $directory ) {
-#        $image_dir = $directory
-#    }
-#    else {
-#        $image_dir = get_image_dir($dt, $image_dir, $mode)
-#    }
-#
-#    if ( ! $fps ) {
-#        $fps = $config->{'FPS'}
-#    }
-#
-#    my $in = "'mf://" . $image_dir . "/*_" . $format . ".jpg'"
-#    my $mf = "w=" . $config->{'Sizes'}->{$format}->{'width'} . 
-#        ":h=" . $config->{'Sizes'}->{$format}->{'height'} . 
-#        ":type=" . $config->{'Type'} . 
-#        ":fps=" . $fps
-#
-#    my $cmd = "mencoder -msglevel all=1 -nosound -noskip -oac copy -ovc copy -o $out -mf $mf $in"
-#    my $ret = my_do_cmd($cmd, $dryrun)
-#    if ( $ret != 0 ) {
-#        print "Failed to make a movie, maybe no images?  Return: $ret\n"
-#        exit($ret)
-#    }
-#}
-#
-#sub compress_moovie {
-#    my ($format, $mode, %metadata) = @_
-#    my $in = get_video_file($dt, $format, 'avi', $mode)
-#    my $out = get_video_file($dt, $format, 'mp4', $mode)
-#    my $ll =  $config->{'FFMpegLogLevel'}
-#    my $md
-#    foreach my $k ( keys %metadata ) {
-#	$md .= " -metadata $k='" . $metadata{$k} . "'"
-#    }
-#    my $cmd = $config->{'Bins'}->{'ffmpeg'}
-#    $cmd .= " -y -loglevel $ll -i $in $md -r 25 -s 1920x1080 -vcodec libx264 -b:v 30000k $out"
-#    my_do_cmd($cmd, $dryrun)
-#}
-#
-#sub usage
-#{
-#    print "usage: $0 [-d|--debug] [-t|--date=date] [-f|--force] [-h|--help] [--silent] [--trickle] [-n|--dry-run] [-m|mode=mode]\n"
-#    print "\t-f|--force     - force building of the video files\n"
-#    print "\t-t|--date      - date of files to build and push\n"
-#    print "\t-D|--directory - directory to build and push (overrides date)\n"
-#    print "\t-h|--help      - this message\n"
-#    print "\t-n|--dry-run   - perform a trial run with no changes made\n"
-#    print "\t-k|--keep      - don't remove disposable video files\n"
-#    print "\t-np|--no-push  - don't push to youtube\n"
-#    print "\t--trickle      - use trickle to limit bandwidth\n"
-#    print "\t--fps          - override frame per second\n"
-#    print "\t--silent       - don't print normal amount of information\n"
-#    print "\t--debug        - print extra debugging information (debug overrides silent)\n"
-#    print "\t-m|--mode      - mode, prod or test\n"
-#    exit(1)
-#
-#}
-#
-#sub cleanup {
-#    my ($format, $mode) = @_
-#
-#    # don't delete video files if we were asked to keep them
-#    return if ( $keep )
-#
-#    if ( $config->{'Video'}->{'Daily'}->{'Disposable'} ) {
-#        my $out = get_video_file($dt, $format, 'mp4', $mode)
-#        unlink $out or die "Can't remove $out: $!\n"
-#        $out = get_video_file($dt, $format, 'avi', $mode)
-#        unlink $out or die "Can't remove $out: $!\n"
-#    }
-#}
-#
-#sub push_to_youtube {
-#    my ($format, $mode) = @_
-#
-#    my $cmd = ""
-#    if ( $trickle ) {
-#        $cmd = $trickle_cmd . " "
-#    }
-#    $cmd .= $config->{'Bins'}->{'push2youtube'} . " " . $config->{'Bins'}->{'push2youtube_args'}
-#    if ( $date_from_args == 1 ) {
-#        $cmd .= " " . "--videoDate=" . $dt->ymd
-#    }
-#    my $out = get_video_file($dt, $format, 'mp4', $mode)
-#    $cmd .= " --file " . $out
-#    my $rcode = my_do_cmd($cmd, $dryrun)
-#    return $rcode
-#}
-#
-#sub collect_metadata {
-#    my %h
-#    $h{'title'} = "test title"
-#    $h{'tags'} = "test tags"
-#    $h{'description'} = "test description"
-#    $h{'date'} = "test date"
-#
-#    return %h
-#}
-#
-#sub my_do_cmd {
-#    my ($cmd, $dryrun) = @_
-#    if ( $debug ) {
-#        print scalar localtime(), " ", $cmd, "\n"
-#    }
-#    if ( ! $dryrun ) {
-#        print scalar localtime(), " Start command\n" if ( $debug )
-#        my  $ret = `$cmd 2>&1`
-#        print $ret if ( $debug )
-#        print scalar localtime(), " Stop command\n" if ( $debug )
-#        return $?
-#    }
-#}
-#
-#sub new_do_cmd {
-#    my $cmd = shift
-#    my $wtr = gensym
-#    my $rdr = gensym
-#    my $err = gensym
-#
-#    print TMPOUT "command: $cmd\n"
-#
-#    my $errors
-#    if( ! open3($wtr, $rdr, $err, $cmd) ) {
-#        print TMPOUT "open3 of cmd $cmd failed $!"
-#        $errors = 1
-#        return 1
-#    }
-#    close $wtr
-#    while(<$rdr>) {
-#        print TMPOUT
-#    }
-#    close $rdr
-#    while(<$err>) {
-#        print TMPOUT
-#        $errors = 1
-#    }
-#    close $err
-#
-#    return 0
-#}
-#
-
-if __name__ == '__main__':
-    argparser = argparse.ArgumentParser(description='push video up to buckets.')
-    argparser.add_argument("--file", dest="file", help="Video file to upload")
-    argparser.add_argument("--videoDate", dest="videoDate", default="",
-                           help="video is for some other date than today")
-    argparser.add_argument("--doDeletes", action='store_true',
-                           help="clenaup other uploades from today")
-    argparser.add_argument("--dontUpload", action='store_true',
-                           help="for testing, don't actually do the upload")
-    args = argparser.parse_args()
-
-    # file
-    if args.file is None:
-        args.file = gconfig['Paths']['video_file']
-
-    # titles and stuff for video
-    if args.videoDate:
-        date_string = args.videoDate
-    else:
-        date_string = date.today().isoformat()
 
     bshiz = bucket_shiz.MyBucket()
 
@@ -369,3 +309,6 @@ if __name__ == '__main__':
             today_name = today_video_name()
             bshiz.cp_in_bucket(dest_name, today_name)
             set_cache_timeout(today_name)
+
+#    # release lock
+#    fcntl.flock(x, fcntl.LOCK_UN)

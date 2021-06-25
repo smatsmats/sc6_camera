@@ -6,3 +6,4 @@ logs/*
 bin/*.pyc
 bin/can/*.pyc
 lib/pythonlib/*.pyc
+lib/pythonlib/__pycache__/

@@ -169,10 +169,13 @@ prod:
     Sun:
         Lat: '47.00'
         Long: '-122.0'
+        LocationName: 'Seattle'
+        LocationRegion: 'Pacific Northwest'
         Iteration: '0'
         AngleNautical: '-12'
         AngleCivil: '-6'
         AngleHorizon: '0'
+        WhichTwilight: 'nautical'
 
     Directories:
       cam_images:
