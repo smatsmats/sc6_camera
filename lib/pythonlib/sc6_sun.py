@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 from datetime import datetime
+from datetime import timedelta
 import pytz
 import astral
 from astral import LocationInfo
@@ -57,6 +58,11 @@ class SC6Sun:
         self.logger.debug("current time {}".format(self.dt))
         return(self.dt)
 
+    def set_dt(self, dt):
+        self.dt = dt
+        self.logger.debug("explicitly set time to {}".format(self.dt))
+        return(self.dt)
+
     def new_times(self):
         self.get_dt()
 
@@ -66,6 +72,7 @@ class SC6Sun:
                         tzinfo=self.place.timezone)
         self.naut_dawn = self.naut['dawn']
         self.naut_dusk = self.naut['dusk']
+        self.sun_message = "Sunrise / Sunset times:\n"
         self.sun_message = self.sun_message + \
             "Nautical Dawn is: " + str(self.naut_dawn) + "\n"
         self.sun_message = self.sun_message + \
@@ -124,15 +131,16 @@ class SC6Sun:
 #       time_zone  = config['General']['Timezone'],
 #     )
 
-    def check4newday(self):
-        old_dt = self.dt.date
-        newdt = datetime.now(pytz.timezone(self.tzname))
-        if self.dt.date != newdt.date:
-            self.new_times()
-
-    def is_sun(self):
+    # this is where we do a new dt
+    def maybenewday(self):
+        old_dt = self.dt
         self.get_dt()
+        if self.dt.date != old_dt.date:
+            self.new_times()
+        return(self.dt)
 
+    # do we want to do a get_dt here?  it makes the testing harder
+    def is_sun(self):
         if self.dt >= self.start and self.dt <= self.end:
             return 1
         else:
@@ -146,7 +154,8 @@ class SC6Sun:
 
     def is_hour_after_dusk(self):
         self.get_dt()
-        if self.dt >= self.end and elf.dt <= self.end + HOUR_SECS:
+        hour_after = self.end + timedelta(hours=1)
+        if self.dt >= self.end and self.dt <= hour_after:
             return 1
         else:
             return 0
@@ -173,6 +182,33 @@ class SC6Sun:
             return 0
 
 
-mysun = SC6Sun()
-print(mysun.sun_message)
-mysun.check4newday()
+if __name__ == '__main__':
+
+    mysun = SC6Sun()
+    mysun.maybenewday()
+
+    print(mysun.sun_message)
+    print("NOW: ", str(mysun.dt))
+    print("We'll start the party at ", str(mysun.start))
+    print("We'll close shop at ", str(mysun.end))
+    print("is_sun: ", mysun.is_sun(), "")
+    print("is_after_sunrise: ", mysun.is_after_sunrise(), "")
+    print("is_after_noon: ", mysun.is_after_noon(), "")
+    print("is_after_sunset: ", mysun.is_after_sunset(), "")
+    print("is_hour_after_dusk: ", mysun.is_hour_after_dusk(), "")
+
+    # two testing things
+    print("\nTesting:")
+    dt = mysun.get_dt()
+    noon = datetime(dt.year, dt.month, dt.day, 12, 0, 0, 0,
+                    pytz.timezone(mysun.tzname))
+    print(str(noon))
+    mysun.set_dt(noon)
+    print("sun up at noon: {}".format(mysun.is_sun()))
+
+    dt = mysun.get_dt()
+    midnight = datetime(dt.year, dt.month, dt.day, 0, 0, 0, 0,
+                        pytz.timezone(mysun.tzname))
+    print(str(midnight))
+    mysun.set_dt(midnight)
+    print("sun up at midnight: {}".format(mysun.is_sun()))

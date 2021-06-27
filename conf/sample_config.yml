@@ -5,6 +5,7 @@ test:
     Debug:
         Level: 3
         DumpConfig: 0
+        build_time_lapse: True
     Config:
         Template: 'prod' # copy config from Prod and overlay Test portion
     BucketShiz:
@@ -17,6 +18,7 @@ prod:
     Debug:
         Level: 1
         DumpConfig: 2
+        build_time_lapse: False
 
     WWW:
         Refresh:

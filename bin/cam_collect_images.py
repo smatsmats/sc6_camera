@@ -17,17 +17,16 @@ sys.path.append('/usr/local/cam/lib/pythonlib')
 import bucket_shiz
 import sc6_sun
 
+# TODO
+# startup mail
+
+
 # use SC6::Cam::General
 # use SC6::Cam::BlueCodeState
 # use SC6::Cam::Config
 # use SC6::Cam::Image
 # use SC6::Cam::Sun
 # use SC6::Cam::GStore
-
-# force = 0
-# mode = "prod"
-# dryrun = 0
-# current_bluecode
 
 with open('/usr/local/cam/conf/config.yml', 'r') as file:
     config_root = yaml.safe_load(file)
@@ -40,16 +39,26 @@ logging.config.dictConfig(lconfig)
 # create logger
 logger = logging.getLogger('build_timelapse')
 
+debug = config['Debug']
+if debug:
+    print("***** STARTING *****")
+    logger.debug("***** STARTING *****")
+
+
+# force = 0
+# mode = "prod"
+# dryrun = 0
+# current_bluecode
 # $result = GetOptions (  "n|dry-run" => \$dryrun,
 #                         "f|force"  => \$force,
 #                         "h|help"  => \&usage,
 #                         "m|mode=s"  => \$mode,
 #                         "d|debug+"  => \$debug)
-
-# c = new SC6::Cam::Config("/usr/local/cam/conf/config.yml", $mode)
-# our $config = $c->getConfig()
-# our $debug = $c->getDebug()
-# print "\n***** STARTING *****\n" if ( $debug )
+#     print "usage: $0 [-d|--debug] [-f|--force] [-h|--help] [-n|--dry-run] [-m|mode=mode]\n"
+#     print "\t-f|--force   - Force collecting of the  files\n"
+#     print "\t-h|--help    - This message\n"
+#     print "\t-n|--dry-run - perform a trial run with no changes made\n"
+#     print "\t-m|--mode    - mode, prod or test\n"
 
 # # startup mail
 # startup_mail()
@@ -74,7 +83,7 @@ sun_status = None
 force = False
 
 while True:
-    dt = mysun.get_dt()
+    dt = mysun.maybenewday()  
     if mysun.is_sun() or force:
         print("Sun is up! {}".format(dt))
         sun_status = 1
@@ -109,7 +118,7 @@ while True:
 #             # file and dir locations
 #             # this directory crap is a mess, fix it.  
 #             current = $config->{BucketShiz}->{'CurrentDir']
-#             www_dir = get_www_dir($format, $mode)
+#             www_dir = get_www_dir($size, $mode)
 #             www_image_orig = $www_dir . $config->{Image}->{File}->{orig]
 #             www_image_50pct = $www_dir . $config->{Image}->{File}->{'50pct']
 #             public = $config->{BucketShiz}->{'PublicDir']
@@ -150,7 +159,7 @@ while True:
 
 #     ]
     else:
-        print("Sun is down! ()".format(dt))
+        print("Sun is down! {}".format(dt))
         fetch_sleep = sleep_time_night
 
 #         # do some things during the first hour the sun is down, but only once
@@ -183,14 +192,6 @@ while True:
 #     print "done sleeping; sleep: $fetch_sleep\n\n" if ( $debug )
 # ]
 
-# sub usage
-# {
-#     print "usage: $0 [-d|--debug] [-f|--force] [-h|--help] [-n|--dry-run] [-m|mode=mode]\n"
-#     print "\t-f|--force   - Force collecting of the  files\n"
-#     print "\t-h|--help    - This message\n"
-#     print "\t-n|--dry-run - perform a trial run with no changes made\n"
-#     print "\t-m|--mode    - mode, prod or test\n"
-#     exit(1)
 
 # ]
 
