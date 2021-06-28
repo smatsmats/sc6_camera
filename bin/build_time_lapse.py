@@ -15,8 +15,6 @@ from datetime import *
 import argparse
 import yaml
 import errno
-#import xml.parsers.expat
-#from stat import *
 import logging
 import logging.config
 import subprocess
@@ -95,6 +93,29 @@ def collect_metadata():
     return h
 
 
+def run_cmd(cmd):
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    stdout, stderr = proc.communicate()
+    ret = proc.returncode
+    if ret != 0:
+        print("Failed to make a movie, maybe no images?  \
+            Return: {}".format(ret))
+        os.exit(ret)
+    if args.debug:
+        if stderr:
+            stderr_d = stderr.decode('UTF-8')
+            print("stderr: {}".format(stderr_d.rstrip()))
+            logger.debug("stderr: {}".format(stderr_d))
+        if stdout:
+            stdout_d = stdout.decode('UTF-8')
+            print("stdout: {}".format(stdout_d.rstrip()))
+            logger.debug("stdout: {}".format(stdout_d))
+        print("return code: {}\n".format(ret))
+        logger.debug("return code: {}".format(ret))
+    return(ret)
+
+
 def make_moovie(dt, size, mode, args):
     image_dir = 'public'
     out = sc6_general.get_video_file(dt, size, 'avi', mode)
@@ -123,21 +144,7 @@ def make_moovie(dt, size, mode, args):
     logger.debug(" ".join(cmd))
 
     if not args.dryrun:
-        menc_proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                                     stderr=subprocess.PIPE)
-        stdout, stderr = menc_proc.communicate()
-        ret = menc_proc.returncode
-        if ret != 0:
-            print("Failed to make a movie, maybe no images?  \
-                Return: {}".format(ret))
-            os.exit(ret)
-        if args.debug:
-            print("stderr: {}".format(stderr.decode('UTF-8')))
-            print("stdout: {}".format(stdout.decode('UTF-8')))
-            print("return code: {}".format(ret))
-            logger.debug("stderr: {}".format(stderr.decode('UTF-8')))
-            logger.debug("stdout: {}".format(stdout.decode('UTF-8')))
-            logger.debug("return code: {}".format(ret))
+        return(run_cmd(cmd))
 
 
 def compress_moovie(dt, size, mode, metadata, args):
@@ -158,20 +165,7 @@ def compress_moovie(dt, size, mode, metadata, args):
     logger.debug(" ".join(cmd))
 
     if not args.dryrun:
-        menc_proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                                     stderr=subprocess.PIPE)
-        stdout, stderr = menc_proc.communicate()
-        ret = menc_proc.returncode
-        if ret != 0:
-            print("Failed to compress the movie, maybe no images?  Return: {}".format(ret))
-            os.exit(ret)
-        if args.debug:
-            print("stderr: {}".format(stderr.decode('UTF-8')))
-            print("stdout: {}".format(stdout.decode('UTF-8')))
-            print("return code: {}".format(ret))
-            logger.debug("stderr: {}".format(stderr.decode('UTF-8')))
-            logger.debug("stdout: {}".format(stdout.decode('UTF-8')))
-            logger.debug("return code: {}".format(ret))
+        return(run_cmd(cmd))
 
 
 def cleanup(size, mode, args):
@@ -229,7 +223,7 @@ if __name__ == '__main__':
 #     argparser.add_argument("--trickle-cmd", dest="trickle_cmd",
 #                            default="trickle -s -u 200",
 #                            help="trickle the data in")
-    argparser.add_argument("--dry-run", action='store_true', dest='dryrun',
+    argparser.add_argument("--dryrun", action='store_true', dest='dryrun',
                            help="don't actually do anything")
     argparser.add_argument("--force", action='store_true', dest='force',
                            help="force thigns to happen")
@@ -274,7 +268,9 @@ if __name__ == '__main__':
 #            exit(1)
 #        else:
 # 	   print seconds, "\n" if ( debug )
-#            dt = DateTime->from_epoch(  epoch => $seconds, time_zone => config['General']['Timezone'] )
+#            dt = DateTime->from_epoch(
+#                    epoch => $seconds, time_zone =>
+#                    config['General']['Timezone'] )
 #        force = 1
 #        date_from_args = 1
 #    else:
