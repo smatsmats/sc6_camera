@@ -2,6 +2,7 @@
 
 import os
 import sys
+import time
 sys.path.append('/usr/local/cam/lib/pythonlib')
 import bucket_shiz
 import sc6_sun
@@ -71,6 +72,10 @@ def get_video_file(dt, size, postfix, mode):
                                        size,
                                        postfix)
     return file
+
+
+def dt2epoch(dt):
+    return(time.mktime(dt.timetuple()))
 
 
 def get_image_dir(dt, size, mode):

@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import time
 from datetime import datetime
 from datetime import timedelta
 import pytz
@@ -56,6 +57,7 @@ class SC6Sun:
     def get_dt(self):
         self.dt = datetime.now(pytz.timezone(self.tzname))
         self.logger.debug("current time {}".format(self.dt))
+        self.dt_epoch = int(time.mktime(self.dt.timetuple()))
         return(self.dt)
 
     def set_dt(self, dt):
