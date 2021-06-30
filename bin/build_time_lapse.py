@@ -5,7 +5,6 @@
 #  - deal with building / pushing a date other than today
 #  - make collect_metadata meaningful
 #  - combine configs
-#  - refactor subprocess stuff
 #  - trickle, do we need trickle?
 
 import sys
@@ -17,7 +16,6 @@ import yaml
 import errno
 import logging
 import logging.config
-import subprocess
 
 sys.path.append('/usr/local/cam/lib/pythonlib')
 import bucket_shiz
@@ -93,29 +91,6 @@ def collect_metadata():
     return h
 
 
-def run_cmd(cmd):
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE)
-    stdout, stderr = proc.communicate()
-    ret = proc.returncode
-    if ret != 0:
-        print("Failed to make a movie, maybe no images?  \
-            Return: {}".format(ret))
-        os.exit(ret)
-    if args.debug:
-        if stderr:
-            stderr_d = stderr.decode('UTF-8')
-            print("stderr: {}".format(stderr_d.rstrip()))
-            logger.debug("stderr: {}".format(stderr_d))
-        if stdout:
-            stdout_d = stdout.decode('UTF-8')
-            print("stdout: {}".format(stdout_d.rstrip()))
-            logger.debug("stdout: {}".format(stdout_d))
-        print("return code: {}\n".format(ret))
-        logger.debug("return code: {}".format(ret))
-    return(ret)
-
-
 def make_moovie(dt, size, mode, args):
     image_dir = 'public'
     out = sc6_general.get_video_file(dt, size, 'avi', mode)
@@ -139,12 +114,10 @@ def make_moovie(dt, size, mode, args):
     cmd = ["mencoder", "-msglevel", "all=1",
            "-nosound", "-noskip", "-oac", "copy",
            "-ovc", "copy", "-o", out, "-mf", mf, files_in]
-    if args.debug:
-        print(" ".join(cmd))
     logger.debug(" ".join(cmd))
 
     if not args.dryrun:
-        return(run_cmd(cmd))
+        return(sc6_general.run_cmd(cmd, args.debug))
 
 
 def compress_moovie(dt, size, mode, metadata, args):
@@ -165,7 +138,7 @@ def compress_moovie(dt, size, mode, metadata, args):
     logger.debug(" ".join(cmd))
 
     if not args.dryrun:
-        return(run_cmd(cmd))
+        return(sc6_general.run_cmd(cmd, args.debug))
 
 
 def cleanup(size, mode, args):

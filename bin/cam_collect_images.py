@@ -89,10 +89,10 @@ while True:
         sun_status = 1
         fetch_sleep = sleep_time
 
-#         # fetch an image
-#         current_image = new SC6::Cam::Image($dt, $mode, $dryrun, $s)
-#         result = $current_image->fetch()
-        result = True
+        # fetch an image
+        image_set = new SC6::Cam::Image($dt, $mode, $dryrun, $s)
+        result = image_set->fetch()
+#        result = True
 
 #         if ( ! $result ) {
 #             print "Image fetch failed!!!!!\n"
@@ -100,10 +100,10 @@ while True:
 #             $prev_failed_start = $dt->epoch()
 #         ]
 #         else {
-#             $current_image->getBluecode()
-#             $current_image->make_public_version()
-#             $current_image->do_image_overlays()
-#             $current_image->resizes_and_links()
+#             image_set->getBluecode()
+#             image_set->make_public_version()
+#             image_set->do_image_overlays()
+#             image_set->resizes_and_links()
 #
 #             # normal sleep, but prune sleep time to account for processing
 #             $end_time = DateTime->now(  time_zone => config['General']['Timezone'} )
@@ -117,19 +117,19 @@ while True:
 #
 #             # file and dir locations
 #             # this directory crap is a mess, fix it.  
-#             current = $config->{BucketShiz}->{'CurrentDir']
+#             current = config['BucketShiz']['CurrentDir']
 #             www_dir = get_www_dir($size, $mode)
-#             www_image_orig = $www_dir . $config->{Image}->{File}->{orig]
-#             www_image_50pct = $www_dir . $config->{Image}->{File}->{'50pct']
-#             public = $config->{BucketShiz}->{'PublicDir']
-#             public_image_orig = $current_image->getPublicWWWFile()
-#             public_image_50pct = $current_image->getPublicWWWFile_50pct()
-#             blue_bucket = $main::config->{BucketShiz}->{'BlueistDir']
-#             blueist_file_50pct = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'BlueistImage'} . "_50pct"
-#             blueist_file_orig = get_www_dir("", $main::mode) . $main::config->{BlueCode}->{'BlueistImage'} . "_orig"
+#             www_image_orig = $www_dir . config['Image']['File']['orig]
+#             www_image_50pct = $www_dir . config['Image']['File']['50pct']
+#             public = config['BucketShiz']['PublicDir']
+#             public_image_orig = image_set.www_public_image_orig
+#             public_image_50pct = image_set.www_public_image_50pct
+#             blue_bucket = $main::config->{BucketShiz']['BlueistDir']
+#             blueist_file_50pct = get_www_dir("", $main::mode) . $main::config->{BlueCode']['BlueistImage'} . "_50pct"
+#             blueist_file_orig = get_www_dir("", $main::mode) . $main::config->{BlueCode']['BlueistImage'} . "_orig"
 
 #             # check blue code and push blue file maybe
-#             if ( $bcr->checkBluecode($current_image) == 1 ) {
+#             if ( $bcr->checkBluecode(image_set) == 1 ) {
 #                 print "new blue\n"
 #                 $gstore->cp_fs2bucket($public_image_orig, $blue_bucket)
 #                 $gstore->cp_fs2bucket($public_image_50pct, $blue_bucket)
@@ -170,11 +170,11 @@ while True:
 #             $last_gstore_push = 0
 #  
 #             # cp blueist to current
-#             current_dir = $config->{BucketShiz}->{'CurrentDir']
-#             blueist_dir = $config->{BucketShiz}->{'BlueistDir']
-#             public_dir = $config->{BucketShiz}->{'PublicDir']
-#             blueist_image_orig = $blueist_dir . "/" . $config->{Image}->{File}->{orig]
-#             blueist_image_50pct = $blueist_dir . "/" . $config->{Image}->{File}->{'50pct']
+#             current_dir = config['BucketShiz']['CurrentDir']
+#             blueist_dir = config['BucketShiz']['BlueistDir']
+#             public_dir = config['BucketShiz']['PublicDir']
+#             blueist_image_orig = $blueist_dir . "/" . config['Image']['File']['orig]
+#             blueist_image_50pct = $blueist_dir . "/" . config['Image']['File']['50pct']
 #             $gstore->cp_bucket2bucket($blueist_image_orig, $current_dir)
 #             $gstore->cp_bucket2bucket($blueist_image_orig, $public_dir)
 # # lets not dork with 50pct rigth now

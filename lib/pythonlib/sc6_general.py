@@ -9,6 +9,7 @@ import sc6_sun
 import logging
 import logging.config
 import yaml
+import subprocess
 
 with open('/usr/local/cam/conf/config.yml', 'r') as file:
     config_root = yaml.safe_load(file)
@@ -31,7 +32,7 @@ def mymkdir(d):
         print("can't make dir {}: {}".format(d, error))
 
 
-def get_ci(dt, size, mode, dir_type):
+def get_ci(size, mode, dir_type):
     try:
         ci = config['Directories'][dir_type][mode]
     except KeyError:
@@ -44,19 +45,19 @@ def get_ci(dt, size, mode, dir_type):
     return(ci)
 
 
-def get_www_dir(dt, size, mode):
+def get_www_dir(size, mode):
 
-    return get_ci(dt, size, mode, 'www')
+    return get_ci(size, mode, 'www')
 
 
-def get_www_public_dir(dt, size, mode):
+def get_www_public_dir(size, mode):
 
-    return get_ci(dt, size, mode, 'www_public')
+    return get_ci(size, mode, 'www_public')
 
 
 def get_video_dir(dt, size, mode):
 
-    return get_ci(dt, size, mode, 'video')
+    return get_ci(size, mode, 'video')
 
 
 def get_video_file(dt, size, postfix, mode):
@@ -80,7 +81,7 @@ def dt2epoch(dt):
 
 def get_image_dir(dt, size, mode):
 
-    ci = get_ci(dt, size, mode, 'cam_images')
+    ci = get_ci(size, mode, 'cam_images')
 
     o = "%s/%4d/%02d/%02d/%s/",
     o = "{}/{}/{}/".format(ci, dt.strftime("%Y/%m/%d"), size)
@@ -88,6 +89,31 @@ def get_image_dir(dt, size, mode):
     mymkdir(o)
 
     return o
+
+def run_cmd(cmd, debug):
+    if debug:
+        print("About to run command: {}".format(" ".join(cmd)))
+
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    stdout, stderr = proc.communicate()
+    ret = proc.returncode
+    if debug:
+        if stderr:
+            stderr_d = stderr.decode('UTF-8')
+            print("stderr: {}".format(stderr_d.rstrip()))
+            logger.debug("stderr: {}".format(stderr_d))
+        if stdout:
+            stdout_d = stdout.decode('UTF-8')
+            print("stdout: {}".format(stdout_d.rstrip()))
+            logger.debug("stdout: {}".format(stdout_d))
+        print("return code: {}\n".format(ret))
+        logger.debug("return code: {}".format(ret))
+    if ret != 0:
+        print("Command failed: {} \
+            Return: {}".format(" ".join(cmd), ret))
+        sys.exit(ret)
+    return(ret)
 
 
 if __name__ == '__main__':
