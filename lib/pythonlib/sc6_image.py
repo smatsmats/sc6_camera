@@ -179,16 +179,11 @@ class ImageSet:
 #
 #
 #
-# sub getBluecode
-#     my (self) = @_
-#
-#     if ( ! self.bc )
-#         self.bc = new SC6::Cam::BlueCode(self.output)
-#
-#     return(self.bc']['_bluecode)
-#
-#
-#
+    def getBluecode(self):
+        if not self.bc:
+            self.bc = sc6_bluecode(self.output)
+        return(self.bc.bluecode)
+
 # sub getBluecodes
 #     my (self) = @_
 #

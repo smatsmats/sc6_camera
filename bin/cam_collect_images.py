@@ -67,7 +67,7 @@ if debug:
 # push_to_google = config['BucketShiz']['Enable']
 # bcr = new SC6::Cam::BlueCodeState($mode, $dryrun)
 
-# print "primed bluecode is: ", $bcr->getBluecode(), "\n" if ( $debug )
+# print "primed bluecode is: ", $bcr.getBluecode(), "\n" if ( $debug )
 # our $gstore = new SC6::Cam::GStore()
 
 # initialize some timing things
@@ -90,28 +90,26 @@ while True:
         fetch_sleep = sleep_time
 
         # fetch an image
-        image_set = new SC6::Cam::Image($dt, $mode, $dryrun, $s)
-        result = image_set->fetch()
-#        result = True
+        image_set = sc6_image.ImageSet()
+        result = image_set.fetch()
 
-#         if ( ! $result ) {
-#             print "Image fetch failed!!!!!\n"
-#             $fetch_sleep = 0;  # skip sleeping
-#             $prev_failed_start = $dt->epoch()
-#         ]
-#         else {
-#             image_set->getBluecode()
-#             image_set->make_public_version()
-#             image_set->do_image_overlays()
-#             image_set->resizes_and_links()
+        if not result:
+            print("Image fetch failed!!")
+            fetch_sleep = 0;  # skip sleeping
+            prev_failed_start = dt
+        else:
+            image_set.getBluecode()
+#            image_set.make_public_version()
+#            image_set.do_image_overlays()
+#            image_set.resizes_and_links()
 #
-#             # normal sleep, but prune sleep time to account for processing
-#             $end_time = DateTime->now(  time_zone => config['General']['Timezone'} )
+#            # normal sleep, but prune sleep time to account for processing
+#            end_time = datetime.now(time_zone.config['General']['Timezone'} )
 #             if ( $prev_failed_start != 0 ) {
-#                 $fetch_sleep = $sleep_time - ($end_time->epoch() - $prev_failed_start)
+#                 $fetch_sleep = $sleep_time - ($end_time.epoch() - $prev_failed_start)
 #             } 
 #             else {
-#                 $fetch_sleep = $sleep_time - ($end_time->epoch() - $dt->epoch())
+#                 $fetch_sleep = $sleep_time - ($end_time.epoch() - $dt.epoch())
 #             ]
 #             $prev_failed_start = 0
 #
@@ -124,15 +122,15 @@ while True:
 #             public = config['BucketShiz']['PublicDir']
 #             public_image_orig = image_set.www_public_image_orig
 #             public_image_50pct = image_set.www_public_image_50pct
-#             blue_bucket = $main::config->{BucketShiz']['BlueistDir']
-#             blueist_file_50pct = get_www_dir("", $main::mode) . $main::config->{BlueCode']['BlueistImage'} . "_50pct"
-#             blueist_file_orig = get_www_dir("", $main::mode) . $main::config->{BlueCode']['BlueistImage'} . "_orig"
+#             blue_bucket = $main::config.{BucketShiz']['BlueistDir']
+#             blueist_file_50pct = get_www_dir("", $main::mode) . $main::config.{BlueCode']['BlueistImage'} . "_50pct"
+#             blueist_file_orig = get_www_dir("", $main::mode) . $main::config.{BlueCode']['BlueistImage'} . "_orig"
 
 #             # check blue code and push blue file maybe
-#             if ( $bcr->checkBluecode(image_set) == 1 ) {
+#             if ( $bcr.checkBluecode(image_set) == 1 ) {
 #                 print "new blue\n"
-#                 $gstore->cp_fs2bucket($public_image_orig, $blue_bucket)
-#                 $gstore->cp_fs2bucket($public_image_50pct, $blue_bucket)
+#                 $gstore.cp_fs2bucket($public_image_orig, $blue_bucket)
+#                 $gstore.cp_fs2bucket($public_image_50pct, $blue_bucket)
 #             ]
 #             else {
 #                 print "old blue\n"
@@ -140,16 +138,16 @@ while True:
 
 #             # push the images to gstore
 #             # this should really be a seperate loop or even process, but for now it's here
-#             if ( $last_gstore_push + $gstore_interval < $end_time->epoch() ) { 
-#                 $gstore->cp_fs2bucket($www_image_orig, $current)
+#             if ( $last_gstore_push + $gstore_interval < $end_time.epoch() ) { 
+#                 $gstore.cp_fs2bucket($www_image_orig, $current)
 #     # skip copying up 50pct images
-#     #            $gstore->cp_fs2bucket($www_image_50pct, $current)
+#     #            $gstore.cp_fs2bucket($www_image_50pct, $current)
 #     
-#                 $gstore->cp_fs2bucket($public_image_orig, $public)
+#                 $gstore.cp_fs2bucket($public_image_orig, $public)
 #     # skip copying up 50pct images
-#     #            $gstore->cp_fs2bucket($public_image_50pct, $public)
+#     #            $gstore.cp_fs2bucket($public_image_50pct, $public)
 #     
-#                 $last_gstore_push = $end_time->epoch()
+#                 $last_gstore_push = $end_time.epoch()
 #             ]
 #             else {
 #                 print "No gstore push until ", scalar localtime($last_gstore_push + $gstore_interval), "\n"
@@ -163,9 +161,9 @@ while True:
         fetch_sleep = sleep_time_night
 
 #         # do some things during the first hour the sun is down, but only once
-#         if ( $s->is_hour_after_dusk($dt) && $sun_status == 1 ) {
+#         if ( $s.is_hour_after_dusk($dt) && $sun_status == 1 ) {
 #             $sun_status = 0
-#             $bcr->clear();  # clear bluecode
+#             $bcr.clear();  # clear bluecode
 #             $prev_failed_start = 0;   # make sure this doesn't carry over from the previous day
 #             $last_gstore_push = 0
 #  
@@ -175,15 +173,15 @@ while True:
 #             public_dir = config['BucketShiz']['PublicDir']
 #             blueist_image_orig = $blueist_dir . "/" . config['Image']['File']['orig]
 #             blueist_image_50pct = $blueist_dir . "/" . config['Image']['File']['50pct']
-#             $gstore->cp_bucket2bucket($blueist_image_orig, $current_dir)
-#             $gstore->cp_bucket2bucket($blueist_image_orig, $public_dir)
+#             $gstore.cp_bucket2bucket($blueist_image_orig, $current_dir)
+#             $gstore.cp_bucket2bucket($blueist_image_orig, $public_dir)
 # # lets not dork with 50pct rigth now
-# #            $gstore->cp_bucket2bucket($blueist_image_50pct, $current_dir)
+# #            $gstore.cp_bucket2bucket($blueist_image_50pct, $current_dir)
 #         ]
 #     ]
 
 #     if ( $fetch_sleep < 0 ) {
-#         print "WTF! fetch_sleep: $fetch_sleep  prev_failed_start: $prev_failed_start sleep_time: $sleep_time end_time: ", $end_time->epoch(), "\n"
+#         print "WTF! fetch_sleep: $fetch_sleep  prev_failed_start: $prev_failed_start sleep_time: $sleep_time end_time: ", $end_time.epoch(), "\n"
 #         print "setting fetch_sleep to sleep_time: $sleep_time\n"
 #         $fetch_sleep = $sleep_time
 #     ]
