@@ -27,6 +27,8 @@ sys.path.append('/usr/local/cam/lib/pythonlib')
 # import bucket_shiz
 import sc6_sun
 import sc6_general
+import sc6_bluecode
+import sc6_overlay
 
 with open('/usr/local/cam/conf/config.yml', 'r') as file:
     config_root = yaml.safe_load(file)
@@ -107,6 +109,15 @@ class ImageSet:
             size = os.path.getsize(self.output)
             if size >= config['Image']['MinSize']:
                 self.success = 1
+                # now open the image and store the object
+                try:
+                    self.current = Image.open(self.output)
+                except FileNotFoundError:
+                    print("file {} missing, need an image".format(self.output))
+                    os.exit()
+                except:
+                    print("Can't process current file: {}".format(self.output))
+                    os.exit()
             else:
                 self.success = 0
                 try:
@@ -116,7 +127,6 @@ class ImageSet:
                     pass
 
         return self.success
-
 
 
 # sub resizes_and_links
@@ -180,21 +190,22 @@ class ImageSet:
 #
 #
     def getBluecode(self):
-        if not self.bc:
-            self.bc = sc6_bluecode(self.output)
+        try:
+            self.bc
+        except AttributeError:
+            self.bc = sc6_bluecode.BlueCode(self.output, self.debug)
+
         return(self.bc.bluecode)
 
-# sub getBluecodes
-#     my (self) = @_
-#
-#     if ( ! self.bc )
-#         self.bc = new SC6::Cam::BlueCode(self.output_50pct)
-#
-#     return( (self.bc']['_r, self.bc']['_g, self.bc']['_b, self.bc']['_x, self.bc']['_lum) )
-#
-#
-#
-#
+    def getBluecodes(self):
+        self.getBluecode()
+        bc_set = { 'r' : self.bc.r,
+                   'g': self.bc.g,
+                   'b': self.bc.b,
+                   'x': self.bc.x,
+                   'lum': self.bc.lum }
+        return(bc_set)
+
 # sub getOutputFile
 #     my (self) = @_
 #
@@ -207,38 +218,13 @@ class ImageSet:
 #     return ( self.public_mask )
 #
 #
-# sub getHour
-#     my (self) = @_
-#
-#     return( self.dt->hour )
-#
-#
-# sub getMinute
-#     my (self) = @_
-#
-#     return( self.dt->minute )
-#
-#
-# sub make_public_version
-#     my ( self ) = @_
-#     SC6::Cam::Overlay::do_public_version(self)
-#
-#
-# sub do_image_overlays
-#     my ( self ) = @_
-#     SC6::Cam::Overlay::do_overlays(self)
-#
-#
-# sub i_do_cmd
-#     my (self, cmd) = @_
-#     print cmd, "\n"
-#     if ( ! self.dryrun )
-#         print `cmd`
-# #        print `cmd 2>&1`
-#
-#     return ?
-#
-#
+    def make_public_version(self):
+        sc6_overlay.do_public_version(self)
+
+
+    def do_image_overlays(self):
+        sc6_overlay.do_overlays(self)
+
 
     def print_my_dirs(self):
 
@@ -260,3 +246,6 @@ if __name__ == '__main__':
     iset = ImageSet()
     iset.print_my_dirs()
     iset.fetch()
+    iset.getBluecode()
+    iset.make_public_version()
+    iset.do_image_overlays()

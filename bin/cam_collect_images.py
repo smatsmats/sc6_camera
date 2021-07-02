@@ -16,6 +16,8 @@ from time import sleep
 sys.path.append('/usr/local/cam/lib/pythonlib')
 import bucket_shiz
 import sc6_sun
+import sc6_image
+import sc6_general
 
 # TODO
 # startup mail
@@ -99,8 +101,8 @@ while True:
             prev_failed_start = dt
         else:
             image_set.getBluecode()
-#            image_set.make_public_version()
-#            image_set.do_image_overlays()
+            image_set.make_public_version()
+            image_set.do_image_overlays()
 #            image_set.resizes_and_links()
 #
 #            # normal sleep, but prune sleep time to account for processing
