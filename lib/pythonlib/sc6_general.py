@@ -32,11 +32,11 @@ def mymkdir(d):
         print("can't make dir {}: {}".format(d, error))
 
 
-def get_ci(size, mode, dir_type):
+def get_ci(size, dir_type):
     try:
-        ci = config['Directories'][dir_type][mode]
+        ci = config['Paths'][dir_type]
     except KeyError:
-        print("missing correct mode ('test', 'prod', etc.).  got {}".format(
+        print("bad or missing dir_type.  got {}".format(
             mode))
         return None
 
@@ -47,17 +47,17 @@ def get_ci(size, mode, dir_type):
 
 def get_www_dir(size, mode):
 
-    return get_ci(size, mode, 'www')
+    return get_ci(size, 'www')
 
 
 def get_www_public_dir(size, mode):
 
-    return get_ci(size, mode, 'www_public')
+    return get_ci(size, 'www_public')
 
 
 def get_video_dir(dt, size, mode):
 
-    return get_ci(size, mode, 'video')
+    return get_ci(size, 'video')
 
 
 def get_video_file(dt, size, postfix, mode):
@@ -81,7 +81,7 @@ def dt2epoch(dt):
 
 def get_image_dir(dt, size, mode):
 
-    ci = get_ci(size, mode, 'cam_images')
+    ci = get_ci(size, 'cam_images')
 
     o = "%s/%4d/%02d/%02d/%s/",
     o = "{}/{}/{}/".format(ci, dt.strftime("%Y/%m/%d"), size)

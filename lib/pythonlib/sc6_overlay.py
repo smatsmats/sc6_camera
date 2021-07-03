@@ -2,6 +2,7 @@
 
 # TODO
 # add clock and other optional overlays
+# make mode work right
 
 import argparse
 import os
@@ -10,9 +11,9 @@ import logging
 import logging.config
 # import pprint
 import yaml
-from PIL import Image, ImageColor
+from PIL import Image, ImageColor, ImageDraw
 from stat import *
-from math import pi
+from math import pi, sin, cos
 
 sys.path.append('/usr/local/cam/lib/pythonlib')
 import sc6_sun
@@ -85,14 +86,18 @@ def do_public_version(imageset):
 
 def write_current_version(imageset):
     image_file = imageset.output
-    public = imageset.public_version
-    public.save(public_image_file)
+    try:
+        imageset.current.save(image_file)
+    except OSError as error:
+        print("Can't write file {} error: {}".format(image_file, error))
 
 
 def write_public_version(imageset):
     public_image_file = imageset.public_output
-    public = imageset.public_version
-    public.save(public_image_file)
+    try:
+        imageset.public_version.save(public_image_file)
+    except OSError as error:
+        print("Can't write file {} error: {}".format(public_image_file, error))
 
 
 def do_overlays(imageset):
@@ -102,17 +107,10 @@ def do_overlays(imageset):
        not config['Overlay']['WX']['Overlay']:
         return
 
-    if imageset.debug:
-        print("file: ", imageset.output)
-
-    try:
-        main = Image.open(imageset.output)
-    except FileNotFoundError:
-        print("file {} missing, need an image ".format(imageset.output))
-        os.exit()
-    except:
-        print("Can't process image file: {}".format(imageset.output))
-        os.exit()
+    # copy current image as RGBA to work on it
+    main = imageset.current.convert(mode="RGBA")
+    # also do overlays to public version
+    public = imageset.public_version.convert(mode="RGBA")
 
     minute = imageset.dt.minute
     hour = imageset.dt.hour
@@ -122,11 +120,6 @@ def do_overlays(imageset):
 #    my (r, g, b, x, lum) = imageset.getBluecodes()
     mysun = sc6_sun.SC6Sun()
 
-#    my (w, h) = main.getBounds()
-
-    # also do overlays to public version
-    public = imageset.public_version
-
     # get the clock
     if config['Overlay']['Clock']['Overlay']:
         clock_overlay = add_clock(hour, minute)
@@ -134,12 +127,13 @@ def do_overlays(imageset):
         ch = clock_overlay.height
         clock_xy = overlay_location("Clock", main.width, main.height, cw, cw)
         if imageset.debug:
-            print("Copy clock to coordinates: {} {}".format(clock_xy['x'], 
-                                                            clock_xy['y']))
-        main.paste(clock_overlay, clock_xy['x'], clock_xy['y'], 0, 0, cw, ch)
-        public.paste(clock_overlay, clock_xy['x'], clock_xy['y'], 0, 0, cw, ch)
+            print("Copy clock to coordinates: {} {}".format(clock_xy[0], 
+                                                            clock_xy[1]))
+        main.alpha_composite(im=clock_overlay, dest=clock_xy)
+        public.alpha_composite(im=clock_overlay, dest=clock_xy)
 
     # get the colorGraph of bluecode
+    # if we ever want to do this again make this like the clock code above
 #     if ( lc(config['Overlay']['ColorGraph]['Overlay']) eq "true" ) {
 #         cg_overlay = add_colorgraph(r, g, b, x, bluecode, lum)
 #         my (cgw,cgh) = cg_overlay.getBounds()
@@ -149,6 +143,7 @@ def do_overlays(imageset):
 #         public.copy(cg_overlay,cg_x,cg_y,0,0,cgw,cgh)
 
     # get the WX graphs
+    # if we ever want to do this again make this like the clock code above
 #     if ( lc(config['Overlay']['WX]['Overlay']) eq "true" ) {
 #         overlay = add_wx_overlays(s, w, h)
 #         my (o_w,o_h) = overlay.getBounds()
@@ -160,14 +155,10 @@ def do_overlays(imageset):
 #         new_main.copy(overlay,0,h,0,0,o_w,o_h)
 #         main = new_main
 
+    # copy back main / current image as RGB
+    imageset.current = main.convert(mode="RGB")
     write_public_version(imageset)
-#
-#     open OUT, ">image_file" or die "Can't open image_file for writing: !")
-#     binmode OUT
-#     print(OUT main.jpeg
-#     close OUT
-# ]
-#
+    write_current_version(imageset)
 
 
 def add_clock(hour, minute):
@@ -182,27 +173,26 @@ def add_clock(hour, minute):
     cy = height / 2
 
     # thickness
-    t = config['Overlay']['Clock']['LineWeight']
+    thickness = config['Overlay']['Clock']['LineWeight']
 
     im = Image.new(mode="RGBA",
                    size=(width, height),
-                   color=(255, 255, 255, 255))
+                   color=(255, 255, 255, 0))
 
 #     # get colors
-#     po = new Graphics::ColorNames(qw( X ))
     fg_color = ImageColor.getrgb(config['Overlay']['Clock']['FGColor'])
     bg_color = ImageColor.getrgb(config['Overlay']['Clock']['BGColor'])
 
-    return(im)
 #     # first color allocated is background color
 #     im_bg_color = im.colorAllocate(@bg_color)
 #     im_fg_color = im.colorAllocate(@fg_color)
-#
-#     # radiuses
-#     hradius = width / 4
-#     mradius = (width / 2) * .70
-#
-#     # make the background transparent and interlaced
+
+    # radiuses
+    hradius = width / 4
+    mradius = (width / 2) * .70
+
+    draw = ImageDraw.Draw(im)
+    # make the background transparent and interlaced
 #     im.transparent(im_bg_color)
 #     im.interlaced('true')
 #     im.setThickness(t)
@@ -214,7 +204,12 @@ def add_clock(hour, minute):
 #     rb_fg_color = round_brush.colorAllocate(@fg_color)
 #     round_brush.transparent(rb_bg_color)
 #
-#     round_brush.arc(t,t,t,t,0,360,rb_fg_color);
+    # draw the circle
+    draw.arc(xy = [(0,0), (width, height)], 
+             start = 0,
+             end = 360,
+             fill = fg_color,
+             width = thickness)
 #
 #     # if you need to see the brush, uncomment this
 #     #im.copy(round_brush,0,0,0,0,t*2,t*2)
@@ -228,26 +223,26 @@ def add_clock(hour, minute):
 #     # cicle
 #     im.arc(cx,cy,width - t*2 - x_border,height - t*2 - y_border,0,360,gdAntiAliased)
 #
-#     # minute hand
-#     my (mex, mey) = minute_point(min, cx, cy, mradius, main::debug)
-#     im.line(cx,cy,mex,mey,gdBrushed)
-#
-#     # hour hand
-#     my (hex, hey) = hour_point(hour, min, cx, cy, hradius, main::debug)
-#     im.line(cx,cy,hex,hey,gdBrushed)
-#
-#
-#     if ( lc(config['Overlay']['Clock']['WriteImage]) eq "true" ) {
-#         file = config['Overlay']['Clock']['ImageFile]
-#         open OUT, ">file" or die "Can't open file for writing: !")
-#         binmode OUT
-#         print(OUT im.jpeg
-#         close OUT
-#     ]
-#
-#     return(im)
-# ]
-#
+    # minute hand
+    minute_xy = minute_point(minute, cx, cy, mradius)
+    draw.line(xy=[(cx,cy), minute_xy], fill=fg_color, width=thickness)
+
+    # hour hand
+    hour_xy = hour_point(hour, minute, cx, cy, hradius)
+    draw.line(xy=[(cx,cy), hour_xy], fill=fg_color, width=thickness)
+
+    im.save("/data/shares/media/clock.png")
+    im.save("clock.png")
+
+    if config['Overlay']['Clock']['WriteImage']:
+        file = config['Overlay']['Clock']['ImageFile']
+        try:
+            im.save(file)
+        except OSError as error:
+           print("Can't write file {} error: {}".format(file, error))
+
+    return(im)
+
 # sub add_wx_overlays {
 #     my (s, main_w, main_h) = @_
 #
@@ -330,28 +325,25 @@ def add_clock(hour, minute):
 #     return(im)
 # ]
 #
-# sub minute_point {
-#     my (minute, xcenter, ycenter, mradius) = @_
-#
-#     x = xcenter + (mradius*(sin(2*pi*(minute/60))))
-#     y = ycenter + (-1*mradius*(cos(2*pi*(minute/60))))
-# #    print("minute hand x: x = xcenter + (mradius*(sin(2*pi*(minute/60))))\n" if ( main::debug )
-# #    print("minute hand y: y = ycenter + (-1*mradius*(cos(2*pi*(minute/60))))\n" if ( main::debug )
-#
-#     return(x, y)
-# ]
-#
-# sub hour_point {
-#     my (hour, minute, xcenter, ycenter, hradius) = @_
-#
-#     totalSeconds = (3600*hour + 60*minute) / 43200
-#     x = xcenter + (hradius*(sin(2*pi*totalSeconds)))
-#     y = ycenter + (-1*hradius*(cos(2*pi*totalSeconds)))
-# #    print("hour hand x: x = xcenter + (hradius*(sin(2*pi*totalSeconds)))\n" if ( main::debug )
-# #    print("hour hand y: y = ycenter + (-1*hradius*(cos(2*pi*totalSeconds)))\n" if ( main::debug )
-#
-#     return(x, y)
-# ]
+def minute_point(minute, xcenter, ycenter, mradius):
+
+    x = xcenter + (mradius*(sin(2*pi*(minute/60))))
+    y = ycenter + (-1*mradius*(cos(2*pi*(minute/60))))
+ #    print("minute hand x: x = xcenter + (mradius*(sin(2*pi*(minute/60))))\n" if ( main::debug )
+ #    print("minute hand y: y = ycenter + (-1*mradius*(cos(2*pi*(minute/60))))\n" if ( main::debug )
+
+    return((x, y))
+
+
+def hour_point(hour, minute, xcenter, ycenter, hradius):
+
+    totalSeconds = (3600*hour + 60*minute) / 43200
+    x = xcenter + (hradius*(sin(2*pi*totalSeconds)))
+    y = ycenter + (-1*hradius*(cos(2*pi*totalSeconds)))
+#    print("hour hand x: x = xcenter + (hradius*(sin(2*pi*totalSeconds)))\n" if ( main::debug )
+#    print("hour hand y: y = ycenter + (-1*hradius*(cos(2*pi*totalSeconds)))\n" if ( main::debug )
+
+    return((x, y))
 #
 
 
@@ -375,7 +367,8 @@ def overlay_location(otype, main_x, main_y, ox, oy):
     x = (main_x - ox) * config_x / 100
     y = (main_y - oy) * config_y / 100
 
-    return {'x': x, 'y': y}
+#    return {'x': x, 'y': y}
+    return ((int(x), int(y)))
 
 
 def wx_graph(attr, s, width, height):
@@ -421,3 +414,4 @@ if __name__ == '__main__':
     iset.fetch()
     iset.getBluecode()
     iset.make_public_version()
+    iset.do_image_overlays()
