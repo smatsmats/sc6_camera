@@ -41,7 +41,7 @@ logger = logging.getLogger('build_timelapse')
 def today_video_name():
     vdir = config['BucketShiz']['VideoDir']
     t_name = config['BucketShiz']['TodayVideoName']
-    out = "%s/%s".format(vdir, t_name)
+    out = vdir + "/" + t_name
     return(out)
 
 
@@ -294,12 +294,13 @@ if __name__ == '__main__':
             logger.info("dontUpload is set, we won't upload")
         else:
             # send-up the video and set cache
-            logger.info("upload")
+            logger.info("upload {} to {}".format(vid_file, dest_name))
             bshiz.upload_blob(vid_file, dest_name)
             set_cache_timeout(dest_name)
 
             today_name = today_video_name()
             bshiz.cp_in_bucket(dest_name, today_name)
+            logger.info("going to copy {} to {}".format(dest_name, today_name))
             set_cache_timeout(today_name)
 
     cleanup(size, args.mode, args)
