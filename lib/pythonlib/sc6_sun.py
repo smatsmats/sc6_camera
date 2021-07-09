@@ -9,20 +9,24 @@ from astral import LocationInfo
 from astral.sun import sun
 
 import argparse
-# import sys
 import logging
 import logging.config
-# import pprint
 import yaml
+import sys
+
+sys.path.append('/usr/local/cam/lib/pythonlib')
+import sc6_config
 
 HOUR_SECS = (60 * 60)
 
 
 class SC6Sun:
-    def __init__(self):
-        with open('/usr/local/cam/conf/config.yml', 'r') as file:
-            config_root = yaml.safe_load(file)
-        config = config_root['prod']
+    def __init__(self, config=None):
+
+        if config == None:
+            mode = "prod"
+            cfg = sc6_config.Config(mode = mode)
+            config = cfg.get_config()
 
         with open(config['Logging']['LogConfig'], 'rt') as f:
             lconfig = yaml.safe_load(f.read())

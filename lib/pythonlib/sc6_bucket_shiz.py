@@ -10,17 +10,21 @@ import logging.config
 import pprint
 import yaml
 
+sys.path.append('/usr/local/cam/lib/pythonlib')
+import sc6_config
+
 pp = pprint.PrettyPrinter(indent=4)
 
 
 class MyBucket:
-    def __init__(self):
-        with open('/usr/local/cam/conf/bucket_shiz_config.yml', 'r') as file:
-            gconfig_root = yaml.safe_load(file)
-        gconfig = gconfig_root['prod']
-        with open('/usr/local/cam/conf/config.yml', 'r') as file:
-            config_root = yaml.safe_load(file)
-        config = config_root['prod']
+    def __init__(self, config=None):
+        if config == None:
+            cfg = sc6_config.Config(mode = "prod")
+            config = cfg.get_config()
+
+#       with open('/usr/local/cam/conf/bucket_shiz_config.yml', 'r') as file:
+#           gconfig_root = yaml.safe_load(file)
+#       gconfig = gconfig_root['prod']
 
         with open(config['Logging']['LogConfig'], 'rt') as f:
             lconfig = yaml.safe_load(f.read())
@@ -34,7 +38,7 @@ class MyBucket:
         # Explicitly use service account credentials by specifying the
         # private key file.
         self.storage_client = storage.Client.from_service_account_json(
-                gconfig['Google']['Auth']['service_key_secrets'])
+                config['Google']['Auth']['service_key_secrets'])
 
         # The name for the new bucket
         self.bucket_name = config['GStore']['ImageBucket']
@@ -148,10 +152,9 @@ if __name__ == '__main__':
     mybuck = MyBucket()
 
     parser = argparse.ArgumentParser(description='mess with goog buckets.')
+
+    # first the mutually exclusive group
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--silent", dest="silent", required=False,
-                       action='store_true',
-                       help="should we be silent", default=False)
     group.add_argument("--test", dest="do_test", required=False,
                        action='store_true',
                        help="just run the test", default=False)
@@ -176,6 +179,11 @@ if __name__ == '__main__':
                        required=False,
                        action='store_true',
                        help="Set blob cachecontrol", default=False)
+
+    # then the rest
+    parser.add_argument("--silent", dest="silent", required=False,
+                       action='store_true',
+                       help="should we be silent", default=False)
     parser.add_argument("--file", dest="file", default=None,
                         required=False,
                         help="Image file to upload")
@@ -195,6 +203,11 @@ if __name__ == '__main__':
                         help="Cachecontrol to set on blob",
                         required=False)
     args = parser.parse_args()
+
+    if args.silent:
+        mybuck.standalone = False
+    else:
+        mybuck.standalone = True
 
     if args.do_test:
         testme()
@@ -238,7 +251,3 @@ if __name__ == '__main__':
             sys.exit(0)
         mybuck.set_blob_cachecontrol(args.blob_name, args.cachecontrol)
 
-    if args.silent:
-        mybuck.standalone = False
-    else:
-        mybuck.standalone = True

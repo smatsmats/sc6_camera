@@ -3,17 +3,19 @@
 import os
 import sys
 import time
-sys.path.append('/usr/local/cam/lib/pythonlib')
-import bucket_shiz
-import sc6_sun
 import logging
 import logging.config
 import yaml
 import subprocess
 
-with open('/usr/local/cam/conf/config.yml', 'r') as file:
-    config_root = yaml.safe_load(file)
-config = config_root['prod']
+sys.path.append('/usr/local/cam/lib/pythonlib')
+import sc6_bucket_shiz
+import sc6_config
+import sc6_sun
+
+mode = "prod"
+cfg = sc6_config.Config(mode = mode)
+config = cfg.get_config()
 
 with open(config['Logging']['LogConfig'], 'rt') as f:
     lconfig = yaml.safe_load(f.read())

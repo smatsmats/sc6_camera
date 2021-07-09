@@ -4,7 +4,6 @@
 #  - Concurrance locking
 #  - deal with building / pushing a date other than today
 #  - make collect_metadata meaningful
-#  - combine configs
 #  - trickle, do we need trickle?
 
 import sys
@@ -16,23 +15,29 @@ import yaml
 import errno
 import logging
 import logging.config
+import pprint
 
 sys.path.append('/usr/local/cam/lib/pythonlib')
-import bucket_shiz
+import sc6_bucket_shiz
 import sc6_sun
 import sc6_general
+import sc6_config
 
+mode = "prod"
 
-with open('/usr/local/cam/conf/push_video_config.yml', 'r') as file:
-    gconfig_root = yaml.safe_load(file)
-gconfig = gconfig_root['prod']
-with open('/usr/local/cam/conf/config.yml', 'r') as file:
-    config_root = yaml.safe_load(file)
-config = config_root['prod']
+cfg = sc6_config.Config(mode = mode)
+config = cfg.get_config()
 
-with open(config['Logging']['LogConfig'], 'rt') as f:
-    lconfig = yaml.safe_load(f.read())
-logging.config.dictConfig(lconfig)
+#with open('/usr/local/cam/conf/push_video_config.yml', 'r') as file:
+#    gconfig_root = yaml.safe_load(file)
+#gconfig = gconfig_root['prod']
+#with open('/usr/local/cam/conf/config.yml', 'r') as file:
+#    config_root = yaml.safe_load(file)
+#config = config_root['prod']
+#
+#with open(config['Logging']['LogConfig'], 'rt') as f:
+#    lconfig = yaml.safe_load(f.read())
+#logging.config.dictConfig(lconfig)
 
 #  create logger
 logger = logging.getLogger('build_timelapse')
@@ -222,7 +227,7 @@ if __name__ == '__main__':
     if args.debug:
         print("Debug output on")
 
-    mysun = sc6_sun.SC6Sun()
+    mysun = sc6_sun.SC6Sun(config)
     dt = mysun.get_dt()
 
     # titles and stuff for video
@@ -277,7 +282,7 @@ if __name__ == '__main__':
     metadata = collect_metadata()
     compress_moovie(dt, size, args.mode, metadata, args)
 
-    bshiz = bucket_shiz.MyBucket()
+    bshiz = sc6_bucket_shiz.MyBucket(config)
 
     logger.debug("upload logic")
     if args.file:
