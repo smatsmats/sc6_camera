@@ -59,26 +59,15 @@ def do_public_version(imageset):
         print("Can't process image file: {}".format(imageset.output))
         os.exit()
 
-    bbox = main.getbbox()
-
     mask = imageset.public_mask
 
-# #    public.alphaBlending(0)
-# #    public.saveAlpha(1)
-# #    mask.alphaBlending(0)
+    # add the alpha channel to jpg
+    main_rgba = main.convert(mode="RGBA")
+    # overlay the mask
+    main_rgba.alpha_composite(im=mask)
 
-# #    white = mask.colorAllocate(255,255,255)
-# #    mask.transparent(white)
-
-# #    print("is true color public: ", public.isTrueColor(), "")
-# #    print("is true color mask: ", mask.isTrueColor(), "")
-# #    print("is true color main: ", main.isTrueColor(), "")
-
-    # the actual paste
-    main.paste(im=mask)
-
-    # saving the object into the current image obj
-    imageset.public_version = main
+    # saving the object into the current image obj as only rgb
+    imageset.public_version = main_rgba.convert(mode="RGB")
 
     # now write that out
     write_public_version(imageset)
@@ -127,7 +116,7 @@ def do_overlays(imageset):
         ch = clock_overlay.height
         clock_xy = overlay_location("Clock", main.width, main.height, cw, cw)
         if imageset.debug:
-            print("Copy clock to coordinates: {} {}".format(clock_xy[0], 
+            print("Copy clock to coordinates: {} {}".format(clock_xy[0],
                                                             clock_xy[1]))
         main.alpha_composite(im=clock_overlay, dest=clock_xy)
         public.alpha_composite(im=clock_overlay, dest=clock_xy)
@@ -137,8 +126,10 @@ def do_overlays(imageset):
 #     if ( lc(config['Overlay']['ColorGraph]['Overlay']) eq "true" ) {
 #         cg_overlay = add_colorgraph(r, g, b, x, bluecode, lum)
 #         my (cgw,cgh) = cg_overlay.getBounds()
-#         my (cg_x, cg_y) = overlay_location("ColorGraph", main.width, main.height, cgw, cgh)
-#         print("Copy ColorGraph to coordinates: cg_x,cg_y\n" if ( main::debug )
+#         my (cg_x, cg_y) = 
+#             overlay_location("ColorGraph", main.width, main.height, cgw, cgh)
+#         print("Copy ColorGraph to coordinates: cg_x,cg_y\n"
+#         if ( main::debug )
 #         main.copy(cg_overlay,cg_x,cg_y,0,0,cgw,cgh)
 #         public.copy(cg_overlay,cg_x,cg_y,0,0,cgw,cgh)
 
@@ -179,23 +170,15 @@ def add_clock(hour, minute):
                    size=(width, height),
                    color=(255, 255, 255, 0))
 
-#     # get colors
+    # get colors
     fg_color = ImageColor.getrgb(config['Overlay']['Clock']['FGColor'])
     bg_color = ImageColor.getrgb(config['Overlay']['Clock']['BGColor'])
-
-#     # first color allocated is background color
-#     im_bg_color = im.colorAllocate(@bg_color)
-#     im_fg_color = im.colorAllocate(@fg_color)
 
     # radiuses
     hradius = width / 4
     mradius = (width / 2) * .70
 
     draw = ImageDraw.Draw(im)
-    # make the background transparent and interlaced
-#     im.transparent(im_bg_color)
-#     im.interlaced('true')
-#     im.setThickness(t)
 #
 #     # Create a brush with a round end
 #     round_brush = new GD::Image(t*2,t*2)
@@ -205,11 +188,11 @@ def add_clock(hour, minute):
 #     round_brush.transparent(rb_bg_color)
 #
     # draw the circle
-    draw.arc(xy = [(0,0), (width, height)], 
-             start = 0,
-             end = 360,
-             fill = fg_color,
-             width = thickness)
+    draw.arc(xy=[(0, 0), (width, height)],
+             start=0,
+             end=360,
+             fill=fg_color,
+             width=thickness)
 #
 #     # if you need to see the brush, uncomment this
 #     #im.copy(round_brush,0,0,0,0,t*2,t*2)
@@ -221,25 +204,23 @@ def add_clock(hour, minute):
 #     im.setAntiAliased(im_fg_color)
 #
 #     # cicle
-#     im.arc(cx,cy,width - t*2 - x_border,height - t*2 - y_border,0,360,gdAntiAliased)
+#     im.arc(cx,cy,width - t*2 - x_border,height - t*2 -
+#         y_border,0,360,gdAntiAliased)
 #
     # minute hand
     minute_xy = minute_point(minute, cx, cy, mradius)
-    draw.line(xy=[(cx,cy), minute_xy], fill=fg_color, width=thickness)
+    draw.line(xy=[(cx, cy), minute_xy], fill=fg_color, width=thickness)
 
     # hour hand
     hour_xy = hour_point(hour, minute, cx, cy, hradius)
-    draw.line(xy=[(cx,cy), hour_xy], fill=fg_color, width=thickness)
-
-    im.save("/data/shares/media/clock.png")
-    im.save("clock.png")
+    draw.line(xy=[(cx, cy), hour_xy], fill=fg_color, width=thickness)
 
     if config['Overlay']['Clock']['WriteImage']:
         file = config['Overlay']['Clock']['ImageFile']
         try:
             im.save(file)
         except OSError as error:
-           print("Can't write file {} error: {}".format(file, error))
+            print("Can't write file {} error: {}".format(file, error))
 
     return(im)
 
@@ -325,12 +306,12 @@ def add_clock(hour, minute):
 #     return(im)
 # ]
 #
+
+
 def minute_point(minute, xcenter, ycenter, mradius):
 
     x = xcenter + (mradius*(sin(2*pi*(minute/60))))
     y = ycenter + (-1*mradius*(cos(2*pi*(minute/60))))
- #    print("minute hand x: x = xcenter + (mradius*(sin(2*pi*(minute/60))))\n" if ( main::debug )
- #    print("minute hand y: y = ycenter + (-1*mradius*(cos(2*pi*(minute/60))))\n" if ( main::debug )
 
     return((x, y))
 
@@ -340,11 +321,8 @@ def hour_point(hour, minute, xcenter, ycenter, hradius):
     totalSeconds = (3600*hour + 60*minute) / 43200
     x = xcenter + (hradius*(sin(2*pi*totalSeconds)))
     y = ycenter + (-1*hradius*(cos(2*pi*totalSeconds)))
-#    print("hour hand x: x = xcenter + (hradius*(sin(2*pi*totalSeconds)))\n" if ( main::debug )
-#    print("hour hand y: y = ycenter + (-1*hradius*(cos(2*pi*totalSeconds)))\n" if ( main::debug )
 
     return((x, y))
-#
 
 
 def overlay_location(otype, main_x, main_y, ox, oy):
