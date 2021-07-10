@@ -2,10 +2,7 @@
 ---
 
 test:
-    Debug:
-        Level: 3
-        DumpConfig: 0
-        build_time_lapse: True
+    Debug: True
     Config:
         Template: 'prod' # copy config from Prod and overlay Test portion
     BucketShiz:
@@ -15,10 +12,7 @@ test:
         VideoDir: 'vidoe_test'
 
 prod:
-    Debug:
-        Level: 1
-        DumpConfig: 2
-        build_time_lapse: False
+    Debug: False
 
     WWW:
         Refresh:

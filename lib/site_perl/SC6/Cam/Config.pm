@@ -50,11 +50,7 @@ sub new {
         $self->{_config} = $new_config;
     }
 
-    $self->{_debug} = $self->{_config}->{'Debug'}->{'Level'};
-
-    if ( $self->{_debug} >= $self->{_config}->{'Debug'}->{'DumpConfig'} ) {
-        print "read config:", Dumper($self->{_config});
-    }
+    $self->{_debug} = $self->{_config}->{'Debug'};
 
     bless $self, $class;
     return $self;
@@ -71,9 +67,6 @@ sub writeConfig {
 
     # replace config
     $self->{_in}->[0]->{prod} = $old;
-    if ( $self->{_debug} >= $self->{_config}->{'Debug'}->{'DumpConfig'} ) {
-        print "going to write:", Dumper($self->{_in});
-    }
     # write new config
     if ( ! $self->{_in}->write( $self->{_config_file} ) ) {
         die "errors writing ", $self->{_config_file}, " : $!\n";
