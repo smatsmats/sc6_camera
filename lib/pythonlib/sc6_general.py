@@ -24,6 +24,13 @@ logging.config.dictConfig(lconfig)
 # create logger
 logger = logging.getLogger('sc6_general')
 
+debug = config['Debug']
+if debug:
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
 def mymkdir(d):
     try:
@@ -92,9 +99,10 @@ def get_image_dir(dt, size, mode):
 
     return o
 
+
 def run_cmd(cmd, debug):
     if debug:
-        print("About to run command: {}".format(" ".join(cmd)))
+        logger.debug("About to run command: {}".format(" ".join(cmd)))
 
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
@@ -103,18 +111,14 @@ def run_cmd(cmd, debug):
     if debug:
         if stderr:
             stderr_d = stderr.decode('UTF-8')
-            print("stderr: {}".format(stderr_d.rstrip()))
             logger.debug("stderr: {}".format(stderr_d))
         if stdout:
             stdout_d = stdout.decode('UTF-8')
-            print("stdout: {}".format(stdout_d.rstrip()))
             logger.debug("stdout: {}".format(stdout_d))
-        print("return code: {}\n".format(ret))
         logger.debug("return code: {}".format(ret))
     if ret != 0:
-        print("Command failed: {} \
+        logger.debug("Command failed: {} \
             Return: {}".format(" ".join(cmd), ret))
-        sys.exit(ret)
     return(ret)
 
 

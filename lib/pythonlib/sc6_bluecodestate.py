@@ -1,153 +1,206 @@
-# package SC6::Cam::BlueCodeState;
+#!/usr/bin/python3
+
+import os
+import sys
+import yaml
+import logging
+import logging.config
+import pytz
+from datetime import datetime
+
+sys.path.append('/usr/local/cam/lib/pythonlib')
+import sc6_config
+import sc6_sun
+#import sc6_general
+import sc6_image
+#import sc6_bluecode
+#import sc6_overlay
+
+# use strict
+# use warnings
+# use DateTime
+# use File::Copy
+# use GD
+# use SC6::Cam::General
+# use SC6::Cam::GStore
+
+class BCS:
+    def __init__(self, debug=False, config=None):
+
+        if config is None:
+            mode = "prod"
+            cfg = sc6_config.Config(mode=mode)
+            config = cfg.get_config()
+
+        self.debug = debug or config['Debug']
+        self.config = config
+
+        with open(config['Logging']['LogConfig'], 'rt') as f:
+            lconfig = yaml.safe_load(f.read())
+        logging.config.dictConfig(lconfig)
+
+        #  create logger
+        self.logger = logging.getLogger('SC6BlueCodeState')
+        self.logger.setLevel(logging.DEBUG)
+
+        self.priming_bluecode = self.config['BlueCode']['PrimingValue']
+        self.blue_code_file = self.config['BlueCode']['FullFilePath']
+        self.tzname = config['General']['Timezone']
+
+#        if self.debug:
+#            handler = logging.StreamHandler(sys.stdout)
+#            handler.setLevel(logging.DEBUG)
+#            formatter = logging.Formatter(
+#                '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+#            handler.setFormatter(formatter)
+#            self.logger.addHandler(handler)
+
+        self.prime()
+
+    def checkBluecode(self, imageset):
+
+        new_bluecode = imageset.getBluecode()
+#        current_bluecode = self.getConfirmedBluecode()
+        current_bluecode = self.bluecode
+
+        self.logger.debug("checking bluecode, new: {}  old: {}".format(new_bluecode, current_bluecode))
+        if new_bluecode > current_bluecode:
+            self.logger.debug("new bluecode, new: {} old: {}"\
+               .format(new_bluecode, current_bluecode))
+            self.bluecode = new_bluecode
+            self.save_is_blueist_stash(imageset.output)
+#            self.save_is_blueist_local(imageset.output)
+            self.cache()
+            return True
+
+        return False
+
+#    # not really sure what this does, leaving it for now
+#    def getConfirmedBluecode(self):
 #
-# use strict;
-# use warnings;
-# use DateTime;
-# use File::Copy;
-# use GD;
-# use SC6::Cam::General;
-# use SC6::Cam::GStore;
-#
-# sub new {
-#     class = shift;
-#     self = {
-#         _mode => shift,
-#         _dryrun => shift,
-#     ]
-#
-#     prime(self);
-#
-#     bless self, class;
-#     return self;
-# }
-#
-# sub checkBluecode {
-#     my (self, new_image) = @_;
-#
-#     new_bluecode = new_image->getBluecode();
-#     current_bluecode = self->getConfirmedBluecode();
-#
-#     print "checking bluecode, new: new_bluecode old: ", current_bluecode, "\n";
-#     if ( new_bluecode > current_bluecode ) {
-#         print "new bluecode: new_bluecode old: ", current_bluecode, "\n";
-#         www_image_50pct = new_image->{_www_image_50pct]
-#         www_image_orig = new_image->{_www_image_orig]
-#         self.bluecode} = new_bluecode;
-#         save_is_blueist_stash(self, new_image);
-#         save_is_blueist_local(self, www_image_50pct, www_image_orig);
-#         cache(self);
-#         return 1;
-#     }
-#     return 0;
-# }
-#
-# sub getConfirmedBluecode {
-#     my (self) = @_;
-#     blue_code_file = get_www_dir("", main::mode) . self.config['BlueCode}->{'File']
-#
-#     new_file_time = (stat(blue_code_file))[9];
-#     if ( ! defined self.blue_change_time} || new_file_time != self.blue_change_time} ) {
-#         if ( -f blue_code_file ) {
-#             self.bluecode} = readBluecodeFile(blue_code_file);
-#             self.blue_change_time} = (stat(blue_code_file))[9];
+#        unixtime = os.path.getmtime(self.blue_code_file)
+#        self.new_file_time = datetime.utcfromtimestamp(unixtime)
+#        return 69
+#        if not hasattr(self, blue_change_time)
+#           or self.new_file_time != self.blue_change_time:
+#            if os.exiblue_code_file ) {
+#             self.bluecode} = readBluecodeFile(blue_code_file)
+#             self.blue_change_time} = (stat(blue_code_file))[9]
 #         }
 #         else {
-#             self->prime();
+#             self.prime()
 #         }
 #     }
-#     return self.bluecode]
-# }
-#
-# sub getBluecode {
-#     my (self) = @_;
-#
-#     return self.bluecode]
-# }
-#
-# sub setBluecode {
-#     my (self, bc) = @_;
-#
-#     self.bluecode} = bc;
-# }
-#
-# sub clear {
-#     my ( self ) = @_;
-#
-#     blue_code_file = get_www_dir("", main::mode) . self.config['BlueCode}->{'File']
-#     priming_bluecode = self.config['BlueCode}->{'PrimingValue']
-#     if ( -f blue_code_file ) {
-#         unlink(blue_code_file) or die "Can't unlink blue_code_file: !\n";
-#     }
-#     self.bluecode} = priming_bluecode;
-#     self.blue_change_time} = 0;
-#     return self.bluecode]
-# }
-#
-# sub save_is_blueist_stash {
-#     my ( self, new_image ) = @_;
-#
-#     stash_dir = get_image_dir(new_image->{_dt}, "stash", main::mode);
-#     stash = stash_dir . "/" . self.bluecode} . ".jpg";
-#     current_link = stash_dir . "/" . "current.jpg";
-#     image = new_image->{_output]
-#     print "going to symlink image to stash\n";
-#     symlink(image, stash) or die "Can't symlink image to stash: !\n";
-#     
-#     if ( -f current_link ) {
-#         unlink(current_link) or die "Can't unlink current_link:!\n";
-#     }
-#     print "going to symlink image to current_link\n";
-#     symlink(image, current_link) or die "Can't symlink image to current_link: !\n";
-# }
-#
+#        return self.bluecode
+
+    def getBluecode(self):
+
+        return self.bluecode
+
+    def setBluecode(self, bc):
+
+        self.bluecode = bc
+
+    def clear(self):
+
+        try:
+            os.unlink(self.blue_code_file)
+        except OSError:
+            pass
+        self.bluecode = self.priming_bluecode
+        self.blue_change_time = 0
+        return self.bluecode
+
+    def mysymlink(self, frm, to):
+        self.logger.debug("going to symlink {} to {}".format(frm, to)),
+        try:
+            os.symlink(frm, to)
+        except OSError:
+            self.logger.critical("failed symlinking {} to {}".format(frm, to))
+            print("failed trying to symlink {} to {}".format(frm, to))
+
+    def save_is_blueist_stash(self, new_image_fn):
+
+        stash_fn = "{}.jpg".format(str(self.bluecode))
+        stash_dir = os.path.join(config['Paths']['cam_images'], "/stash/")
+        stash_link = os.path.join(stash_dir, stash_fn)
+        current_link = os.path.joing(stash_dir, "current.jpg")
+
+        self.mysymlink(new_image_fn, stash_link)
+        
+        # unlink the current link if it's there
+        try:
+            os.unlink(current_link)
+        except OSError:
+            pass
+
+        self.mysymlink(new_image_fn, current_link)
+
 # sub save_is_blueist_local {
-#     my ( self, bf_50pct, bf_orig ) = @_;
+#     my ( self, bf_50pct, bf_orig ) = @_
 #     bc = self.bluecode]
-#     blueist_file_50pct = get_www_dir("", main::mode) . self.config['BlueCode}->{'BlueistImage'} . "_50pct";
-#     blueist_file_orig = get_www_dir("", main::mode) . self.config['BlueCode}->{'BlueistImage'} . "_orig";
+#     blueist_file_50pct = get_www_dir("", main::mode) . self.config['BlueCode']['BlueistImage'} . "_50pct"
+#     blueist_file_orig = get_www_dir("", main::mode) . self.config['BlueCode']['BlueistImage'} . "_orig"
 #
 #     # local copies
-#     copy(bf_50pct, blueist_file_50pct) or die "Can't copy bf_50pct to blueist_file_50pct: !\n";
-#     copy(bf_orig, blueist_file_orig) or die "Can't copy bf_orig to blueist_file_orig: !\n";
-#     print "Bluecode copy: bf_50pct to blueist_file_50pct\n" if ( main::debug );
-#     print "Bluecode copy: bf_orig to blueist_file_orig\n" if ( main::debug );
+#     copy(bf_50pct, blueist_file_50pct) or die "Can't copy bf_50pct to blueist_file_50pct: !\n"
+#     copy(bf_orig, blueist_file_orig) or die "Can't copy bf_orig to blueist_file_orig: !\n"
+#     print("Bluecode copy: bf_50pct to blueist_file_50pct\n" if ( main::debug )
+#     print("Bluecode copy: bf_orig to blueist_file_orig\n" if ( main::debug )
 #
 # }
 #
-# sub cache {
-#     my (self) = @_;
-#
-#     blue_code_file = get_www_dir("", main::mode) . self.config['BlueCode}->{'File']
-#     open F, ">blue_code_file" or die "Can't open blue_code_file!\n";
-#     print F self.bluecode]
-#     print "writing bluecode file locally.  Current bluecode: ", self.bluecode}, "\n" if ( main::debug );
-#     self.blue_change_time} = (stat(blue_code_file))[9];
-#     close F;
-# }
-#
-# sub prime {
-#     my (self) = @_;
-#
-#     priming_bluecode = self.config['BlueCode}->{'PrimingValue']
-#     blue_code_file = get_www_dir("", main::mode) . self.config['BlueCode}->{'File']
-#
-#     if ( -f blue_code_file ) {
-#         self.bluecode} = readBluecodeFile(blue_code_file);
-#         print "Bluecode file (blue_code_file) found, priming with ", self.bluecode}, "\n" if ( main::debug );
-#         return self;
-#     }
-#     else {
-#         print "No bluecode file, priming with priming_bluecode\n" if ( main::debug );
-#         self.bluecode} = priming_bluecode;
-#         return self;
-#     }
-# }
-#
-# sub readBluecodeFile {
-#     file = shift;
-#     open F, file or die "Can't open file !\n";
-#     in = <F>;
-#     chomp(in);
-#     return in;
-# }
-#
+    def cache(self):
+
+        with open(self.blue_code_file, 'w') as file:
+            file.write(str(self.bluecode))
+        self.logger.debug("writing bluecode file locally.  Current \
+            bluecode: {}".format(self.bluecode))
+        self.blue_change_time = datetime.now(pytz.timezone(self.tzname))
+
+    def prime(self):
+
+        if os.path.exists(self.blue_code_file):
+            self.readBluecodeFile()
+            self.logger.debug("Bluecode file ({}) found, priming with it".format(self.bluecode))
+        else:
+            self.bluecode = self.priming_bluecode
+            self.logger.debug("No bluecode file ({}), priming with priming_bluecode".format(self.bluecode))
+
+    def readBluecodeFile(self):
+        self.logger.debug("going to read bluecode file ({})".format(self.blue_code_file))
+        try:
+            with open(self.blue_code_file) as f:
+                bc = f.read()
+        except OSError as error:
+            print(error)
+            sys.exit()
+
+        try:
+            self.bluecode = float(bc.rstrip())
+        except ValueError:
+            self.logger.info("issues with bluecode file ({}) we're going to junk it".format(self.blue_code_file))
+            self.clear()
+
+if __name__ == '__main__':
+
+    bcs = BCS(debug=True)
+
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    bcs.logger.addHandler(handler)
+
+    print("bluecode:", bcs.bluecode)
+#    print(bcs.checkBluecode)
+#    print(bcs.getConfirmedBluecode)
+    iset = sc6_image.ImageSet()
+    iset.print_my_dirs()
+    print("going to fetch")
+    ret = iset.fetch()
+    print(ret)
+    if not ret:
+        print("fetch failed")
+    else:
+        print(bcs.checkBluecode(iset))

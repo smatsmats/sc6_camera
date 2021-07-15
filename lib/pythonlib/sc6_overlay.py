@@ -41,118 +41,7 @@ logging.config.dictConfig(lconfig)
 #  create logger
 logger = logging.getLogger('SC6Overlay')
 
-
-def do_public_version(imageset):
-
-    if not config['Public']['Enable']:
-        print("skipping do_public_version")
-        return
-
-    if imageset.debug:
-        print("file: ", imageset.output)
-    try:
-        main = Image.open(imageset.output)
-    except FileNotFoundError:
-        print("file {} missing, need an image ".format(imageset.output))
-        os.exit()
-    except:
-        print("Can't process image file: {}".format(imageset.output))
-        os.exit()
-
-    mask = imageset.public_mask
-
-    # add the alpha channel to jpg
-    main_rgba = main.convert(mode="RGBA")
-    # overlay the mask
-    main_rgba.alpha_composite(im=mask)
-
-    # saving the object into the current image obj as only rgb
-    imageset.public_version = main_rgba.convert(mode="RGB")
-
-    # now write that out
-    write_public_version(imageset)
-
-
-def write_current_version(imageset):
-    image_file = imageset.output
-    try:
-        imageset.current.save(image_file)
-    except OSError as error:
-        print("Can't write file {} error: {}".format(image_file, error))
-
-
-def write_public_version(imageset):
-    public_image_file = imageset.public_output
-    try:
-        imageset.public_version.save(public_image_file)
-    except OSError as error:
-        print("Can't write file {} error: {}".format(public_image_file, error))
-
-
-def do_overlays(imageset):
-
-    if not config['Overlay']['Clock']['Overlay'] and \
-       not config['Overlay']['ColorGraph']['Overlay'] and \
-       not config['Overlay']['WX']['Overlay']:
-        return
-
-    # copy current image as RGBA to work on it
-    main = imageset.current.convert(mode="RGBA")
-    # also do overlays to public version
-    public = imageset.public_version.convert(mode="RGBA")
-
-    minute = imageset.dt.minute
-    hour = imageset.dt.hour
-
-    bluecode = imageset.getBluecode()
-    bc_set = imageset.getBluecodes()
-#    my (r, g, b, x, lum) = imageset.getBluecodes()
-    mysun = sc6_sun.SC6Sun()
-
-    # get the clock
-    if config['Overlay']['Clock']['Overlay']:
-        clock_overlay = add_clock(hour, minute)
-        cw = clock_overlay.width
-        ch = clock_overlay.height
-        clock_xy = overlay_location("Clock", main.width, main.height, cw, cw)
-        if imageset.debug:
-            print("Copy clock to coordinates: {} {}".format(clock_xy[0],
-                                                            clock_xy[1]))
-        main.alpha_composite(im=clock_overlay, dest=clock_xy)
-        public.alpha_composite(im=clock_overlay, dest=clock_xy)
-
-    # get the colorGraph of bluecode
-    # if we ever want to do this again make this like the clock code above
-#     if ( lc(config['Overlay']['ColorGraph]['Overlay']) eq "true" ) {
-#         cg_overlay = add_colorgraph(r, g, b, x, bluecode, lum)
-#         my (cgw,cgh) = cg_overlay.getBounds()
-#         my (cg_x, cg_y) = 
-#             overlay_location("ColorGraph", main.width, main.height, cgw, cgh)
-#         print("Copy ColorGraph to coordinates: cg_x,cg_y\n"
-#         if ( main::debug )
-#         main.copy(cg_overlay,cg_x,cg_y,0,0,cgw,cgh)
-#         public.copy(cg_overlay,cg_x,cg_y,0,0,cgw,cgh)
-
-    # get the WX graphs
-    # if we ever want to do this again make this like the clock code above
-#     if ( lc(config['Overlay']['WX]['Overlay']) eq "true" ) {
-#         overlay = add_wx_overlays(s, w, h)
-#         my (o_w,o_h) = overlay.getBounds()
-#         my (o_x, o_y) = overlay_location("WX", main.width, main.height, o_w, o_h)
-#         # a instead of doing an overlay create a new image with the graphs appended
-#         new_main = GD::Image.new(main.width, main.height + o_h, 1)
-#         new_main.copy(main,0,0,0,0,main.width,main.height)
-#         print("Appending WX Graphs\n" if ( main::debug )
-#         new_main.copy(overlay,0,h,0,0,o_w,o_h)
-#         main = new_main
-
-    # copy back main / current image as RGB
-    imageset.current = main.convert(mode="RGB")
-    write_public_version(imageset)
-    write_current_version(imageset)
-
-
-def add_clock(hour, minute):
+def get_clock(dt):
 
     width = config['Overlay']['Clock']['Width']
     height = config['Overlay']['Clock']['Height']
@@ -208,11 +97,11 @@ def add_clock(hour, minute):
 #         y_border,0,360,gdAntiAliased)
 #
     # minute hand
-    minute_xy = minute_point(minute, cx, cy, mradius)
+    minute_xy = minute_point(dt.minute, cx, cy, mradius)
     draw.line(xy=[(cx, cy), minute_xy], fill=fg_color, width=thickness)
 
     # hour hand
-    hour_xy = hour_point(hour, minute, cx, cy, hradius)
+    hour_xy = hour_point(dt.hour, dt.minute, cx, cy, hradius)
     draw.line(xy=[(cx, cy), hour_xy], fill=fg_color, width=thickness)
 
     if config['Overlay']['Clock']['WriteImage']:

@@ -21,7 +21,7 @@ HOUR_SECS = (60 * 60)
 
 
 class SC6Sun:
-    def __init__(self, config=None):
+    def __init__(self, config=None, debug=False):
 
         if config == None:
             mode = "prod"
@@ -34,6 +34,8 @@ class SC6Sun:
 
         #  create logger
         self.logger = logging.getLogger('SC6Sun')
+
+        self.debug = debug or config['Debug']
 
         self.tzname = config['General']['Timezone']
         self.get_dt()
@@ -58,8 +60,14 @@ class SC6Sun:
 
         self.new_times()
 
+    def just_get_dt(self):
+        return datetime.now(pytz.timezone(self.tzname))
+
+    def a_long_time_ago(self):
+        return datetime(1900, 1, 1, tzinfo=pytz.timezone(self.tzname))
+
     def get_dt(self):
-        self.dt = datetime.now(pytz.timezone(self.tzname))
+        self.dt = self.just_get_dt()
         self.logger.debug("current time {}".format(self.dt))
         self.dt_epoch = int(time.mktime(self.dt.timetuple()))
         return(self.dt)

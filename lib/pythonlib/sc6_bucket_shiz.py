@@ -17,7 +17,7 @@ pp = pprint.PrettyPrinter(indent=4)
 
 
 class MyBucket:
-    def __init__(self, config=None):
+    def __init__(self, config=None, debug=False):
         if config == None:
             cfg = sc6_config.Config(mode = "prod")
             config = cfg.get_config()

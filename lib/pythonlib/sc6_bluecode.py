@@ -8,7 +8,7 @@ import argparse
 import sys
 import logging
 import logging.config
-# import pprint
+import pprint
 import yaml
 from PIL import Image
 
@@ -16,21 +16,36 @@ sys.path.append('/usr/local/cam/lib/pythonlib')
 import sc6_sun
 import sc6_general
 import sc6_image
+import sc6_config
 
 class BlueCode:
-    def __init__(self, fn, debug):
-        self.fn = fn
-        self.debug = debug
-        with open('/usr/local/cam/conf/config.yml', 'r') as file:
-            config_root = yaml.safe_load(file)
-        self.config = config_root['prod']
+    def __init__(self, fn, debug=False, config=None):
 
-        with open(self.config['Logging']['LogConfig'], 'rt') as f:
+        if config == None:
+            print("pulling config in BlueCode")
+            mode = "prod"
+            cfg = sc6_config.Config(mode = mode)
+            config = cfg.get_config()
+
+        self.fn = fn
+        cdebug = config['Debug']
+        self.debug = debug or cdebug
+        self.config = config
+
+        with open(config['Logging']['LogConfig'], 'rt') as f:
             lconfig = yaml.safe_load(f.read())
         logging.config.dictConfig(lconfig)
 
         #  create logger
         self.logger = logging.getLogger('SC6BlueCode')
+        self.logger.setLevel(logging.DEBUG)
+
+#        if self.debug:
+#            handler = logging.StreamHandler(sys.stdout)
+#            handler.setLevel(logging.DEBUG)
+#            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+#            handler.setFormatter(formatter)
+#            self.logger.addHandler(handler)
 
         self.get_blue()
 
@@ -40,25 +55,17 @@ class BlueCode:
         rows = self.config['BlueCode']['BlueTest']['Rows']
         sample = self.config['BlueCode']['Sampling']
 
-        print("self.fn", self.fn)
-
-        if self.debug:
-            print("file: ", self.fn)
         try:
             im = Image.open(self.fn)
         except FileNotFoundError:
             print("file {} missing, need an image ".format(self.fn))
-            os.exit()
+            sys.exit()
         except:
             print("Can't process image file: {}".format(self.fn))
-            os.exit()
+            sys.exit()
 
         width = im.width
         height = im.height
-        if self.debug:
-            print("w: ", width, " h: ", height)
-
-        print("getbox", im.getbbox())
 
         cum_new_bc = 0
         cum_bc = 0
@@ -104,12 +111,12 @@ class BlueCode:
             cum_lum = cum_lum / ( width * rows )
 
         if self.debug:
-            print("Blue code: ", a_w)
-            print("New Blue code: ", a_new_w)
-            print("Luminence: ", cum_lum)
-            print("Cum R: ", cum_r)
-            print("Cum G: ", cum_g)
-            print("Cum B: ", cum_b)
+            self.logger.debug("Blue code: {}".format(a_w))
+            self.logger.debug("New Blue code: {}".format(a_new_w))
+            self.logger.debug("Luminence: {}".format(cum_lum))
+            self.logger.debug("Cum R: {}".format(cum_r))
+            self.logger.debug("Cum G: {}".format(cum_g))
+            self.logger.debug("Cum B: {}".format(cum_b))
 
         self.bluecode = a_w
         self.x = a_new_w
@@ -124,4 +131,4 @@ if __name__ == '__main__':
     result = image_set.fetch()
     
     bluecode = BlueCode(image_set.output, "True")
-    print(bluecode.bluecode)
+    print("bluecode: ", bluecode.bluecode)

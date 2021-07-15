@@ -23,25 +23,6 @@ import sc6_sun
 import sc6_general
 import sc6_config
 
-mode = "prod"
-
-cfg = sc6_config.Config(mode = mode)
-config = cfg.get_config()
-
-#with open('/usr/local/cam/conf/push_video_config.yml', 'r') as file:
-#    gconfig_root = yaml.safe_load(file)
-#gconfig = gconfig_root['prod']
-#with open('/usr/local/cam/conf/config.yml', 'r') as file:
-#    config_root = yaml.safe_load(file)
-#config = config_root['prod']
-#
-#with open(config['Logging']['LogConfig'], 'rt') as f:
-#    lconfig = yaml.safe_load(f.read())
-#logging.config.dictConfig(lconfig)
-
-#  create logger
-logger = logging.getLogger('build_timelapse')
-
 
 def today_video_name():
     vdir = config['BucketShiz']['VideoDir']
@@ -122,7 +103,7 @@ def make_moovie(dt, size, mode, args):
     logger.debug(" ".join(cmd))
 
     if not args.dryrun:
-        return(sc6_general.run_cmd(cmd, args.debug))
+        return(sc6_general.run_cmd(cmd, debug))
 
 
 def compress_moovie(dt, size, mode, metadata, args):
@@ -138,12 +119,12 @@ def compress_moovie(dt, size, mode, metadata, args):
                 "libx264", "-b:v", "30000k", outfile]
     cmd = cmd + the_rest
 
-    if args.debug:
+    if debug:
         print(" ".join(cmd))
     logger.debug(" ".join(cmd))
 
     if not args.dryrun:
-        return(sc6_general.run_cmd(cmd, args.debug))
+        return(sc6_general.run_cmd(cmd, debug))
 
 
 def cleanup(size, mode, args):
@@ -215,16 +196,25 @@ if __name__ == '__main__':
                            help="no output")
     argparser.add_argument("--debug", action='store_true', dest='debug',
                            help="lots of output",
-                           default=config['Debug']['build_time_lapse'])
+                           default=False)
     argparser.add_argument("--dontUpload", action='store_true',
                            help="for testing, don't actually do the upload")
     args = argparser.parse_args()
 
+    cfg = sc6_config.Config(mode = args.mode)
+    config = cfg.get_config()
+
+    #  create logger
+    logger = logging.getLogger('build_timelapse')
+
+    # either from the cmd line or config    
+    debug = args.debug or config['Debug']
+
     # debug trumps silent
-    if args.debug and args.silent:
+    if debug and args.silent:
         args.silent = False
 
-    if args.debug:
+    if debug:
         print("Debug output on")
 
     mysun = sc6_sun.SC6Sun(config)
@@ -238,7 +228,7 @@ if __name__ == '__main__':
 
 #    date_from_args = False
 #    if date:
-#        if args.debug:
+#        if debug:
 #            print date, "\n"
 #        my (seconds, error) = parsedate($date)
 #        if ! seconds:
@@ -254,24 +244,24 @@ if __name__ == '__main__':
 #    else:
 #        dt = mysun.get_dt()
 
-    if args.debug:
+    if debug:
         print("Now: ", dt)
 
     if args.directory:
         print(" We hav a direcotry to process: ", args.directory)
     elif args.force:
-        if args.debug:
+        if debug:
             print(" We're forced to do this")
     elif mysun.is_sun():
-        if not args.silent:
+        if debug:
             print(" Sun is up!")
     elif mysun.is_hour_after_dusk():
-        if not args.silent:
+        if debug:
             print(" Sun is down, but for less than an hour!")
     else:
-        if not args.silent:
+        if debug:
             print(" Sun is down!")
-        os.exit()
+        sys.exit()
 
     if args.dryrun and not args.silent:
         print("This is a dry run, not doing anything")
@@ -292,7 +282,7 @@ if __name__ == '__main__':
     else:
         vid_file = sc6_general.get_video_file(dt, size, 'mp4', args.mode)
         dest_name = get_dest_name()
-        if args.debug:
+        if debug:
             print(dest_name)
 
         if args.dontUpload or args.dryrun:
