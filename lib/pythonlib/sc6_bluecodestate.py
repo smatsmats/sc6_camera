@@ -11,31 +11,21 @@ from datetime import datetime
 sys.path.append('/usr/local/cam/lib/pythonlib')
 import sc6_config
 import sc6_sun
-#import sc6_general
+import sc6_general
 import sc6_image
-#import sc6_bluecode
-#import sc6_overlay
-
-# use strict
-# use warnings
-# use DateTime
-# use File::Copy
-# use GD
-# use SC6::Cam::General
-# use SC6::Cam::GStore
 
 class BCS:
-    def __init__(self, debug=False, config=None):
+    def __init__(self, debug=False, config=None, mode="prod"):
 
         if config is None:
-            mode = "prod"
             cfg = sc6_config.Config(mode=mode)
             config = cfg.get_config()
 
         self.debug = debug or config['Debug']
         self.config = config
+        self.mode = mode
 
-        with open(config['Logging']['LogConfig'], 'rt') as f:
+        with open(self.config['Logging']['LogConfig'], 'rt') as f:
             lconfig = yaml.safe_load(f.read())
         logging.config.dictConfig(lconfig)
 
@@ -45,7 +35,7 @@ class BCS:
 
         self.priming_bluecode = self.config['BlueCode']['PrimingValue']
         self.blue_code_file = self.config['BlueCode']['FullFilePath']
-        self.tzname = config['General']['Timezone']
+        self.tzname = self.config['General']['Timezone']
 
 #        if self.debug:
 #            handler = logging.StreamHandler(sys.stdout)
@@ -68,7 +58,7 @@ class BCS:
             self.logger.debug("new bluecode, new: {} old: {}"\
                .format(new_bluecode, current_bluecode))
             self.bluecode = new_bluecode
-            self.save_is_blueist_stash(imageset.output)
+            self.save_is_blueist_stash(imageset)
 #            self.save_is_blueist_local(imageset.output)
             self.cache()
             return True
@@ -117,16 +107,15 @@ class BCS:
             os.symlink(frm, to)
         except OSError:
             self.logger.critical("failed symlinking {} to {}".format(frm, to))
-            print("failed trying to symlink {} to {}".format(frm, to))
 
-    def save_is_blueist_stash(self, new_image_fn):
+    def save_is_blueist_stash(self, imageset):
 
         stash_fn = "{}.jpg".format(str(self.bluecode))
-        stash_dir = os.path.join(config['Paths']['cam_images'], "/stash/")
+        stash_dir = sc6_general.get_image_dir(imageset.dt, "stash", self.mode)
         stash_link = os.path.join(stash_dir, stash_fn)
-        current_link = os.path.joing(stash_dir, "current.jpg")
+        current_link = os.path.join(stash_dir, "current.jpg")
 
-        self.mysymlink(new_image_fn, stash_link)
+        self.mysymlink(imageset.output, stash_link)
         
         # unlink the current link if it's there
         try:
@@ -134,7 +123,7 @@ class BCS:
         except OSError:
             pass
 
-        self.mysymlink(new_image_fn, current_link)
+        self.mysymlink(imageset.output, current_link)
 
 # sub save_is_blueist_local {
 #     my ( self, bf_50pct, bf_orig ) = @_

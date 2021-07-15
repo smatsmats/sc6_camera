@@ -193,7 +193,7 @@ class ImageSet:
                     self.logger.debug("{} {}".format(noon_link, error))
 
         if not os.path.exists(rise_link):
-            if self.mysun.is_afterrise():
+            if self.mysun.is_after_sunrise():
                 print("gonna link {} to {}".format(self.output, rise_link))
                 try:
                     os.symlink(self.output, rise_link)

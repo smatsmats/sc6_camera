@@ -45,8 +45,7 @@ def get_ci(size, dir_type):
     try:
         ci = config['Paths'][dir_type]
     except KeyError:
-        print("bad or missing dir_type.  got {}".format(
-            mode))
+        print("bad or missing dir_type.  got {}".format(mode))
         return None
 
     mymkdir(ci)
@@ -92,8 +91,7 @@ def get_image_dir(dt, size, mode):
 
     ci = get_ci(size, 'cam_images')
 
-    o = "%s/%4d/%02d/%02d/%s/",
-    o = "{}/{}/{}/".format(ci, dt.strftime("%Y/%m/%d"), size)
+    o = "{}{}/{}/".format(ci, dt.strftime("%Y/%m/%d"), size)
 
     mymkdir(o)
 
