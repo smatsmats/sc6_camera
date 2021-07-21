@@ -4,7 +4,7 @@ Description=Job that runs the cam_collect_images process
 
 [Service]
 Type=simple
-ExecStart=/usr/local/cam/bin/cam_collect_images
+ExecStart=/usr/local/cam/bin/cam_collect_images.py
 Restart=on-failure
 User=willey
 Group=willey
