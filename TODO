@@ -6,6 +6,7 @@ DONE:
         - Added 1/19/2017
 	- Done 2/2017
 - make pushes to gstore happen less frequently than with each image capture
+- use api for pushes to gstore - done 06/2021
 
 # shit to do
 
@@ -14,8 +15,6 @@ DONE:
 - make all of the file storage functions more modular (temp area, locally served, gstore served)
 - move config options used in pushtoyoutube to another level
 - make pushes to gstore seperate process
-- use api for pushes to gstore
 - more work on video_dispatcher
-- make web page js, instead of cgi
+- make web page js, instead of cgi - overcome by events
 - add code for capturing when the moon is in frame
-- rewrite in python :)

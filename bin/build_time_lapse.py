@@ -249,6 +249,9 @@ if __name__ == '__main__':
 
     if args.directory:
         print(" We hav a direcotry to process: ", args.directory)
+        # maybe check the directory
+        # specified directory implies force
+        args.force = True
     elif args.force:
         if debug:
             print(" We're forced to do this")
@@ -265,6 +268,15 @@ if __name__ == '__main__':
 
     if args.dryrun and not args.silent:
         print("This is a dry run, not doing anything")
+
+    # make sure we have the directory we're going to work with
+    if args.directory:
+        image_dir = args.directory
+    else:
+        image_dir = sc6_general.get_image_dir(dt, "public", args.mode)
+    if not os.path.exists(image_dir) or len(os.listdir(image_dir) ) == 0:
+        print("directory {} missing or empty, quitting".format(image_dir))
+        sys.exit()
 
     size = 'orig'
     make_moovie(dt, size, args.mode, args)
