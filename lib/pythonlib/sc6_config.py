@@ -29,7 +29,7 @@ class Config:
         logging.config.dictConfig(lconfig)
 
         #  create logger
-        self.logger = logging.getLogger('SC6Config')
+        self.logger = logging.getLogger(__name__)
 
         self.config_file = config_file
         self.mode = mode
