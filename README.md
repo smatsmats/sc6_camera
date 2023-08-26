@@ -34,3 +34,12 @@ Oauth Tokens for YouTube:
 Once you've created the credentials entry in gogole developers console and copied the client id and client secret run either 
 of the youtube scripts and walk thru the permissions flow.  You'll need a browser with javascript.  If you're running headless 
 you may need to fire-up an X11 server somewhere to get a full-enough browser
+
+Some things that will be needed:
+
+sudo apt-get install mencoder
+sudo apt-get install ffmpeg
+
+pip install install google-api-python-client
+pip install --upgrade google-cloud-storage
+pip install astral
