@@ -1,2 +1,2 @@
-0 * * * * /usr/local/cam/bin/build_time_lapse.pl --trickle --silent
-*/15 * * * * /usr/local/cam/bin/gap_check.pl
+0 * * * * /usr/local/cam/bin/build_time_lapse.py --silent
+*/15 * * * * /usr/local/cam/bin/gap_check.pl --gap 65 --only-last-hour
