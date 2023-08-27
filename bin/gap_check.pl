@@ -65,8 +65,8 @@ foreach my $f ( sort @files ) {
     }
     else {
         if ( ! $only_last_hour || $now - $n < $ONE_HOUR ) {
-            print "$f $n";
-            print " Big gap: ", $n - $last, " ", scalar localtime($n);
+            print "Big gap: ", $n - $last, " seconds at ", scalar localtime($n);
+            print " ($f $n)";
             if ( $last_was_big ) {
                 print " prior was also big\n";
             }
