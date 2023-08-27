@@ -42,13 +42,18 @@ class MyBucket:
 
         # The name for the new bucket
         self.bucket_name = config['GStore']['ImageBucket']
+        # should this be get_bucket(self.bucket_name, timeout=500)
         self.bucket = self.storage_client.bucket(self.bucket_name)
 
     def upload_blob(self, source_file_name, destination_blob_name):
 
         blob = self.bucket.blob(destination_blob_name)
-
-        blob.upload_from_filename(source_file_name)
+    
+        try:
+            blob.upload_from_filename(source_file_name, num_retries=5, timeout=500)
+        except TimeoutError as error:
+            print("error setting cache timeout on {}: {}".format(dest_name, error))
+            logger.info("error setting cache timeout on {}: {}".format(dest_name, error))
 
         if self.standalone:
             print("bucket_shiz: File {} uploaded to {}.".format(
