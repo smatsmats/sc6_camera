@@ -302,7 +302,11 @@ if __name__ == '__main__':
         else:
             # send-up the video and set cache
             logger.info("upload {} to {}".format(vid_file, dest_name))
+            if debug:
+                print("upload {} to {}".format(vid_file, dest_name))
             bshiz.upload_blob(vid_file, dest_name)
+            if debug:
+                print("set cache on {}".format(dest_name))
             set_cache_timeout(dest_name)
 
             today_name = today_video_name()
