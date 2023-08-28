@@ -1,17 +1,5 @@
 #!/usr/bin/python3
 
-import time
-from datetime import datetime
-from datetime import timedelta
-import pytz
-import astral
-from astral import LocationInfo
-from astral.sun import sun
-
-import argparse
-import logging
-import logging.config
-import yaml
 import sys
 
 sys.path.append('/usr/local/cam/lib/pythonlib')
