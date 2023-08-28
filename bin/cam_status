@@ -1,39 +1,45 @@
-#!/usr//bin/perl
+#!/usr/bin/python3
 
-my $init = 'systemd';
+import os
+import sys
 
-print "Checking if cam_collect_images is running:\n";
-if ( $init eq 'systemd' ) {
-    print `systemctl status cam_collect_images | grep Active`, "\n";
-}
-else {
-    print `status cam_collect_images`, "\n";
-}
+sys.path.append('/usr/local/cam/lib/pythonlib')
+import sc6_sun
 
-print "Are we building?\n";
-my $res = `pidof -x build_time_lapse.pl`;
-if ( $res ne "" ) {
-    print "Yes!  Process: $res\n";
-}
-else {
-    print "Nope\n\n";
-}
-#print "Are we building?\n";
-#print `ps auwwx | grep build_time_lapse.pl`, "\n";
+init = 'systemd'
 
-print "Is there a push happening:\n";
-$res =  `pidof -x push2youtube.py`;
-if ( $res ne "" ) {
-    print "Yes!  Process: $res\n";
-}
-else {
-    print "Nope\n\n";
-}
-#print "Is there a push happening:\n";
-#print `ps auwwx | grep push2youtube_2015.py`, "\n";
+print("Checking if cam_collect_images is running:")
+if init == 'systemd':
+    cmd = 'systemctl status cam_collect_images | grep Active'
+    ret = os.system(cmd)
+else:
+    cmd = 'status cam_collect_images'
+    print(os.system(cmd))
+print()
 
-print "what's up on youtube?\n";
-print `/usr/local/cam/bin/./ls_today_vids.py`, "\n";
+print("Are we building?")
+cmd = 'pidof -x build_time_lapse.pl'
+ret = os.system(cmd)
+if ret != "":
+    print("Yes!  Process: {}".format(ret))
+else:
+    print("Nope")
+print()
 
-print "Where is the sun?\n";
-print `/usr/local/cam/bin/sun.pl`, "\n";
+#print("what's up on youtube?"
+#print(`/usr/local/cam/bin/./ls_today_vids.py`, ""
+#
+
+print("Where is the sun?")
+mysun = sc6_sun.SC6Sun()
+mysun.maybenewday()
+
+print(mysun.sun_message)
+print("NOW: ", str(mysun.dt))
+print("We'll start the party at ", str(mysun.start))
+print("We'll close shop at ", str(mysun.end))
+print("is_sun: ", mysun.is_sun(), "")
+print("is_after_sunrise: ", mysun.is_after_sunrise(), "")
+print("is_after_noon: ", mysun.is_after_noon(), "")
+print("is_after_sunset: ", mysun.is_after_sunset(), "")
+print("is_hour_after_dusk: ", mysun.is_hour_after_dusk(), "")
