@@ -320,8 +320,9 @@ class ImageSet:
 
         # copy back main / current image as RGB
         self.current = main.convert(mode="RGB")
-        self.write_public_version()
         self.write_current_version()
+        self.public = public.convert(mode="RGB")
+        self.write_public_version()
 
     def print_my_dirs(self):
 
