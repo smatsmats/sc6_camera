@@ -27,6 +27,7 @@ logging.config.dictConfig(lconfig)
 #  create logger
 logger = logging.getLogger('SC6Overlay')
 
+
 def get_clock(dt):
 
     width = config['Overlay']['Clock']['Width']
@@ -142,7 +143,9 @@ def get_clock(dt):
 #
 #     graph = GD::Graph::hbars.new(width,height)
 #
-# #    graph.set( dclrs => [ qw(config['Overlay']['ColorGraph]['FGColor] config['Overlay']['ColorGraph]['LumColor] red green blue config['Overlay']['ColorGraph]['XColor]) ] )
+# #    graph.set( dclrs => [ qw(config['Overlay']['ColorGraph]['FGColor]
+#             config['Overlay']['ColorGraph]['LumColor] red green blue
+#             config['Overlay']['ColorGraph]['XColor]) ] )
 #     graph.set( dclrs => [ qw(pink yellow red green blue white) ])
 #     graph.set(
 #       cycle_clrs           => 1,
@@ -213,7 +216,9 @@ def wx_graph(attr, s, width, height):
 #     length_day = s['naut_dusk].epoch() - s['naut_dawn].epoch()
 #     dt = DateTime.now(  time_zone => config[''General'][''Timezone'] )
 #     day_so_far = dt.epoch() - s['naut_dawn].epoch()
-#     print("length of day: length_day, so far day_so_far, ", (day_so_far / length_day * 100), "% of the way there\n" if ( main::debug )
+#     if ( main::debug ):
+#         print("length of day: length_day, so far day_so_far, ",
+#             (day_so_far / length_day * 100), "% of the way there\n"
 #     rrd_width = width * (day_so_far / length_day)
 #
 #     rrdtool = config['WX]['rrdtool]
@@ -223,7 +228,10 @@ def wx_graph(attr, s, width, height):
 #     dd = config['WX]['attr]['DD]
 #     rrd_args = config['WX]['attr]['RRDOtherArgs]
 #
-#     cmd = "rrdtool graph outfile --no-legend --full-size-mode --units-exponent 0 -E -a PNG --alt-y-grid -v vlabel -w rrd_width -h height -s -day_so_far rrd_args dd"
+#     cmd = "rrdtool graph outfile --no-legend --full-size-mode
+#       --units-exponent
+#       0 -E -a PNG --alt-y-grid -v vlabel -w rrd_width -h height
+#       -s -day_so_far rrd_args dd"
 #     print(cmd, "\n" if ( main::debug )
 #     print(`cmd`
 #

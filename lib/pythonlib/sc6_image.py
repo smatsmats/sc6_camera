@@ -163,13 +163,15 @@ class ImageSet:
             os.unlink(self.www_public_image_50pct)
             os.symlink(self.public_output_50pct, self.www_public_image_50pct)
         except OSError as error:
-            self.logger.debug("{} {}".format(self.www_public_image_50pct, error))
+            self.logger.debug("{} {}".format(self.www_public_image_50pct,
+                                             error))
 
         try:
             os.unlink(self.www_public_image_orig)
             os.symlink(self.public_output, self.www_public_image_orig)
         except OSError as error:
-            self.logger.debug("{} {}".format(self.www_public_image_orig, error))
+            self.logger.debug("{} {}".format(self.www_public_image_orig,
+                                             error))
 
         stash_dir = sc6_general.get_image_dir(self.dt, "stash", self.mode)
         noon_link = os.path.join(stash_dir, "noon.jpg")
@@ -204,8 +206,8 @@ class ImageSet:
         try:
             self.bc
         except AttributeError:
-            self.bc = sc6_bluecode.BlueCode(fn=self.output, 
-                                            debug=self.debug, 
+            self.bc = sc6_bluecode.BlueCode(fn=self.output,
+                                            debug=self.debug,
                                             config=self.config)
 
         return(self.bc.bluecode)
@@ -276,9 +278,9 @@ class ImageSet:
             x_border = self.config['Overlay']['Clock']['XBorder']
             y_border = self.config['Overlay']['Clock']['YBorder']
             clock_xy = self.overlay_location("Clock",
-                                             main.width, 
+                                             main.width,
                                              main.height,
-                                             clock_overlay.width, 
+                                             clock_overlay.width,
                                              clock_overlay.height,
                                              x_border,
                                              y_border)
@@ -307,8 +309,10 @@ class ImageSet:
 #     if ( lc(config['Overlay']['WX]['Overlay']) eq "true" ) {
 #         overlay = add_wx_overlays(s, w, h)
 #         my (o_w,o_h) = overlay.getBounds()
-#         my (o_x, o_y) = self.overlay_location("WX", main.width, main.height, o_w, o_h)
-#         # a instead of doing an overlay create a new image with the graphs appended
+#         my (o_x, o_y) = self.overlay_location("WX",
+# main.width, main.height, o_w, o_h)
+#         # a instead of doing an overlay create a new
+# image with the graphs appended
 #         new_main = GD::Image.new(main.width, main.height + o_h, 1)
 #         new_main.copy(main,0,0,0,0,main.width,main.height)
 #         print("Appending WX Graphs\n" if ( main::debug )
@@ -335,7 +339,8 @@ class ImageSet:
         print("self.www_public_image_orig:\t", self.www_public_image_orig)
         print("self.www_public_image_50pct:\t", self.www_public_image_50pct)
 
-    def overlay_location(self, otype, main_x, main_y, overlay_width, overlay_height, x_border=0, y_border=0):
+    def overlay_location(self, otype, main_x, main_y, overlay_width,
+                         overlay_height, x_border=0, y_border=0):
 
         # configuration location of ColorGraph
         config_x = self.config['Overlay'][otype]['XLocation']

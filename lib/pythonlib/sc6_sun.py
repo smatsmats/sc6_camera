@@ -23,9 +23,9 @@ HOUR_SECS = (60 * 60)
 class SC6Sun:
     def __init__(self, config=None, debug=False):
 
-        if config == None:
+        if config is None:
             mode = "prod"
-            cfg = sc6_config.Config(mode = mode)
+            cfg = sc6_config.Config(mode=mode)
             config = cfg.get_config()
 
         with open(config['Logging']['LogConfig'], 'rt') as f:

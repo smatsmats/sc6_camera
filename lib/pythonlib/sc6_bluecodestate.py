@@ -14,6 +14,7 @@ import sc6_sun
 import sc6_general
 import sc6_image
 
+
 class BCS:
     def __init__(self, debug=False, config=None, mode="prod"):
 
@@ -116,7 +117,7 @@ class BCS:
         current_link = os.path.join(stash_dir, "current.jpg")
 
         self.mysymlink(imageset.output, stash_link)
-        
+
         # unlink the current link if it's there
         try:
             os.unlink(current_link)
@@ -170,6 +171,7 @@ class BCS:
         except ValueError:
             self.logger.info("issues with bluecode file ({}) we're going to junk it".format(self.blue_code_file))
             self.clear()
+
 
 if __name__ == '__main__':
 

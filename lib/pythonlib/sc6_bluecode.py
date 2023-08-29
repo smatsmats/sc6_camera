@@ -14,13 +14,14 @@ import sc6_general
 import sc6_image
 import sc6_config
 
+
 class BlueCode:
     def __init__(self, fn, debug=False, config=None):
 
-        if config == None:
+        if config is None:
             print("pulling config in BlueCode")
             mode = "prod"
-            cfg = sc6_config.Config(mode = mode)
+            cfg = sc6_config.Config(mode=mode)
             config = cfg.get_config()
 
         self.fn = fn
@@ -64,40 +65,42 @@ class BlueCode:
         cum_b = 0
         a_new_w = 0
 
-        only_bc = False  # make False if playing with new maths for computing bluecode.
+        only_bc = False  # make False if playing with new maths
+                         # for computing bluecode.
 
         for x in range(0, im.width, sample):
             for y in range(start_row, start_row + rows, sample):
-                pixel_value = im.getpixel((x,y))
-                # looking at the difference between blue and the average of red and green then
+                pixel_value = im.getpixel((x, y))
+                # looking at the difference between blue and
+                # the average of red and green then
                 # multiply by the luminosity to give weight to bright images
                 # cum_bc += (b - ( (r + g) / 2)) * ( 2 * ((0.2126*r) + (0.7152*g) + (0.0722*b)))
-                # don't use the green value for the difference 
+                # don't use the green value for the difference
                 # because dusk and down can be very green
                 r = pixel_value[0]
                 g = pixel_value[1]
                 b = pixel_value[2]
-                cum_bc = cum_bc + (b - r ) * ( 2 * ((0.2126*r) + (0.7152*g) + (0.0722*b)))
+                cum_bc = cum_bc + (b - r) * (2 * ((0.2126*r) + (0.7152*g) + (0.0722*b)))
 
                 if not only_bc:
-                   cum_lum = cum_lum + (0.2126*r) + (0.7152*g) + (0.0722*b)
-                   cum_r = cum_r + r
-                   cum_g = cum_g + g
-                   cum_b = cum_b + b
-                   # Base BlueCode: b - ( (r + g) / 2)
-                   # Luminence: (0.2126*r) + (0.7152*g) + (0.0722*b)
-                   # double the Luminence
-                   if r >= 32 and g >= 32:
-                       cum_new_bc = cum_new_bc + (b - g ) * ( 2 * ((0.2126*r) + (0.7152*g) + (0.0722*b)))
+                    cum_lum = cum_lum + (0.2126*r) + (0.7152*g) + (0.0722*b)
+                    cum_r = cum_r + r
+                    cum_g = cum_g + g
+                    cum_b = cum_b + b
+                    # Base BlueCode: b - ( (r + g) / 2)
+                    # Luminence: (0.2126*r) + (0.7152*g) + (0.0722*b)
+                    # double the Luminence
+                    if r >= 32 and g >= 32:
+                        cum_new_bc = cum_new_bc + (b - g) * (2 * ((0.2126*r) + (0.7152*g) + (0.0722*b)))
 
         scaling_factor = self.config['BlueCode']['CodeScaling']
-        a_w = cum_bc / ( im.width * rows ) * scaling_factor
+        a_w = cum_bc / (im.width * rows) * scaling_factor
         if not only_bc:
-            a_new_w = cum_new_bc / ( width * rows ) * scaling_factor
-            cum_r = cum_r / ( width * rows )
-            cum_g = cum_g / ( width * rows )
-            cum_b = cum_b / ( width * rows )
-            cum_lum = cum_lum / ( width * rows )
+            a_new_w = cum_new_bc / (width * rows) * scaling_factor
+            cum_r = cum_r / (width * rows)
+            cum_g = cum_g / (width * rows)
+            cum_b = cum_b / (width * rows)
+            cum_lum = cum_lum / (width * rows)
 
         if self.debug:
             self.logger.debug("Blue code: {}".format(a_w))
@@ -114,10 +117,11 @@ class BlueCode:
         self.b = cum_b
         self.lum = cum_lum
 
+
 if __name__ == '__main__':
 
     image_set = sc6_image.ImageSet()
     result = image_set.fetch()
-    
+
     bluecode = BlueCode(image_set.output, "True")
     print("bluecode: ", bluecode.bluecode)
