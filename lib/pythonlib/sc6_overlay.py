@@ -45,19 +45,20 @@ def get_clock(dt):
 
     width = config['Overlay']['Clock']['Width']
     height = config['Overlay']['Clock']['Height']
-    x_border = config['Overlay']['Clock']['XBorder']
-    y_border = config['Overlay']['Clock']['YBorder']
-
-    # center
-    cx = width / 2
-    cy = height / 2
-
     # thickness
     thickness = config['Overlay']['Clock']['LineWeight']
 
     im = Image.new(mode="RGBA",
                    size=(width, height),
                    color=(255, 255, 255, 0))
+
+    # adjust circle width to fit all of pen thickness
+    width = width - (thickness / 2)
+    height = height - (thickness / 2)
+
+    # center
+    cx = width / 2
+    cy = height / 2
 
     # get colors
     fg_color = ImageColor.getrgb(config['Overlay']['Clock']['FGColor'])
