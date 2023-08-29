@@ -18,10 +18,10 @@ else:
 print()
 
 print("Are we building?")
-cmd = 'pidof -x build_time_lapse.pl'
+cmd = 'pidof -x build_time_lapse.py'
 ret = os.system(cmd)
-if ret != "":
-    print("Yes!  Process: {}".format(ret))
+if ret == 0:
+    print("Yes!")
 else:
     print("Nope")
 print()
