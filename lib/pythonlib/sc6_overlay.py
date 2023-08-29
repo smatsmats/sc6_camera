@@ -69,34 +69,14 @@ def get_clock(dt):
     mradius = (width / 2) * .70
 
     draw = ImageDraw.Draw(im)
-#
-#     # Create a brush with a round end
-#     round_brush = new GD::Image(t*2,t*2)
-#     # first color allocated is background color
-#     rb_bg_color = round_brush.colorAllocate(@bg_color)
-#     rb_fg_color = round_brush.colorAllocate(@fg_color)
-#     round_brush.transparent(rb_bg_color)
-#
+
     # draw the circle
     draw.arc(xy=[(0, 0), (width, height)],
              start=0,
              end=360,
              fill=fg_color,
              width=thickness)
-#
-#     # if you need to see the brush, uncomment this
-#     #im.copy(round_brush,0,0,0,0,t*2,t*2)
-#
-#     # Set the brush
-#     im.setBrush(round_brush)
-#
-#     # maybe antialiased
-#     im.setAntiAliased(im_fg_color)
-#
-#     # cicle
-#     im.arc(cx,cy,width - t*2 - x_border,height - t*2 -
-#         y_border,0,360,gdAntiAliased)
-#
+
     # minute hand
     minute_xy = minute_point(dt.minute, cx, cy, mradius)
     draw.line(xy=[(cx, cy), minute_xy], fill=fg_color, width=thickness)
@@ -114,6 +94,7 @@ def get_clock(dt):
 
     return(im)
 
+# still psuedo-perl code, not yet converted to python, maybe never needs to be
 # sub add_wx_overlays {
 #     my (s, main_w, main_h) = @_
 #
