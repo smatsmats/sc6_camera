@@ -273,10 +273,15 @@ class ImageSet:
         # get the clock
         if self.config['Overlay']['Clock']['Overlay']:
             clock_overlay = sc6_overlay.get_clock(self.dt)
-            cw = clock_overlay.width
-            ch = clock_overlay.height
-            clock_xy = self.overlay_location("Clock", main.width,
-                                             main.height, cw, cw)
+            x_border = self.config['Overlay']['Clock']['XBorder']
+            y_border = self.config['Overlay']['Clock']['YBorder']
+            clock_xy = self.overlay_location("Clock",
+                                             main.width, 
+                                             main.height,
+                                             clock_overlay.width, 
+                                             clock_overlay.height,
+                                             x_border,
+                                             y_border)
             if self.debug:
                 self.logger.debug("Copy clock to coordinates: {} {}".format(
                                                                 clock_xy[0],
@@ -330,11 +335,15 @@ class ImageSet:
         print("self.www_public_image_orig:\t", self.www_public_image_orig)
         print("self.www_public_image_50pct:\t", self.www_public_image_50pct)
 
-    def overlay_location(self, otype, main_x, main_y, ox, oy):
+    def overlay_location(self, otype, main_x, main_y, overlay_width, overlay_height, x_border=0, y_border=0):
 
         # configuration location of ColorGraph
         config_x = self.config['Overlay'][otype]['XLocation']
         config_y = self.config['Overlay'][otype]['YLocation']
+
+        # add border
+        overlay_width = overlay_width + (2 * x_border)
+        overlay_height = overlay_height + (2 * y_border)
 
         # translate natural language config options
         if config_x == "left":
@@ -347,8 +356,8 @@ class ImageSet:
             config_y = 100
 
         # image location
-        x = (main_x - ox) * config_x / 100
-        y = (main_y - oy) * config_y / 100
+        x = (main_x - overlay_width) * config_x / 100
+        y = (main_y - overlay_height) * config_y / 100
 
         return ((int(x), int(y)))
 
