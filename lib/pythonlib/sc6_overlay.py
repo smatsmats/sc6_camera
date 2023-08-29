@@ -1,15 +1,10 @@
 #!/usr/bin/python3
 
-# TODO
-# add clock and other optional overlays
-# make mode work right
-
 import argparse
 import os
 import sys
 import logging
 import logging.config
-# import pprint
 import yaml
 from PIL import Image, ImageColor, ImageDraw
 from stat import *
@@ -20,15 +15,6 @@ import sc6_sun
 import sc6_general
 import sc6_image
 import sc6_bluecode
-
-# use DateTime
-# use GD
-# use GD::Graph::hbars
-# use SC6::Cam::WX
-# use Graphics::ColorNames 2.10
-# use Data::Dumper
-
-# uses the image object
 
 with open('/usr/local/cam/conf/config.yml', 'r') as file:
     config_root = yaml.safe_load(file)
