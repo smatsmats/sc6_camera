@@ -40,14 +40,6 @@ class ImageSet:
         self.logger = logging.getLogger('SC6Image')
         self.logger.setLevel(logging.DEBUG)
 
-#        if self.debug:
-#            handler = logging.StreamHandler(sys.stdout)
-#            handler.setLevel(logging.DEBUG)
-#            formatter = logging.Formatter(
-#                '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-#            handler.setFormatter(formatter)
-#            self.logger.addHandler(handler)
-
         self.mysun = sc6_sun.SC6Sun()
         self.dt = self.mysun.get_dt()
         self.dt_epoch = self.mysun.dt_epoch
@@ -358,132 +350,7 @@ class ImageSet:
         x = (main_x - ox) * config_x / 100
         y = (main_y - oy) * config_y / 100
 
-#    return {'x': x, 'y': y}
         return ((int(x), int(y)))
-
-# ######################3 overlay code
-
-
-
-
-
-# sub add_wx_overlays {
-#     my (s, main_w, main_h) = @_
-#
-#     wx = SC6::Cam::WX.new()
-#     print("rain today: ", wx.rain_today, "")
-#
-#     indi_width = config['Overlay']['WX]['IndividualWidth]
-#     indi_height = config['Overlay']['WX]['IndividualHeight]
-#
-#     my @graphs_maybe = ( "TDW", "Rain", "Pressure", "Wsp", "Dir", "Solar")
-#     my @graphs
-#     foreach g ( @graphs_maybe ) {
-# #        next if ( g eq "Rain" && wx.rain_today == 0 )
-#         push @graphs, wx_graph(g, s, indi_width, indi_height)
-#     ]
-#
-#     im = new GD::Image(indi_width,indi_height * (#graphs+1))
-#     # allocate some colors
-#     white = im.colorAllocate(255,255,255)
-#     black = im.colorAllocate(0,0,0)
-#     # make the background transparent and interlaced
-#     im.transparent(white)
-#
-#     upper_left_x = 0
-#     foreach o ( @graphs ) {
-#         im.copy(o,0,upper_left_x,0,0,indi_width,indi_height)
-#         upper_left_x += indi_height
-#     ]
-#
-#     if ( lc(config['Overlay']['WX]['WriteImage]) eq "true" ) {
-#         file = config['Overlay']['WX]['ImageFile]
-#         open OUT, ">file" or die "Can't open file for writing: !")
-#         binmode OUT
-#         print(OUT im.jpeg
-#         close OUT
-#     ]
-#
-#     return(im)
-# ]
-#
-# sub add_colorgraph {
-#     my (r, g, b, x, bluecode, lum) = @_
-#
-#     my @data = (
-#         ["BC","Lum","R","G","B","X"],
-#         [bluecode, lum, r, g, b, x]
-#     )
-#     width = config['Overlay']['ColorGraph]['Width]
-#     height = config['Overlay']['ColorGraph]['Height]
-#     x_border = config['Overlay']['ColorGraph]['XBorder]
-#     y_border = config['Overlay']['ColorGraph]['YBorder]
-#
-#     # center
-#     cx = width / 2
-#     cy = height / 2
-#
-#     # thickness
-#     t = config['Overlay']['ColorGraph]['LineWeight]
-#
-#     graph = GD::Graph::hbars.new(width,height)
-#
-# #    graph.set( dclrs => [ qw(config['Overlay']['ColorGraph]['FGColor] config['Overlay']['ColorGraph]['LumColor] red green blue config['Overlay']['ColorGraph]['XColor]) ] )
-#     graph.set( dclrs => [ qw(pink yellow red green blue white) ])
-#     graph.set(
-#       cycle_clrs           => 1,
-#       y_min_value       => 0,
-#       show_values       => 1,
-#       values_format       => "%d",
-#     ) or die graph.error
-#     im = graph.plot(\@data)
-#
-#     if ( lc(config['Overlay']['ColorGraph]['WriteImage]) eq "true" ) {
-#         file = config['Overlay']['ColorGraph]['ImageFile]
-#         open OUT, ">file" or die "Can't open file for writing: !")
-#         binmode OUT
-#         print(OUT im.jpeg
-#         close OUT
-#     ]
-#
-#     return(im)
-# ]
-#
-
-def wx_graph(attr, s, width, height):
-    return()
-#
-#     # get time ranges and image size
-#     length_day = s['naut_dusk].epoch() - s['naut_dawn].epoch()
-#     dt = DateTime.now(  time_zone => config[''General'][''Timezone'] )
-#     day_so_far = dt.epoch() - s['naut_dawn].epoch()
-#     print("length of day: length_day, so far day_so_far, ", (day_so_far / length_day * 100), "% of the way there\n" if ( main::debug )
-#     rrd_width = width * (day_so_far / length_day)
-#
-#     rrdtool = config['WX]['rrdtool]
-#     outfile = config['WX]['attr]['ImageFile]
-#     title = "\"" . attr . "\""
-#     vlabel = "\"" . config['WX]['attr]['VLabel] . "\""
-#     dd = config['WX]['attr]['DD]
-#     rrd_args = config['WX]['attr]['RRDOtherArgs]
-#
-#     cmd = "rrdtool graph outfile --no-legend --full-size-mode --units-exponent 0 -E -a PNG --alt-y-grid -v vlabel -w rrd_width -h height -s -day_so_far rrd_args dd"
-#     print(cmd, "\n" if ( main::debug )
-#     print(`cmd`
-#
-#     # create a new full sized image
-#     im = new GD::Image(width,height)
-#     # allocate some colors
-#     white = im.colorAllocate(255,255,255)
-#     black = im.colorAllocate(0,0,0);
-#     # make the background transparent and interlaced
-#     im.transparent(white)
-#
-#     # read back in the rrd graph and copy
-#     rrd_im = GD::Image.newFromPng(outfile)
-#     im.copy(rrd_im,0,0,0,0,rrd_width,height)
-#
-#     return im;
 
 
 if __name__ == '__main__':
