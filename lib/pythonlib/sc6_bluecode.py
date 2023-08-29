@@ -1,9 +1,5 @@
 #!/usr/bin/python3
 
-# use DateTime
-# use File::Copy
-# use GD
-
 import argparse
 import sys
 import logging
@@ -39,13 +35,6 @@ class BlueCode:
         #  create logger
         self.logger = logging.getLogger('SC6BlueCode')
         self.logger.setLevel(logging.DEBUG)
-
-#        if self.debug:
-#            handler = logging.StreamHandler(sys.stdout)
-#            handler.setLevel(logging.DEBUG)
-#            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-#            handler.setFormatter(formatter)
-#            self.logger.addHandler(handler)
 
         self.get_blue()
 
