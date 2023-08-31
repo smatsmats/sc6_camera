@@ -70,8 +70,14 @@ foreach my $f ( sort @files ) {
 	    my $t_string = "$all_secs seconds";
 	    if ( $all_secs >= 60 ) {
 	        $mins = ( $all_secs / 60 ) % 60;
+		if ( $mins == 1 ) {
+		    $min_word = "mindute";
+		}
+		else {
+		    $min_word = "mindutes";
+		}
                 $seconds = $all_secs % 60; 
-		$t_string = "$mins minutes $seconds seconds ($all_secs secs)";
+		$t_string = "$mins $min_word $seconds seconds ($all_secs secs)";
 	    }
             print "Big gap: ", $t_string, " at ", scalar localtime($n);
             print " ($f $n)";
