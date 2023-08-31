@@ -80,7 +80,6 @@ foreach my $f ( sort @files ) {
 		$t_string = "$mins $min_word $seconds seconds ($all_secs secs)";
 	    }
             print "Big gap: ", $t_string, " at ", scalar localtime($n);
-            print " ($f $n)";
             if ( $last_was_big ) {
                 print " prior was also big\n";
             }
