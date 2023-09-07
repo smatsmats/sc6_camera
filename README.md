@@ -41,11 +41,14 @@ you may need to fire-up an X11 server somewhere to get a full-enough browser
 
 Some things that will be needed:
 
-<code>
-sudo apt-get install mencoder
+<code>sudo apt-get install mencoder
 sudo apt-get install ffmpeg
-
 pip install install google-api-python-client
 pip install --upgrade google-cloud-storage
 pip install astral
+</code>
+
+If you want to do AWS storage
+<code>
+pip install boto3
 </code>
