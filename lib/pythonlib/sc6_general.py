@@ -32,14 +32,6 @@ if debug:
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
-def mymkdir(d):
-    try:
-        os.mkdir(d, 0o0775)
-    except FileExistsError as error:
-        pass
-    except OSError as error:
-        print("can't make dir {}: {}".format(d, error))
-
 
 def get_ci(size, dir_type):
     try:
@@ -48,7 +40,10 @@ def get_ci(size, dir_type):
         print("bad or missing dir_type.  got {}".format(mode))
         return None
 
-    mymkdir(ci)
+    try:
+        os.makedirs(ci, mode=0o0775, exist_ok=True)
+    except OSError as error:
+        print("can't make dir {}: {}".format(ci, error))
 
     return(ci)
 
@@ -93,7 +88,10 @@ def get_image_dir(dt, size, mode):
 
     o = "{}{}/{}/".format(ci, dt.strftime("%Y/%m/%d"), size)
 
-    mymkdir(o)
+    try:
+        os.makedirs(o, mode=0o0775, exist_ok=True)
+    except OSError as error:
+        print("can't make dir {}: {}".format(o, error))
 
     return o
 
@@ -126,14 +124,3 @@ if __name__ == '__main__':
     dt = mysun.get_dt()
     out = get_video_file(dt, 'orig', 'mp4', 'test')
     print(out)
-
-    try:
-        os.rmdir("/tmp/junkdir")
-    except OSError as error:
-        pass
-    mymkdir("/tmp/junkdir")
-    mymkdir("/tmp/junkdir")
-    try:
-        os.rmdir("/tmp/junkdir")
-    except OSError as error:
-        pass
