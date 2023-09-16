@@ -71,10 +71,10 @@ foreach my $f ( sort @files ) {
 	    if ( $all_secs >= 60 ) {
 	        $mins = ( $all_secs / 60 ) % 60;
 		if ( $mins == 1 ) {
-		    $min_word = "mindute";
+		    $min_word = "minute";
 		}
 		else {
-		    $min_word = "mindutes";
+		    $min_word = "minutes";
 		}
                 $seconds = $all_secs % 60; 
 		$t_string = "$mins $min_word $seconds seconds ($all_secs secs)";
