@@ -96,7 +96,7 @@ def get_cache_control(fn):
     return cachecontrol_val
 
 
-mail_message(__file__ + " started", __file__ + " started")
+mail_message(__file__ + " started", __file__ + " started " + datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
 
 # prime bluecode
 bcs = sc6_bluecodestate.BCS(config=config, debug=debug)
