@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import httplib
+import http.client
 import httplib2
 import os
 import random
@@ -17,13 +17,13 @@ import re
 import getopt
 import string
 from string import Template
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import xml.parsers.expat
 import pprint
 from stat import *
 from datetime import *
-from atom import ExtensionElement
+#from atom import ExtensionElement
 
 from apiclient.discovery import build
 from apiclient.errors import HttpError
@@ -70,11 +70,11 @@ httplib2.RETRIES = 1
 MAX_RETRIES = 10
 
 # Always retry when these exceptions are raised.
-RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
-                        httplib.IncompleteRead,
-                        httplib.ImproperConnectionState,
-                        httplib.CannotSendRequest, httplib.CannotSendHeader,
-                        httplib.ResponseNotReady, httplib.BadStatusLine)
+RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, http.client.NotConnected,
+                        http.client.IncompleteRead,
+                        http.client.ImproperConnectionState,
+                        http.client.CannotSendRequest, http.client.CannotSendHeader,
+                        http.client.ResponseNotReady, http.client.BadStatusLine)
 
 # Always retry when an apiclient.errors.HttpError with one of these status
 # codes is raised.
@@ -129,7 +129,7 @@ def get_authenticated_service(args):
     credentials = storage.get()
 
     if credentials is None or credentials.invalid:
-        print flow
+        print(flow)
         credentials = run_flow(flow, storage)
 
     return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
@@ -160,12 +160,12 @@ def list_playlists():
         # of videos uploaded to the authenticated user's channel.
         uploads_list_id = channel["contentDetails"][
             "relatedPlaylists"]["uploads"]
-        print "going to list %s" % uploads_list_id
+        print("going to list %s" % uploads_list_id)
         list_playlist(uploads_list_id)
 
 
 def list_playlist(playlist_id):
-    print "Videos in list %s" % playlist_id
+    print("Videos in list %s" % playlist_id)
 
     # Retrieve the list of videos uploaded to the authenticated user's channel.
     playlistitems_list_request = youtube.playlistItems().list(
@@ -179,14 +179,14 @@ def list_playlist(playlist_id):
 
         # Print information about each video.
         for playlist_item in playlistitems_list_response["items"]:
-            # print playlist_item
+            # print playlist_item)
             title = playlist_item["snippet"]["title"]
             video_id = playlist_item["snippet"]["resourceId"]["videoId"]
             playlist_item_id = playlist_item["id"]
-            print "playlist_item_id %s (%s)" % (playlist_item_id, video_id)
-            print "%s (%s)" % (title, video_id)
+            print("playlist_item_id %s (%s)" % (playlist_item_id, video_id))
+            print("%s (%s)" % (title, video_id))
             # try:
-            # print delete_playlist_item(playlist_item_id=playlist_item_id)
+            # print delete_playlist_item(playlist_item_id=playlist_item_id))
             # except:
             # pass
             # try:
@@ -250,7 +250,7 @@ def youtube_search(search_options):
 #    youtube_public = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
 #        developerKey=DEVELOPER_KEY)
 
-    print "Searching for: " + search_options.q
+    print("Searching for: " + search_options.q)
     # Call the search.list method to retrieve results matching the specified
     # query term.
     search_response = youtube_public.search().list(
@@ -273,11 +273,11 @@ def youtube_search(search_options):
 
             dt = dateutil.parser.parse(search_result["snippet"]["publishedAt"])
             localPublishedAt = dt.astimezone(timezone('America/Los_Angeles'))
-            print "OK - id: %s Title: %s Date / Time: %s (%s)" % (
+            print("OK - id: %s Title: %s Date / Time: %s (%s)" % (
                 search_result["id"]["videoId"],
                 search_result["snippet"]["title"],
                 localPublishedAt,
-                search_result["snippet"]["publishedAt"])
+                search_result["snippet"]["publishedAt"]))
             videos.append(search_result["id"]["videoId"])
 
     return videos
@@ -322,7 +322,7 @@ if __name__ == '__main__':
 
     search_todays_videos(args)
     if exit_code == EXIT_CODE_CRITICAL:
-        print "CRITICAL - no videos for today"
+        print("CRITICAL - no videos for today")
     sys.exit(exit_code)
 #  list_playlists()
 #  list_playlist('PLJAbMNd9phmKLcEnYpGxjJB8gEsRDEMrB')
