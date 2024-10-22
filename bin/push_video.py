@@ -2,7 +2,7 @@
 
 import sys
 sys.path.append('/usr/local/cam/lib/pythonlib')
-import bucket_shiz
+import sc6_bucket_shiz
 
 import os
 from datetime import *

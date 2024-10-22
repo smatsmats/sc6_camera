@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 # Imports the Google Cloud client library
 from google.cloud import storage
 

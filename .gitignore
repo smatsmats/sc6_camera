@@ -1,7 +1,8 @@
 *.swp
 *.swo
 sekrits/*
-data/*
+data
+data.local
 logs/*
 bin/*.pyc
 bin/can/*.pyc
