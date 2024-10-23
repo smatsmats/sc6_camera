@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/local/cam/env/bin/python3
 
 import boto3
 import logging

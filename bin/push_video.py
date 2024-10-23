@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/local/cam/env/bin/python3
 
 import sys
 sys.path.append('/usr/local/cam/lib/pythonlib')
