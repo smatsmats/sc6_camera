@@ -42,7 +42,7 @@ handlers:
     level: ERROR            
     mailhost: localhost
     formatter: simple
-    fromaddr: push2youtube@selby.com
+    fromaddr: push2youtube@bar.com
     toaddrs: <email addr>
     subject: "push2youtube errors"
 loggers:
